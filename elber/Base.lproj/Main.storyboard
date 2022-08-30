@@ -3,29 +3,103 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Main View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="MainViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Elber" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SgA-D1-1ct">
-                                <rect key="frame" x="150" y="407" width="166" height="68"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GbX-io-G4F" customClass="PrimaryButton" customModule="elber" customModuleProvider="target">
+                                <rect key="frame" x="107" y="509" width="200" height="56"/>
+                                <color key="backgroundColor" name="Primary"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="56" id="Myx-Ed-Ahs"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="hoF-ut-SFe"/>
+                                </constraints>
+                                <color key="tintColor" name="AccentColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="Facebook Login">
+                                            <attributes>
+                                                <font key="NSFont" size="16" name="Helvetica"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                    <color key="baseForegroundColor" name="AccentColor"/>
+                                </buttonConfiguration>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zo5-0m-ysO" customClass="SecondaryButton" customModule="elber" customModuleProvider="target">
+                                <rect key="frame" x="107" y="605" width="200" height="56"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="8Yq-Ze-Gjd"/>
+                                    <constraint firstAttribute="height" constant="56" id="fJb-Yx-BeV"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="Google Login">
+                                            <attributes>
+                                                <font key="NSFont" size="16" name="Helvetica"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                    <color key="baseForegroundColor" name="Primary"/>
+                                </buttonConfiguration>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Elber" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xhh-o5-fqw">
+                                <rect key="frame" x="157" y="365" width="100" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="1eK-1T-AxL"/>
+                                    <constraint firstAttribute="height" constant="48" id="Ymy-MZ-sIu"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="40"/>
+                                <color key="textColor" name="Primary"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Soy Elber, tu nuevo asistente personal." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DfW-dK-J8O">
+                                <rect key="frame" x="68.5" y="421" width="277.5" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="272" id="L1t-rA-Ps4"/>
+                                    <constraint firstAttribute="height" constant="64" id="uTh-Wl-JQO"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
+                                <color key="textColor" name="Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mainIcon" translatesAutoresizingMaskIntoConstraints="NO" id="9ry-Ua-qnw">
+                                <rect key="frame" x="137" y="193" width="140" height="140"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="140" id="4RG-II-nRM"/>
+                                    <constraint firstAttribute="width" constant="140" id="HEe-gp-Ki9"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="AccentColor"/>
+                        <constraints>
+                            <constraint firstItem="Zo5-0m-ysO" firstAttribute="top" secondItem="GbX-io-G4F" secondAttribute="bottom" constant="40" id="Btk-jf-49y"/>
+                            <constraint firstItem="GbX-io-G4F" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="E9F-w0-G64"/>
+                            <constraint firstItem="GbX-io-G4F" firstAttribute="width" secondItem="Zo5-0m-ysO" secondAttribute="width" id="G55-jL-jxz"/>
+                            <constraint firstItem="DfW-dK-J8O" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="IcK-9M-7rR"/>
+                            <constraint firstItem="Xhh-o5-fqw" firstAttribute="top" secondItem="9ry-Ua-qnw" secondAttribute="bottom" constant="32" id="J7i-Yj-DnP"/>
+                            <constraint firstItem="9ry-Ua-qnw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="ODv-ya-yQI"/>
+                            <constraint firstItem="Xhh-o5-fqw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Xxl-0M-EPL"/>
+                            <constraint firstItem="DfW-dK-J8O" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="YmY-lD-hey"/>
+                            <constraint firstItem="DfW-dK-J8O" firstAttribute="top" secondItem="Xhh-o5-fqw" secondAttribute="bottom" constant="8" id="ivV-MV-reZ"/>
+                            <constraint firstItem="GbX-io-G4F" firstAttribute="top" secondItem="DfW-dK-J8O" secondAttribute="bottom" constant="24" id="jQX-0f-ySi"/>
+                            <constraint firstItem="Zo5-0m-ysO" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="w72-Ke-N4b"/>
+                            <constraint firstItem="GbX-io-G4F" firstAttribute="height" secondItem="Zo5-0m-ysO" secondAttribute="height" id="wI2-Cf-3i1"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -34,8 +108,15 @@
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
+        <image name="mainIcon" width="425" height="425"/>
+        <namedColor name="AccentColor">
+            <color red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Primary">
+            <color red="0.41999998688697815" green="0.62400001287460327" blue="0.92900002002716064" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Text">
+            <color red="0.26051741839999998" green="0.2605243921" blue="0.260520637" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>
