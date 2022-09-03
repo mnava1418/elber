@@ -40,7 +40,7 @@
     <resources>
         <image name="mainIcon" width="283.33334350585938" height="283.33334350585938"/>
         <namedColor name="Primary">
-            <color red="0.41999998688697815" green="0.62400001287460327" blue="0.92900002002716064" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.58431372549019611" green="0.0039215686274509803" blue="0.0039215686274509803" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

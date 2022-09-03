@@ -13,7 +13,7 @@ class SecondaryButton: UIButton {
         super.layoutSubviews()
         self.layer.borderWidth = 4
         self.layer.borderColor = UIColor(named: "Primary")?.cgColor
-        self.layer.backgroundColor = UIColor(named: "AccentColor")?.cgColor
+        self.layer.backgroundColor = UIColor(named: "Background")?.cgColor
         self.layer.cornerRadius = self.frame.height / 2
     }
 }
