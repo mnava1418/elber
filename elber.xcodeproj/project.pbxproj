@@ -7,9 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08ED534F56B3F402734CD392 /* Pods_elber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DFE0D14D854A63209764482 /* Pods_elber.framework */; };
+		34C34A0AEEAE303CDD45C202 /* Pods_elber_WatchKit_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFBEFBA83AA467E2C519900C /* Pods_elber_WatchKit_Extension.framework */; };
+		37D8FA63A507966A92B8355D /* Pods_elber_WatchKit_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1B1C2E2F0CEBF84A9132490 /* Pods_elber_WatchKit_App.framework */; };
+		5072254428C5194F0075A274 /* AlertsUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5072254328C5194F0075A274 /* AlertsUtil.swift */; };
 		5089C44B28BD98D500DCB54D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44A28BD98D500DCB54D /* MainViewController.swift */; };
 		5089C44E28BD9CD100DCB54D /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44D28BD9CD100DCB54D /* PrimaryButton.swift */; };
 		5089C45028BDA54700DCB54D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44F28BDA54700DCB54D /* SecondaryButton.swift */; };
+		50CDE90628C3EB3100FAB47F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */; };
 		50D1F2C628BA7C4E0074F53B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */; };
 		50D1F2C828BA7C4E0074F53B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */; };
 		50D1F2CD28BA7C4E0074F53B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 50D1F2CB28BA7C4E0074F53B /* Main.storyboard */; };
@@ -69,9 +74,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1FB5A55DDF08A738850D816F /* Pods-elber WatchKit Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber WatchKit Extension.debug.xcconfig"; path = "Target Support Files/Pods-elber WatchKit Extension/Pods-elber WatchKit Extension.debug.xcconfig"; sourceTree = "<group>"; };
+		2F1B30EF651A131D0A0D3A20 /* Pods-elber.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber.release.xcconfig"; path = "Target Support Files/Pods-elber/Pods-elber.release.xcconfig"; sourceTree = "<group>"; };
+		4CAB56B2D6B0A63884192D7A /* Pods-elber WatchKit App.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber WatchKit App.release.xcconfig"; path = "Target Support Files/Pods-elber WatchKit App/Pods-elber WatchKit App.release.xcconfig"; sourceTree = "<group>"; };
+		5072254328C5194F0075A274 /* AlertsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsUtil.swift; sourceTree = "<group>"; };
 		5089C44A28BD98D500DCB54D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		5089C44D28BD9CD100DCB54D /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		5089C44F28BDA54700DCB54D /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
+		50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		50D1F2C228BA7C4E0074F53B /* elber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = elber.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -90,6 +100,12 @@
 		50D1F2F128BA7C4F0074F53B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		50D1F2F328BA7C4F0074F53B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50D1F2F428BA7C4F0074F53B /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		6DFE0D14D854A63209764482 /* Pods_elber.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_elber.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B14064F1B24792CAEA0CF1C /* Pods-elber.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber.debug.xcconfig"; path = "Target Support Files/Pods-elber/Pods-elber.debug.xcconfig"; sourceTree = "<group>"; };
+		A0C4EEB6117CA61731D62868 /* Pods-elber WatchKit App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber WatchKit App.debug.xcconfig"; path = "Target Support Files/Pods-elber WatchKit App/Pods-elber WatchKit App.debug.xcconfig"; sourceTree = "<group>"; };
+		AFBEFBA83AA467E2C519900C /* Pods_elber_WatchKit_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_elber_WatchKit_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1EA1F7D1DD77C111AA5B216 /* Pods-elber WatchKit Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-elber WatchKit Extension.release.xcconfig"; path = "Target Support Files/Pods-elber WatchKit Extension/Pods-elber WatchKit Extension.release.xcconfig"; sourceTree = "<group>"; };
+		F1B1C2E2F0CEBF84A9132490 /* Pods_elber_WatchKit_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_elber_WatchKit_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08ED534F56B3F402734CD392 /* Pods_elber.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,12 +121,34 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34C34A0AEEAE303CDD45C202 /* Pods_elber_WatchKit_Extension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92EC273082E030814C56B19D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				37D8FA63A507966A92B8355D /* Pods_elber_WatchKit_App.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		192FD60B7D954F044E8AAEC2 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8B14064F1B24792CAEA0CF1C /* Pods-elber.debug.xcconfig */,
+				2F1B30EF651A131D0A0D3A20 /* Pods-elber.release.xcconfig */,
+				A0C4EEB6117CA61731D62868 /* Pods-elber WatchKit App.debug.xcconfig */,
+				4CAB56B2D6B0A63884192D7A /* Pods-elber WatchKit App.release.xcconfig */,
+				1FB5A55DDF08A738850D816F /* Pods-elber WatchKit Extension.debug.xcconfig */,
+				C1EA1F7D1DD77C111AA5B216 /* Pods-elber WatchKit Extension.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		5089C44528BD978700DCB54D /* views */ = {
 			isa = PBXGroup;
 			children = (
@@ -124,6 +163,7 @@
 			children = (
 				5089C44D28BD9CD100DCB54D /* PrimaryButton.swift */,
 				5089C44F28BDA54700DCB54D /* SecondaryButton.swift */,
+				5072254328C5194F0075A274 /* AlertsUtil.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -135,6 +175,8 @@
 				50D1F2DA28BA7C4E0074F53B /* elber WatchKit App */,
 				50D1F2E828BA7C4F0074F53B /* elber WatchKit Extension */,
 				50D1F2C328BA7C4E0074F53B /* Products */,
+				192FD60B7D954F044E8AAEC2 /* Pods */,
+				BE91B0227763CB4677ED707C /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -158,6 +200,7 @@
 				50D1F2CE28BA7C4E0074F53B /* Assets.xcassets */,
 				50D1F2D028BA7C4E0074F53B /* LaunchScreen.storyboard */,
 				50D1F2D328BA7C4E0074F53B /* Info.plist */,
+				50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */,
 			);
 			path = elber;
 			sourceTree = "<group>";
@@ -185,6 +228,16 @@
 			path = "elber WatchKit Extension";
 			sourceTree = "<group>";
 		};
+		BE91B0227763CB4677ED707C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6DFE0D14D854A63209764482 /* Pods_elber.framework */,
+				F1B1C2E2F0CEBF84A9132490 /* Pods_elber_WatchKit_App.framework */,
+				AFBEFBA83AA467E2C519900C /* Pods_elber_WatchKit_Extension.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -192,10 +245,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 50D1F2FF28BA7C4F0074F53B /* Build configuration list for PBXNativeTarget "elber" */;
 			buildPhases = (
+				815C764C1319E57547488707 /* [CP] Check Pods Manifest.lock */,
 				50D1F2BE28BA7C4E0074F53B /* Sources */,
 				50D1F2BF28BA7C4E0074F53B /* Frameworks */,
 				50D1F2C028BA7C4E0074F53B /* Resources */,
 				50D1F2FE28BA7C4F0074F53B /* Embed Watch Content */,
+				B5CDD90ACB29FB069C0E2234 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -203,6 +258,8 @@
 				50D1F2D928BA7C4E0074F53B /* PBXTargetDependency */,
 			);
 			name = elber;
+			packageProductDependencies = (
+			);
 			productName = elber;
 			productReference = 50D1F2C228BA7C4E0074F53B /* elber.app */;
 			productType = "com.apple.product-type.application";
@@ -211,8 +268,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 50D1F2FB28BA7C4F0074F53B /* Build configuration list for PBXNativeTarget "elber WatchKit App" */;
 			buildPhases = (
+				AB18BCCC8CC209D0EB6BD8A5 /* [CP] Check Pods Manifest.lock */,
 				50D1F2D428BA7C4E0074F53B /* Resources */,
 				50D1F2FA28BA7C4F0074F53B /* Embed App Extensions */,
+				92EC273082E030814C56B19D /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -228,6 +287,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 50D1F2F728BA7C4F0074F53B /* Build configuration list for PBXNativeTarget "elber WatchKit Extension" */;
 			buildPhases = (
+				3588B6104A940D1556D4C10B /* [CP] Check Pods Manifest.lock */,
 				50D1F2E028BA7C4F0074F53B /* Sources */,
 				50D1F2E128BA7C4F0074F53B /* Frameworks */,
 				50D1F2E228BA7C4F0074F53B /* Resources */,
@@ -271,6 +331,8 @@
 				Base,
 			);
 			mainGroup = 50D1F2B928BA7C4D0074F53B;
+			packageReferences = (
+			);
 			productRefGroup = 50D1F2C328BA7C4E0074F53B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -288,6 +350,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				50D1F2D228BA7C4E0074F53B /* LaunchScreen.storyboard in Resources */,
+				50CDE90628C3EB3100FAB47F /* GoogleService-Info.plist in Resources */,
 				50D1F2CF28BA7C4E0074F53B /* Assets.xcassets in Resources */,
 				50D1F2CD28BA7C4E0074F53B /* Main.storyboard in Resources */,
 			);
@@ -312,6 +375,92 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		3588B6104A940D1556D4C10B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-elber WatchKit Extension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		815C764C1319E57547488707 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-elber-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		AB18BCCC8CC209D0EB6BD8A5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-elber WatchKit App-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B5CDD90ACB29FB069C0E2234 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-elber/Pods-elber-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-elber/Pods-elber-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-elber/Pods-elber-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		50D1F2BE28BA7C4E0074F53B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -319,6 +468,7 @@
 			files = (
 				5089C45028BDA54700DCB54D /* SecondaryButton.swift in Sources */,
 				50D1F2C628BA7C4E0074F53B /* AppDelegate.swift in Sources */,
+				5072254428C5194F0075A274 /* AlertsUtil.swift in Sources */,
 				50D1F2C828BA7C4E0074F53B /* SceneDelegate.swift in Sources */,
 				5089C44E28BD9CD100DCB54D /* PrimaryButton.swift in Sources */,
 				5089C44B28BD98D500DCB54D /* MainViewController.swift in Sources */,
@@ -490,6 +640,7 @@
 		};
 		50D1F2F828BA7C4F0074F53B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1FB5A55DDF08A738850D816F /* Pods-elber WatchKit Extension.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_STYLE = Automatic;
@@ -521,6 +672,7 @@
 		};
 		50D1F2F928BA7C4F0074F53B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1EA1F7D1DD77C111AA5B216 /* Pods-elber WatchKit Extension.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CODE_SIGN_STYLE = Automatic;
@@ -553,6 +705,7 @@
 		};
 		50D1F2FC28BA7C4F0074F53B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A0C4EEB6117CA61731D62868 /* Pods-elber WatchKit App.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -579,6 +732,7 @@
 		};
 		50D1F2FD28BA7C4F0074F53B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4CAB56B2D6B0A63884192D7A /* Pods-elber WatchKit App.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -606,6 +760,7 @@
 		};
 		50D1F30028BA7C4F0074F53B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8B14064F1B24792CAEA0CF1C /* Pods-elber.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -638,6 +793,7 @@
 		};
 		50D1F30128BA7C4F0074F53B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2F1B30EF651A131D0A0D3A20 /* Pods-elber.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
