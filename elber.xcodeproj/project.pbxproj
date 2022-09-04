@@ -14,7 +14,6 @@
 		5089C44B28BD98D500DCB54D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44A28BD98D500DCB54D /* MainViewController.swift */; };
 		5089C44E28BD9CD100DCB54D /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44D28BD9CD100DCB54D /* PrimaryButton.swift */; };
 		5089C45028BDA54700DCB54D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44F28BDA54700DCB54D /* SecondaryButton.swift */; };
-		50CDE90628C3EB3100FAB47F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */; };
 		50D1F2C628BA7C4E0074F53B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */; };
 		50D1F2C828BA7C4E0074F53B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */; };
 		50D1F2CD28BA7C4E0074F53B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 50D1F2CB28BA7C4E0074F53B /* Main.storyboard */; };
@@ -81,7 +80,6 @@
 		5089C44A28BD98D500DCB54D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		5089C44D28BD9CD100DCB54D /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		5089C44F28BDA54700DCB54D /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
-		50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		50D1F2C228BA7C4E0074F53B /* elber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = elber.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -200,7 +198,6 @@
 				50D1F2CE28BA7C4E0074F53B /* Assets.xcassets */,
 				50D1F2D028BA7C4E0074F53B /* LaunchScreen.storyboard */,
 				50D1F2D328BA7C4E0074F53B /* Info.plist */,
-				50CDE90528C3EB3100FAB47F /* GoogleService-Info.plist */,
 			);
 			path = elber;
 			sourceTree = "<group>";
@@ -350,7 +347,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				50D1F2D228BA7C4E0074F53B /* LaunchScreen.storyboard in Resources */,
-				50CDE90628C3EB3100FAB47F /* GoogleService-Info.plist in Resources */,
 				50D1F2CF28BA7C4E0074F53B /* Assets.xcassets in Resources */,
 				50D1F2CD28BA7C4E0074F53B /* Main.storyboard in Resources */,
 			);
