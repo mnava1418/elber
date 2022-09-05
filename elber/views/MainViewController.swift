@@ -12,10 +12,29 @@ import FirebaseAuth
 
 class MainViewController: UIViewController {
 
+    var userStateChangeHandler: AuthStateDidChangeListenerHandle?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isUserLogged()
+    }
+    
+    private func isUserLogged() {
+        guard let user = Auth.auth().currentUser else { return }
+        
+        user.reload { error in
+            
+            if let currError = error {
+                AlertsUtil.showNotification(title: "Error", message: currError.localizedDescription, viewController: self)
+            }
+            else {
+                self.performSegue(withIdentifier: "userLogged", sender: nil)
+            }
+        }
     }
     
     @IBAction func googleSignIn(_ sender: Any) {
