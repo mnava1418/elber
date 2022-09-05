@@ -97,14 +97,112 @@
                             <constraint firstItem="GbX-io-G4F" firstAttribute="height" secondItem="Zo5-0m-ysO" secondAttribute="height" id="wI2-Cf-3i1"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="Ok9-fm-k1E"/>
+                    <connections>
+                        <segue destination="sSb-k5-1Fe" kind="presentation" identifier="userLogged" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="x4L-j5-5w2"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="34.782608695652179" y="83.705357142857139"/>
         </scene>
+        <!--Account View Controller-->
+        <scene sceneID="B53-d7-rfE">
+            <objects>
+                <viewController id="UIf-eJ-g2h" customClass="AccountViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="G54-sa-G0A">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T4U-m5-2lR" customClass="PrimaryButton" customModule="elber" customModuleProvider="target">
+                                <rect key="frame" x="86.5" y="341" width="241" height="175"/>
+                                <color key="backgroundColor" name="Primary"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="241" id="dFW-xP-5s9"/>
+                                    <constraint firstAttribute="height" constant="175" id="tVt-Fq-jEh"/>
+                                </constraints>
+                                <color key="tintColor" name="Text"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Logout">
+                                    <color key="baseForegroundColor" name="Text"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="logOut:" destination="UIf-eJ-g2h" eventType="touchUpInside" id="ves-AR-Fmu"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="CqB-Ln-whj"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <color key="tintColor" name="Text"/>
+                        <constraints>
+                            <constraint firstItem="T4U-m5-2lR" firstAttribute="centerY" secondItem="CqB-Ln-whj" secondAttribute="centerY" id="JWo-Mg-Ltf"/>
+                            <constraint firstItem="T4U-m5-2lR" firstAttribute="centerX" secondItem="CqB-Ln-whj" secondAttribute="centerX" id="Obo-Hc-VTo"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="" image="person" catalog="system" selectedImage="person.fill" id="32H-9P-IrG">
+                        <color key="badgeColor" name="Text"/>
+                    </tabBarItem>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="TyI-bg-kCQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Sti-Ca-VGA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2131.8840579710145" y="326.78571428571428"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="eR5-fH-qnc">
+            <objects>
+                <viewController id="5Vz-2f-sMK" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="7m9-Nr-Tsr">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="6FX-fS-w8Q"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <color key="tintColor" name="Text"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="" image="circle.dashed" catalog="system" selectedImage="circle.dashed.inset.filled" id="KY7-y8-Kq4">
+                        <color key="badgeColor" name="Text"/>
+                    </tabBarItem>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ToW-6p-ElZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2132" y="-432"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="ZDo-DZ-JiN">
+            <objects>
+                <tabBarController id="sSb-k5-1Fe" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="AsK-Xl-2bA"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" itemPositioning="centered" id="50A-Ai-zzT">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <color key="tintColor" name="Text"/>
+                        <color key="barTintColor" name="Text"/>
+                        <color key="selectedImageTintColor" name="Text"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="color" keyPath="unselectedItemTintColor">
+                                <color key="value" name="Text"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </tabBar>
+                    <connections>
+                        <segue destination="5Vz-2f-sMK" kind="relationship" relationship="viewControllers" id="cfi-uJ-AJm"/>
+                        <segue destination="UIf-eJ-g2h" kind="relationship" relationship="viewControllers" id="9Zi-aq-2cp"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bTv-s8-EDA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="920" y="84"/>
+        </scene>
     </scenes>
     <resources>
+        <image name="circle.dashed" catalog="system" width="128" height="121"/>
+        <image name="circle.dashed.inset.filled" catalog="system" width="128" height="121"/>
         <image name="mainIcon" width="425" height="425"/>
+        <image name="person" catalog="system" width="128" height="117"/>
+        <image name="person.fill" catalog="system" width="128" height="120"/>
         <namedColor name="Background">
             <color red="0.14100000262260437" green="0.14100000262260437" blue="0.2199999988079071" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
