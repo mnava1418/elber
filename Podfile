@@ -10,6 +10,7 @@ pod 'GoogleSignIn'
 pod 'GoogleSignInSwiftSupport'
 pod 'FirebaseAnalytics'
 pod 'FirebaseAuth'
+pod 'FBSDKLoginKit'    
 
 end
 
