@@ -58,37 +58,32 @@ class MainViewController: UIViewController {
             }
             
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: authentication.accessToken)
-            
-            Auth.auth().signIn(with: credential) { result, error in
-                if let currError = error {
-                    AlertsUtil.showNotification(title: "Error", message: currError.localizedDescription, viewController: self)
-                    return
-                }
-                
-                self.performSegue(withIdentifier: "userLogged", sender: nil)
-            }
+            self.fireBaseSignIn(credential: credential)
         }
     }
     
     @IBAction func facebookSignIn(_ sender: Any) {
         let loginManager = LoginManager()
-        loginManager.logIn(permissions: ["public_profile"], from: self) { result, error in
+        loginManager.logIn(permissions: ["email", "public_profile"], from: self) { result, error in
             if let error = error {
                 AlertsUtil.showNotification(title: "Error", message: error.localizedDescription, viewController: self)
             } else if let result = result, result.isCancelled {
                 AlertsUtil.showNotification(title: "Error", message: "The user canceled the sign-in flow.", viewController: self)
             } else {
                 let credential = FacebookAuthProvider.credential(withAccessToken: AccessToken.current!.tokenString)
-                
-                Auth.auth().signIn(with: credential) { result, error in
-                    if let currError = error {
-                        AlertsUtil.showNotification(title: "Error", message: currError.localizedDescription, viewController: self)
-                        return
-                    }
-                    
-                    self.performSegue(withIdentifier: "userLogged", sender: nil)
-                }
+                self.fireBaseSignIn(credential: credential)
             }
+        }
+    }
+    
+    private func fireBaseSignIn(credential: AuthCredential) {
+        Auth.auth().signIn(with: credential) { result, error in
+            if let currError = error {
+                AlertsUtil.showNotification(title: "Error", message: currError.localizedDescription, viewController: self)
+                return
+            }
+            
+            self.performSegue(withIdentifier: "userLogged", sender: nil)
         }
     }
 }
