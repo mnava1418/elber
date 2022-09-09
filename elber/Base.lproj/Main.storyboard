@@ -106,50 +106,6 @@
             </objects>
             <point key="canvasLocation" x="34.782608695652179" y="83.705357142857139"/>
         </scene>
-        <!--Account View Controller-->
-        <scene sceneID="B53-d7-rfE">
-            <objects>
-                <viewController id="UIf-eJ-g2h" customClass="AccountViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="G54-sa-G0A">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="T4U-m5-2lR" customClass="PrimaryButton" customModule="elber" customModuleProvider="target">
-                                <rect key="frame" x="86.5" y="341" width="241" height="175"/>
-                                <color key="backgroundColor" name="Primary"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="241" id="dFW-xP-5s9"/>
-                                    <constraint firstAttribute="height" constant="175" id="tVt-Fq-jEh"/>
-                                </constraints>
-                                <color key="tintColor" name="Text"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Logout">
-                                    <color key="baseForegroundColor" name="Text"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="logOut:" destination="UIf-eJ-g2h" eventType="touchUpInside" id="ves-AR-Fmu"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="CqB-Ln-whj"/>
-                        <color key="backgroundColor" name="Background"/>
-                        <color key="tintColor" name="Text"/>
-                        <constraints>
-                            <constraint firstItem="T4U-m5-2lR" firstAttribute="centerY" secondItem="CqB-Ln-whj" secondAttribute="centerY" id="JWo-Mg-Ltf"/>
-                            <constraint firstItem="T4U-m5-2lR" firstAttribute="centerX" secondItem="CqB-Ln-whj" secondAttribute="centerX" id="Obo-Hc-VTo"/>
-                        </constraints>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="" image="person" catalog="system" selectedImage="person.fill" id="32H-9P-IrG">
-                        <color key="badgeColor" name="Text"/>
-                    </tabBarItem>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="TyI-bg-kCQ"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Sti-Ca-VGA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1954" y="382"/>
-        </scene>
         <!--View Controller-->
         <scene sceneID="eR5-fH-qnc">
             <objects>
@@ -168,6 +124,83 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ToW-6p-ElZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1955" y="-303"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="FDL-yn-OxD">
+            <objects>
+                <navigationController id="ykc-Xv-29q" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="" image="person" catalog="system" selectedImage="person.fill" id="vup-mt-EOR">
+                        <color key="badgeColor" name="Text"/>
+                    </tabBarItem>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="W2O-Id-cJv">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <color key="tintColor" name="Text"/>
+                        <color key="barTintColor" name="Text"/>
+                        <textAttributes key="titleTextAttributes">
+                            <color key="textColor" name="Text"/>
+                        </textAttributes>
+                        <textAttributes key="largeTitleTextAttributes">
+                            <color key="textColor" name="Text"/>
+                        </textAttributes>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="AWq-7G-E2i" kind="relationship" relationship="rootViewController" id="zbh-PL-wTX"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ZDz-VV-LYa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1954" y="408"/>
+        </scene>
+        <!--Cuenta-->
+        <scene sceneID="Fkl-jU-cQC">
+            <objects>
+                <viewController id="AWq-7G-E2i" customClass="AccountViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="HrA-uw-8y1">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cY4-Sg-nJx" customClass="SectionView" customModule="elber" customModuleProvider="target">
+                                <rect key="frame" x="24" y="120" width="366" height="64"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qil-TW-UlZ">
+                                        <rect key="frame" x="116" y="14.5" width="134" height="35"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Cerrar Sesión">
+                                            <fontDescription key="titleFontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="logOut:" destination="AWq-7G-E2i" eventType="touchUpInside" id="TNs-V0-rJV"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" name="Primary"/>
+                                <color key="tintColor" name="Text"/>
+                                <constraints>
+                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerY" secondItem="cY4-Sg-nJx" secondAttribute="centerY" id="EMV-lE-vaS"/>
+                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerX" secondItem="cY4-Sg-nJx" secondAttribute="centerX" id="YZS-J3-eAT"/>
+                                    <constraint firstAttribute="height" constant="64" id="kMk-y9-ohL"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="DAF-qb-n9E"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <color key="tintColor" name="Text"/>
+                        <constraints>
+                            <constraint firstItem="DAF-qb-n9E" firstAttribute="trailing" secondItem="cY4-Sg-nJx" secondAttribute="trailing" constant="24" id="0Ge-PP-yZZ"/>
+                            <constraint firstItem="cY4-Sg-nJx" firstAttribute="leading" secondItem="DAF-qb-n9E" secondAttribute="leading" constant="24" id="9LL-HQ-IN7"/>
+                            <constraint firstItem="cY4-Sg-nJx" firstAttribute="top" secondItem="DAF-qb-n9E" secondAttribute="top" constant="32" id="CZf-Aj-QMx"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Cuenta" id="tLv-bb-XSW"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="GSJ-Zg-KFd"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="X6S-nG-BJ6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="919" y="1132"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="ZDo-DZ-JiN">
@@ -189,7 +222,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="5Vz-2f-sMK" kind="relationship" relationship="viewControllers" id="cfi-uJ-AJm"/>
-                        <segue destination="UIf-eJ-g2h" kind="relationship" relationship="viewControllers" id="9Zi-aq-2cp"/>
+                        <segue destination="ykc-Xv-29q" kind="relationship" relationship="viewControllers" id="Jxa-FM-Rse"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bTv-s8-EDA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
