@@ -162,10 +162,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cY4-Sg-nJx" customClass="SectionView" customModule="elber" customModuleProvider="target">
-                                <rect key="frame" x="24" y="120" width="366" height="64"/>
+                                <rect key="frame" x="24" y="120" width="366" height="56"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qil-TW-UlZ">
-                                        <rect key="frame" x="116" y="14.5" width="134" height="35"/>
+                                        <rect key="frame" x="116" y="10.5" width="134" height="35"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Cerrar Sesión">
                                             <fontDescription key="titleFontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
@@ -180,7 +180,7 @@
                                 <constraints>
                                     <constraint firstItem="qil-TW-UlZ" firstAttribute="centerY" secondItem="cY4-Sg-nJx" secondAttribute="centerY" id="EMV-lE-vaS"/>
                                     <constraint firstItem="qil-TW-UlZ" firstAttribute="centerX" secondItem="cY4-Sg-nJx" secondAttribute="centerX" id="YZS-J3-eAT"/>
-                                    <constraint firstAttribute="height" constant="64" id="kMk-y9-ohL"/>
+                                    <constraint firstAttribute="height" constant="56" id="kMk-y9-ohL"/>
                                 </constraints>
                             </view>
                         </subviews>
