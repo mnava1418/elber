@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -162,10 +163,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cY4-Sg-nJx" customClass="SectionView" customModule="elber" customModuleProvider="target">
-                                <rect key="frame" x="24" y="120" width="366" height="56"/>
+                                <rect key="frame" x="24" y="656" width="366" height="56"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qil-TW-UlZ">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qil-TW-UlZ">
                                         <rect key="frame" x="116" y="10.5" width="134" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Cerrar Sesión">
                                             <fontDescription key="titleFontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
@@ -178,23 +180,46 @@
                                 <color key="backgroundColor" name="Primary"/>
                                 <color key="tintColor" name="Text"/>
                                 <constraints>
-                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerY" secondItem="cY4-Sg-nJx" secondAttribute="centerY" id="EMV-lE-vaS"/>
-                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerX" secondItem="cY4-Sg-nJx" secondAttribute="centerX" id="YZS-J3-eAT"/>
                                     <constraint firstAttribute="height" constant="56" id="kMk-y9-ohL"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gch-TE-mTj">
+                                <rect key="frame" x="87" y="426" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hi!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="we5-yW-5Qo">
+                                <rect key="frame" x="24" y="112" width="366" height="38"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="32"/>
+                                <color key="textColor" name="Text"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="elber@elber.com" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RWM-Qh-INk">
+                                <rect key="frame" x="24" y="158" width="366" height="21"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
+                                <color key="textColor" name="Secondary"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="DAF-qb-n9E"/>
                         <color key="backgroundColor" name="Background"/>
                         <color key="tintColor" name="Text"/>
                         <constraints>
                             <constraint firstItem="DAF-qb-n9E" firstAttribute="trailing" secondItem="cY4-Sg-nJx" secondAttribute="trailing" constant="24" id="0Ge-PP-yZZ"/>
+                            <constraint firstItem="RWM-Qh-INk" firstAttribute="top" secondItem="we5-yW-5Qo" secondAttribute="bottom" constant="8" id="1FC-4p-m9t"/>
                             <constraint firstItem="cY4-Sg-nJx" firstAttribute="leading" secondItem="DAF-qb-n9E" secondAttribute="leading" constant="24" id="9LL-HQ-IN7"/>
-                            <constraint firstItem="cY4-Sg-nJx" firstAttribute="top" secondItem="DAF-qb-n9E" secondAttribute="top" constant="32" id="CZf-Aj-QMx"/>
+                            <constraint firstItem="we5-yW-5Qo" firstAttribute="leading" secondItem="DAF-qb-n9E" secondAttribute="leading" constant="24" id="VUv-1j-1w9"/>
+                            <constraint firstItem="we5-yW-5Qo" firstAttribute="top" secondItem="DAF-qb-n9E" secondAttribute="top" constant="24" id="cZz-KG-gAe"/>
+                            <constraint firstItem="DAF-qb-n9E" firstAttribute="bottom" secondItem="cY4-Sg-nJx" secondAttribute="bottom" constant="101" id="fkc-dD-n6n"/>
+                            <constraint firstItem="RWM-Qh-INk" firstAttribute="leading" secondItem="DAF-qb-n9E" secondAttribute="leading" constant="24" id="ftk-3d-TtJ"/>
+                            <constraint firstItem="DAF-qb-n9E" firstAttribute="trailing" secondItem="we5-yW-5Qo" secondAttribute="trailing" constant="24" id="qvt-Rh-XOI"/>
+                            <constraint firstItem="DAF-qb-n9E" firstAttribute="trailing" secondItem="RWM-Qh-INk" secondAttribute="trailing" constant="24" id="vRC-lA-CZi"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Cuenta" id="tLv-bb-XSW"/>
                     <connections>
+                        <outlet property="emailLabel" destination="RWM-Qh-INk" id="FJc-OV-Tht"/>
+                        <outlet property="nameLabel" destination="we5-yW-5Qo" id="7Mu-8u-AiE"/>
                         <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="GSJ-Zg-KFd"/>
                     </connections>
                 </viewController>
@@ -242,8 +267,14 @@
         <namedColor name="Primary">
             <color red="0.20800000429153442" green="0.18400000035762787" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Secondary">
+            <color red="0.36100000143051147" green="0.32899999618530273" blue="0.43900001049041748" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="Text">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>
