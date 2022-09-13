@@ -13,11 +13,15 @@ class AccountViewController: UIViewController {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var emailLabel: UILabel!
     
+    @IBOutlet weak var codeSwitch: UISwitch!
+    @IBOutlet weak var biometricSwitch: UISwitch!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         getUserData()
+        setPrivacyView()
     }
     
     @IBAction func logOut(_ sender: Any) {
@@ -40,5 +44,26 @@ class AccountViewController: UIViewController {
         if let email = user.email {
             emailLabel.text = email
         }
+    }
+    
+    private func setPrivacyView() {
+        let isCodeOn = AppUtils.getPrivacyStatus(identifier: Constants.UserDefaults.privacyCode)
+        let isBiometricOn = AppUtils.getPrivacyStatus(identifier: Constants.UserDefaults.privacyBiometric)
+        
+        self.codeSwitch.isOn = isCodeOn
+        self.biometricSwitch.isOn = isBiometricOn
+        self.biometricSwitch.isEnabled = isCodeOn
+    }
+    
+    @IBAction func codeSwitchChange(_ sender: UISwitch) {
+        AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: sender.isOn)
+        
+        self.setPrivacyView()
+    }
+    
+    @IBAction func biometricSwitchChange(_ sender: UISwitch) {
+        AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyBiometric, status: sender.isOn)
+        
+        self.setPrivacyView()
     }
 }

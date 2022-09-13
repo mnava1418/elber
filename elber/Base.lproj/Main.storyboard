@@ -195,7 +195,7 @@
                                 <color key="textColor" name="Secondary"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Seguridad" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aqr-Bg-Rac">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Privacidad" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aqr-Bg-Rac">
                                 <rect key="frame" x="24" y="219" width="366" height="21"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
                                 <color key="textColor" name="Secondary"/>
@@ -220,6 +220,9 @@
                                     </imageView>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="SRF-Qo-Jww">
                                         <rect key="frame" x="293" y="24" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="codeSwitchChange:" destination="AWq-7G-E2i" eventType="valueChanged" id="JgI-As-sbl"/>
+                                        </connections>
                                     </switch>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="faceid" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="eFM-tk-4PR">
                                         <rect key="frame" x="16" y="89.5" width="32" height="30.5"/>
@@ -238,6 +241,9 @@
                                     </view>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="zVy-so-KHg">
                                         <rect key="frame" x="293" y="89" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="biometricSwitchChange:" destination="AWq-7G-E2i" eventType="valueChanged" id="0zo-RZ-Pzw"/>
+                                        </connections>
                                     </switch>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Face Id" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JoH-lD-bgH">
                                         <rect key="frame" x="56" y="94.5" width="221" height="21"/>
@@ -293,6 +299,8 @@
                     </view>
                     <navigationItem key="navigationItem" title="Cuenta" id="tLv-bb-XSW"/>
                     <connections>
+                        <outlet property="biometricSwitch" destination="zVy-so-KHg" id="6aW-eX-I46"/>
+                        <outlet property="codeSwitch" destination="SRF-Qo-Jww" id="dnb-xM-jg7"/>
                         <outlet property="emailLabel" destination="RWM-Qh-INk" id="FJc-OV-Tht"/>
                         <outlet property="nameLabel" destination="we5-yW-5Qo" id="7Mu-8u-AiE"/>
                         <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="GSJ-Zg-KFd"/>
