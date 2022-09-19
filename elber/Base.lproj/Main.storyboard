@@ -167,7 +167,7 @@
                                 <rect key="frame" x="24" y="436" width="366" height="56"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qil-TW-UlZ">
-                                        <rect key="frame" x="116" y="10.5" width="134" height="35"/>
+                                        <rect key="frame" x="8" y="8" width="350" height="40"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" title="Cerrar Sesión">
                                             <fontDescription key="titleFontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="18"/>
@@ -180,9 +180,11 @@
                                 <color key="backgroundColor" name="Primary"/>
                                 <color key="tintColor" name="Text"/>
                                 <constraints>
-                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerX" secondItem="cY4-Sg-nJx" secondAttribute="centerX" id="0mu-yy-P87"/>
-                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="centerY" secondItem="cY4-Sg-nJx" secondAttribute="centerY" id="AyW-EX-Isa"/>
+                                    <constraint firstAttribute="bottom" secondItem="qil-TW-UlZ" secondAttribute="bottom" constant="8" id="80y-ON-5k7"/>
+                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="leading" secondItem="cY4-Sg-nJx" secondAttribute="leading" constant="8" id="8IU-iQ-QtK"/>
+                                    <constraint firstAttribute="trailing" secondItem="qil-TW-UlZ" secondAttribute="trailing" constant="8" id="iyy-t0-lLo"/>
                                     <constraint firstAttribute="height" constant="56" id="kMk-y9-ohL"/>
+                                    <constraint firstItem="qil-TW-UlZ" firstAttribute="top" secondItem="cY4-Sg-nJx" secondAttribute="top" constant="8" id="qpT-Fl-73U"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hi!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="we5-yW-5Qo">
