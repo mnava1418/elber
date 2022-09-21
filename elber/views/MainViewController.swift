@@ -19,25 +19,6 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        isUserLogged()
-    }
-    
-    private func isUserLogged() {
-        guard let user = Auth.auth().currentUser else { return }
-        
-        user.reload { error in
-            
-            if let currError = error {
-                AlertsUtil.showNotification(title: "Error", message: currError.localizedDescription, viewController: self)
-            }
-            else {
-                self.performSegue(withIdentifier: "userLogged", sender: nil)
-            }
-        }
-    }
-    
     @IBAction func googleSignIn(_ sender: Any) {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         

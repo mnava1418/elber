@@ -12,4 +12,9 @@ struct Constants {
         static let privacyCode = "privacy.code"
         static let privacyBiometric = "privacy.biometric"
     }
+    
+    struct StoryBoardNames {
+        static let launchScreen = "LaunchScreen"
+        static let main = "Main"
+    }
 }
