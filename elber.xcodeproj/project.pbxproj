@@ -22,6 +22,7 @@
 		5089C45028BDA54700DCB54D /* SecondaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5089C44F28BDA54700DCB54D /* SecondaryButton.swift */; };
 		50A3CDC728CAB8300099F94A /* SectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A3CDC628CAB8300099F94A /* SectionView.swift */; };
 		50B297A428DBD35D004AB36D /* AppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B297A328DBD35D004AB36D /* AppViewController.swift */; };
+		50B297A628DBDEB6004AB36D /* CodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B297A528DBDEB6004AB36D /* CodeViewController.swift */; };
 		50D1F2C628BA7C4E0074F53B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */; };
 		50D1F2C828BA7C4E0074F53B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */; };
 		50D1F2CD28BA7C4E0074F53B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 50D1F2CB28BA7C4E0074F53B /* Main.storyboard */; };
@@ -96,6 +97,7 @@
 		5089C44F28BDA54700DCB54D /* SecondaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondaryButton.swift; sourceTree = "<group>"; };
 		50A3CDC628CAB8300099F94A /* SectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionView.swift; sourceTree = "<group>"; };
 		50B297A328DBD35D004AB36D /* AppViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewController.swift; sourceTree = "<group>"; };
+		50B297A528DBDEB6004AB36D /* CodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeViewController.swift; sourceTree = "<group>"; };
 		50D1F2C228BA7C4E0074F53B /* elber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = elber.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50D1F2C528BA7C4E0074F53B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		50D1F2C728BA7C4E0074F53B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 				502847FE28C676EE009BC7CE /* ElberViewController.swift */,
 				5028480028C689C7009BC7CE /* AccountViewController.swift */,
 				50B297A328DBD35D004AB36D /* AppViewController.swift */,
+				50B297A528DBDEB6004AB36D /* CodeViewController.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -504,6 +507,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5089C45028BDA54700DCB54D /* SecondaryButton.swift in Sources */,
+				50B297A628DBDEB6004AB36D /* CodeViewController.swift in Sources */,
 				502FC9C428CFFF4D00144487 /* Constants.swift in Sources */,
 				50B297A428DBD35D004AB36D /* AppViewController.swift in Sources */,
 				50D1F2C628BA7C4E0074F53B /* AppDelegate.swift in Sources */,

@@ -18,7 +18,13 @@ class AppViewController: UIViewController {
         
         AppController.isUserLogged { result, error in
             if(result) {
-                self.performSegue(withIdentifier: "showApp", sender: nil)
+                let isCodeOn = AppUtils.getPrivacyStatus(identifier: Constants.UserDefaults.privacyCode)
+                
+                if(isCodeOn) {
+                    self.performSegue(withIdentifier: "showCode", sender: nil)
+                } else {
+                    self.performSegue(withIdentifier: "showApp", sender: nil)
+                }
             } else {
                 self.performSegue(withIdentifier: "showLogin", sender: nil)
             }
