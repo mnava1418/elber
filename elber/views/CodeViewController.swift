@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AudioToolbox
 
 class CodeViewController: UIViewController {
 
@@ -81,10 +82,15 @@ class CodeViewController: UIViewController {
         if tempCode == inputCode {
             currentAction = Constants.UseCodeActions.requestCode
             AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: true)
-            AppUtils.setUserCode(identifier: Constants.UserDefaults.privacyUserCode, userCode: inputCode)            
+            AppUtils.setUserCode(identifier: Constants.UserDefaults.privacyUserCode, userCode: inputCode)
             self.dismiss(animated: true)
         } else {
             currentAction = Constants.UseCodeActions.newCode
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            
+            for element in codeIndicators {
+                element.shake()
+            }
         }
         
         tempCode = ""
@@ -100,5 +106,17 @@ class CodeViewController: UIViewController {
         default:
             txtTitle.text = "Introduce tu código"
         }
+    }
+}
+
+//MARK: Extensions
+extension UIView {
+    func shake() {
+        let anim = CABasicAnimation(keyPath: "position")
+        anim.duration = 0.07
+        anim.autoreverses = true
+        anim.fromValue = NSValue(cgPoint: CGPoint(x: self.center.x - 10, y: self.center.y))
+        anim.toValue = NSValue(cgPoint: CGPoint(x: self.center.x + 10, y: self.center.y))
+        self.layer.add(anim, forKey: "position")
     }
 }
