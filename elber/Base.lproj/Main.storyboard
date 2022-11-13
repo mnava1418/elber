@@ -194,11 +194,11 @@
             <objects>
                 <viewController id="tMl-6h-588" customClass="CodeViewController" customModule="elber" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="nYZ-c0-j01">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="838"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YTZ-2K-9G5">
-                                <rect key="frame" x="51" y="292" width="88" height="88"/>
+                                <rect key="frame" x="51" y="263" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="Gl3-xG-wjR"/>
                                     <constraint firstAttribute="width" constant="88" id="ias-Wg-7pa"/>
@@ -213,7 +213,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gcV-wE-fQs">
-                                <rect key="frame" x="163" y="292" width="88" height="88"/>
+                                <rect key="frame" x="163" y="263" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="35D-ac-2yx"/>
                                     <constraint firstAttribute="width" constant="88" id="iXV-u8-fiz"/>
@@ -228,7 +228,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rk9-rJ-gWl">
-                                <rect key="frame" x="275" y="292" width="88" height="88"/>
+                                <rect key="frame" x="275" y="263" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="c7O-jO-QpD"/>
                                     <constraint firstAttribute="width" constant="88" id="jfg-Jx-Ifz"/>
@@ -243,7 +243,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FSk-WH-hn5">
-                                <rect key="frame" x="51" y="404" width="88" height="88"/>
+                                <rect key="frame" x="51" y="375" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="TTe-aP-GZl"/>
                                     <constraint firstAttribute="width" constant="88" id="pm9-am-MAy"/>
@@ -258,7 +258,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="7" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yIe-Wc-Ccz">
-                                <rect key="frame" x="51" y="516" width="88" height="88"/>
+                                <rect key="frame" x="51" y="487" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="88" id="Ina-TW-Qls"/>
                                     <constraint firstAttribute="height" constant="88" id="x5i-0J-tAn"/>
@@ -273,7 +273,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="8" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crM-m6-wJv">
-                                <rect key="frame" x="163" y="516" width="88" height="88"/>
+                                <rect key="frame" x="163" y="487" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="BkR-gM-DM0"/>
                                     <constraint firstAttribute="width" constant="88" id="w5X-V0-2H4"/>
@@ -288,7 +288,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="9" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D35-Lm-81C">
-                                <rect key="frame" x="275" y="516" width="88" height="88"/>
+                                <rect key="frame" x="275" y="487" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="5y7-aR-w7M"/>
                                     <constraint firstAttribute="width" constant="88" id="VUe-dD-shy"/>
@@ -303,7 +303,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BaD-TJ-g2h">
-                                <rect key="frame" x="163" y="628" width="88" height="88"/>
+                                <rect key="frame" x="163" y="599" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="88" id="S0i-Ii-DTP"/>
                                     <constraint firstAttribute="width" constant="88" id="nia-to-Dxr"/>
@@ -318,7 +318,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K4u-T4-rNB">
-                                <rect key="frame" x="163" y="404" width="88" height="88"/>
+                                <rect key="frame" x="163" y="375" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="88" id="4cE-Fs-0L1"/>
                                     <constraint firstAttribute="height" constant="88" id="Rf9-fH-fm3"/>
@@ -333,7 +333,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="6" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Td0-UO-a0M">
-                                <rect key="frame" x="275" y="404" width="88" height="88"/>
+                                <rect key="frame" x="275" y="375" width="88" height="88"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="88" id="bxh-Mz-SZW"/>
                                     <constraint firstAttribute="height" constant="88" id="xh4-cu-GJM"/>
@@ -432,12 +432,14 @@
                             <constraint firstItem="mts-iY-Vgb" firstAttribute="leading" secondItem="vlG-q8-POR" secondAttribute="trailing" constant="24" id="xvB-2P-cPE"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="gXr-IE-s95"/>
                     <connections>
                         <outlet property="codeFive" destination="Nhv-b0-R0C" id="Etw-j1-g0N"/>
                         <outlet property="codeFour" destination="ZmU-Us-P6R" id="V6a-mv-rwW"/>
                         <outlet property="codeOne" destination="vlG-q8-POR" id="zYm-nN-qeC"/>
                         <outlet property="codeThree" destination="XyA-md-e95" id="16a-iM-97p"/>
                         <outlet property="codeTwo" destination="mts-iY-Vgb" id="gPH-wd-Jts"/>
+                        <outlet property="txtTitle" destination="qv3-hI-Brv" id="Tzz-og-40b"/>
                         <segue destination="sSb-k5-1Fe" kind="presentation" identifier="validCode" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="rkA-pE-2s1"/>
                     </connections>
                 </viewController>
@@ -598,6 +600,7 @@
                         <outlet property="emailLabel" destination="RWM-Qh-INk" id="FJc-OV-Tht"/>
                         <outlet property="nameLabel" destination="we5-yW-5Qo" id="7Mu-8u-AiE"/>
                         <segue destination="BYZ-38-t0r" kind="presentation" identifier="userLogOut" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="GSJ-Zg-KFd"/>
+                        <segue destination="tMl-6h-588" kind="presentation" identifier="setCode" modalPresentationStyle="pageSheet" modalTransitionStyle="crossDissolve" id="cfv-kz-pLI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="X6S-nG-BJ6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -633,8 +636,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="j9b-iG-PAr"/>
-        <segue reference="tTi-Di-PGo"/>
+        <segue reference="rkA-pE-2s1"/>
+        <segue reference="cfv-kz-pLI"/>
+        <segue reference="GSJ-Zg-KFd"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="0.circle" catalog="system" width="128" height="123"/>
