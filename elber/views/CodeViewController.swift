@@ -56,6 +56,8 @@ class CodeViewController: UIViewController {
     private func performAction() {
         if currentAction == Constants.UseCodeActions.newCode {
             newCodeAction()
+        } else if currentAction == Constants.UseCodeActions.confirmCode {
+            confirmCodeAction()
         }
         
         resetView()
@@ -72,6 +74,20 @@ class CodeViewController: UIViewController {
     private func newCodeAction() {
         currentAction = Constants.UseCodeActions.confirmCode
         tempCode = inputCode
+        inputCode = ""
+    }
+    
+    private func confirmCodeAction() {
+        if tempCode == inputCode {
+            currentAction = Constants.UseCodeActions.requestCode
+            AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: true)
+            AppUtils.setUserCode(identifier: Constants.UserDefaults.privacyUserCode, userCode: inputCode)            
+            self.dismiss(animated: true)
+        } else {
+            currentAction = Constants.UseCodeActions.newCode
+        }
+        
+        tempCode = ""
         inputCode = ""
     }
     

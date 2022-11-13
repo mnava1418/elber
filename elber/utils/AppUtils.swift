@@ -17,7 +17,11 @@ struct AppUtils {
         }
     }
     
-    static func setPrivacyStatus(identifier: String, status: Bool ) {
+    static func setPrivacyStatus(identifier: String, status: Bool) {
         UserDefaults.standard.set(status, forKey: identifier)
+    }
+    
+    static func setUserCode(identifier: String, userCode: String) {
+        UserDefaults.standard.set(userCode, forKey: identifier)
     }
 }

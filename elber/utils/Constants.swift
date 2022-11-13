@@ -11,6 +11,7 @@ struct Constants {
     struct UserDefaults {
         static let privacyCode = "privacy.code"
         static let privacyBiometric = "privacy.biometric"
+        static let privacyUserCode = "privacy.userCode"
     }
     
     struct StoryBoardNames {
