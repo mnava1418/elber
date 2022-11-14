@@ -22,6 +22,8 @@ class CodeViewController: UIViewController {
     var inputCode: String = ""
     var tempCode: String = ""
     var currentAction = Constants.UseCodeActions.requestCode
+    
+    var callback: (() -> Void)?
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +36,13 @@ class CodeViewController: UIViewController {
         codeIndicators.append(codeFive)
         
         self.setTitle()
+    }
+        
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let disappearCallBack = callback {
+            disappearCallBack()
+        }
     }
     
     @IBAction func pressNumber(_ sender: UIButton) {

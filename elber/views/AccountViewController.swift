@@ -23,7 +23,7 @@ class AccountViewController: UIViewController {
         getUserData()
         setPrivacyView()
     }
-    
+        
     @IBAction func logOut(_ sender: Any) {
         do {
             try Auth.auth().signOut()
@@ -34,7 +34,6 @@ class AccountViewController: UIViewController {
     }
     
     private func getUserData() {
-        // guard let user = Auth.auth().currentUser
         guard let user = Auth.auth().currentUser else { return }
         
         if let displayName = user.displayName {
@@ -56,14 +55,32 @@ class AccountViewController: UIViewController {
     }
     
     @IBAction func codeSwitchChange(_ sender: UISwitch) {
-        AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: sender.isOn)
-        
-        self.setPrivacyView()
+        self.performSegue(withIdentifier: "setCode", sender: nil)
     }
     
     @IBAction func biometricSwitchChange(_ sender: UISwitch) {
         AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyBiometric, status: sender.isOn)
         
         self.setPrivacyView()
+    }
+        
+    //MARK: Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "setCode" {
+            if let codeView = segue.destination as? CodeViewController {
+                codeView.inputCode = ""
+                codeView.tempCode = ""
+                
+                if(self.codeSwitch.isOn) {
+                    codeView.currentAction = Constants.UseCodeActions.newCode
+                } else {
+                    codeView.currentAction = Constants.UseCodeActions.requestCode
+                }
+                
+                codeView.callback = {
+                    self.setPrivacyView()                    
+                }
+            }
+        }
     }
 }
