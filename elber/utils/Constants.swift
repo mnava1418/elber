@@ -23,5 +23,6 @@ struct Constants {
         static let newCode = 1
         static let confirmCode = 2
         static let requestCode = 3
+        static let deactivateCode = 4
     }
 }

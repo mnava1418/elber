@@ -68,6 +68,8 @@ class CodeViewController: UIViewController {
             newCodeAction()
         } else if currentAction == Constants.UseCodeActions.confirmCode {
             confirmCodeAction()
+        } else {
+            validateCode()
         }
         
         resetView()
@@ -91,10 +93,32 @@ class CodeViewController: UIViewController {
         if tempCode == inputCode {
             currentAction = Constants.UseCodeActions.requestCode
             AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: true)
-            AppUtils.setUserCode(identifier: Constants.UserDefaults.privacyUserCode, userCode: inputCode)
+            AppUtils.setUserCode(userCode: inputCode)
             self.dismiss(animated: true)
         } else {
             currentAction = Constants.UseCodeActions.newCode
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            
+            for element in codeIndicators {
+                element.shake()
+            }
+        }
+        
+        tempCode = ""
+        inputCode = ""
+    }
+    
+    private func validateCode() {
+        let currentCode = AppUtils.getUserCode()
+        
+        if inputCode == currentCode {
+            if currentAction == Constants.UseCodeActions.deactivateCode {
+                AppUtils.setPrivacyStatus(identifier: Constants.UserDefaults.privacyCode, status: false)
+                self.dismiss(animated: true)
+            } else if currentAction == Constants.UseCodeActions.requestCode {
+                self.performSegue(withIdentifier: "validCode", sender: nil)
+            }
+        } else {
             AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
             
             for element in codeIndicators {

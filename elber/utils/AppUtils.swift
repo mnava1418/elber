@@ -21,7 +21,15 @@ struct AppUtils {
         UserDefaults.standard.set(status, forKey: identifier)
     }
     
-    static func setUserCode(identifier: String, userCode: String) {
-        UserDefaults.standard.set(userCode, forKey: identifier)
+    static func setUserCode(userCode: String) {
+        UserDefaults.standard.set(userCode, forKey: Constants.UserDefaults.privacyUserCode)
+    }
+    
+    static func getUserCode() -> String {
+        if let userCode = UserDefaults.standard.value(forKey: Constants.UserDefaults.privacyUserCode) {
+            return userCode as! String
+        } else {
+            return ""
+        }
     }
 }

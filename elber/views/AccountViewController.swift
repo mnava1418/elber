@@ -74,7 +74,7 @@ class AccountViewController: UIViewController {
                 if(self.codeSwitch.isOn) {
                     codeView.currentAction = Constants.UseCodeActions.newCode
                 } else {
-                    codeView.currentAction = Constants.UseCodeActions.requestCode
+                    codeView.currentAction = Constants.UseCodeActions.deactivateCode
                 }
                 
                 codeView.callback = {
