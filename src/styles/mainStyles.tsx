@@ -9,11 +9,20 @@ export const globalStyles = StyleSheet.create({
     text: {
         color: globalColors.text,
         fontFamily: 'Roboto',
-        fontSize: 20,
+        fontSize: 18,
     },
 
     title: {
         fontWeight: 700,
-        fontSize: 40
+        fontSize: 32
+    },
+
+    subtitle: {
+        fontSize: 24
+    },
+
+    btnText: {
+        fontWeight: 700,
+        fontSize: 20
     }
 })
