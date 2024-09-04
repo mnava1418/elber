@@ -1,25 +1,34 @@
 import React, { useEffect } from 'react'
-import { Image, View } from 'react-native'
+import { Animated, View } from 'react-native'
 import MainView from '../components/ui/MainView'
 import Title from '../components/ui/Title'
-import useAnimations from '../../hooks/useAnimations'
+import useAnimateText from '../../hooks/animations/useAnimateText'
 import CustomButton from '../components/ui/CustomButton'
 import { globalStyles } from '../../styles/mainStyles'
 import CustomText from '../components/ui/CustomText'
+import usePulseImage from '../../hooks/animations/usePulseImage'
 
 const logo = require('../../assets/images/dot.png')
 
 const HomeScreen = () => {
-    const {animatedText, animateText} = useAnimations()
+    const {animatedText, animateText} = useAnimateText()
+    const {scaleImage, pulseImage} = usePulseImage(400, 1.1)
     
     useEffect(() => {
       animateText('Hola, Soy Elber', 50)
-    }, [])
+      pulseImage.start()
+
+      return () => pulseImage.stop()
+    }, [scaleImage])
     
     return (
         <MainView style={{justifyContent: 'space-between', alignItems:'center'}}>
             <View style={{flex: 1,  justifyContent: 'center', alignItems: 'center'}}>
-                <Image source={logo} style={{height: 180, width: 180, resizeMode: 'contain'}} />
+                <Animated.Image 
+                    source={logo} 
+                    style={{height: 180, width: 180, resizeMode: 'contain', transform: [{scale: scaleImage}]}}
+                    resizeMode='contain'
+                />
                 <Title style={{marginTop: 24, fontSize: 40}}>{animatedText}</Title>
                 <CustomText style={{textAlign: 'center', marginHorizontal: 24, marginTop: 16}}>Bienvenido a tu asistente virtual. Estoy listo para ayudarte en todo lo que necesites.</CustomText>
             </View>
