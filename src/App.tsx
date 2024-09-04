@@ -1,11 +1,9 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import HomeScreen from './views/screens/HomeScreen'
 
 const App = () => {
   return (
-    <View>
-      <Text>Elber, mi asistente personal</Text>
-    </View>
+    <HomeScreen />
   )
 }
 

@@ -1,17 +1,14 @@
-import React, { PropsWithChildren } from 'react'
-import { ImageBackground, StyleProp, View, ViewStyle } from 'react-native'
+import React from 'react'
+import { ImageBackground, View } from 'react-native'
+import { CustomViewProps } from '../../../interfaces/ui.interface'
 
 const backgroundImage = require('../../../assets/images/mainBackground.png')
 
-interface MainViewProps extends PropsWithChildren {
-    style?: StyleProp<ViewStyle> 
-}
-
-const MainView = ({style, children}: MainViewProps) => {
+const MainView = ({style, children}: CustomViewProps) => {
     return (
         <ImageBackground source={backgroundImage} style={{flex: 1}} blurRadius={50}>
             <View style={[
-                {flex: 1},
+                {flex: 1, paddingHorizontal: 16},
                 style
             ]}>
                 {children}
