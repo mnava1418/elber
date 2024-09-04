@@ -8,7 +8,7 @@ const MainView = ({style, children}: CustomViewProps) => {
     return (
         <ImageBackground source={backgroundImage} style={{flex: 1}} blurRadius={50}>
             <View style={[
-                {flex: 1},
+                {flex: 1, paddingHorizontal: 16},
                 style
             ]}>
                 {children}
