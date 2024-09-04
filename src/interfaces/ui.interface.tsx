@@ -8,3 +8,8 @@ export interface CustomViewProps extends PropsWithChildren {
 export interface CustomTextProps extends PropsWithChildren {
     style?: StyleProp<TextStyle>
 }
+
+export interface CustomButtonProps extends CustomViewProps {
+    type: 'primary' | 'transparent'
+    label: string
+}
