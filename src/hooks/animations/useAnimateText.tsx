@@ -1,8 +1,6 @@
 import { useState } from "react"
 
-const useAnimations = () => {
-    
-    //START: Animate text
+const useAnimateText = () => {
     const [animatedText, setAnimatedText] = useState('')
 
     const animateText = (text: string, speed = 100) => {
@@ -18,11 +16,10 @@ const useAnimations = () => {
             }
         }, speed)
     }
-    //END: Animate text
-
+    
     return {
         animatedText, animateText
     }
 }
 
-export default useAnimations
+export default useAnimateText
