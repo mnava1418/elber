@@ -4,7 +4,7 @@ import { CustomButtonProps } from '../../../interfaces/ui.interface'
 import { globalStyles } from '../../../styles/mainStyles'
 
 
-const CustomButton = ({label, type, style}: CustomButtonProps) => {
+const CustomButton = ({label, type, style, onPress}: CustomButtonProps) => {
     let btnStyles: Array<any> = [globalStyles.btn]
 
     switch (type) {
@@ -24,6 +24,7 @@ const CustomButton = ({label, type, style}: CustomButtonProps) => {
                     opacity: pressed ? 0.8 : 1.0
                 }
             ])}
+            onPress={onPress}
         >
             <Text style={globalStyles.btnText}>
                 {label}

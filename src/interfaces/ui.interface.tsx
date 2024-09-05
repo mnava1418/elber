@@ -12,4 +12,5 @@ export interface CustomTextProps extends PropsWithChildren {
 export interface CustomButtonProps extends CustomViewProps {
     type: 'primary' | 'transparent'
     label: string
+    onPress: () => void
 }

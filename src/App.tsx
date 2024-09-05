@@ -1,9 +1,13 @@
+import 'react-native-gesture-handler';
 import React from 'react'
-import HomeScreen from './views/screens/HomeScreen'
+import { NavigationContainer } from '@react-navigation/native'
+import Elber from './views/Elber'
 
 const App = () => {
   return (
-    <HomeScreen />
+    <NavigationContainer>
+      <Elber />
+    </NavigationContainer>
   )
 }
 
