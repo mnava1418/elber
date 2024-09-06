@@ -23,7 +23,7 @@ export const globalStyles = StyleSheet.create({
 
     btn: {
         padding: 10,
-        borderRadius: 50,
+        borderRadius: 15,
         alignItems: 'center',
         alignSelf: 'center',
         shadowColor: '#000',
@@ -35,7 +35,7 @@ export const globalStyles = StyleSheet.create({
 
     btnPrimary: {
         backgroundColor: globalColors.primary,
-        width: '80%',
+        width: '90%',
         height: 50,
     },
 
