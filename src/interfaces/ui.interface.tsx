@@ -14,3 +14,14 @@ export interface CustomButtonProps extends CustomViewProps {
     label: string
     onPress: () => void
 }
+
+export interface CustomNavBtnProps extends CustomViewProps {
+    icon?: string,
+    onPress?: () => void 
+}
+
+export interface CustomNavBarProps {
+    leftBtn?: CustomNavBtnProps
+    rightBtn?: CustomNavBtnProps
+    title?: string
+}
