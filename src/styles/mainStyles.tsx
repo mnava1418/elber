@@ -18,6 +18,7 @@ export const globalStyles = StyleSheet.create({
     },
 
     subtitle: {
+        fontWeight: "600",
         fontSize: 24
     },
 
@@ -26,22 +27,28 @@ export const globalStyles = StyleSheet.create({
         borderRadius: 15,
         alignItems: 'center',
         alignSelf: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
 
     btnPrimary: {
         backgroundColor: globalColors.primary,
-        width: '90%',
+        width: '100%',
         height: 50,
     },
 
     btnText: {
-        fontWeight: "bold",
+        fontWeight: "600",
         fontSize: 20,
         color: globalColors.text
-    }
+    },
+
+    input: {
+        height: 48,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        backgroundColor: globalColors.text,
+        borderRadius: 15,
+        width: '100%',
+        color: '#000',
+        fontSize: 18
+    },
 })
