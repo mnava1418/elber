@@ -18,7 +18,7 @@ import CustomError from '../../../models/CustomError'
 
 const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
-    const {top} = useSafeAreaInsets()
+    const { top } = useSafeAreaInsets()
 
     const {
         email, setEmail, emailError, setEmailError,
@@ -30,29 +30,29 @@ const LoginScreen = () => {
 
     const leftBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
-        onPress: () => {navigation.goBack()}
+        onPress: () => { navigation.goBack() }
     }
 
-    const handleSignIn = async() => {
+    const handleSignIn = async () => {
         try {
             clearErrors()
             setIsProcessing(true)
             await AuthServices.signIn(fbAuthFetcher, email, password)
             setIsProcessing(false)
-          } catch (error) {
+        } catch (error) {
             setIsProcessing(false)
-            if(error instanceof CustomError) {
+            if (error instanceof CustomError) {
                 handleErrors(error)
             } else {
                 setSignInError('Error inesperado. Intenta nuevamente.')
             }
-          }
+        }
     }
 
     const handleErrors = (error: CustomError) => {
-        if(error.type === 'email') {
+        if (error.type === 'email') {
             setEmailError(error.message)
-        } else if(error.type === 'password') {
+        } else if (error.type === 'password') {
             setPasswordError(error.message)
         } else {
             setSignInError(error.message)
@@ -60,40 +60,40 @@ const LoginScreen = () => {
     }
 
     return (
-         <MainView>     
+        <MainView>
             <CustomNavBar leftBtn={leftBtn} />
-            <Subtitle style={{marginTop: top + 56}}>Bienvenido, que gusto verte de nuevo.</Subtitle>
-            <KeyboardAvoidingView 
-                style={{flex: 1}} 
+            <Subtitle style={{ marginTop: top + 56 }}>Bienvenido, que gusto verte de nuevo.</Subtitle>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={60}
             >
-                <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                    <CustomText style={{fontSize: 22, marginTop: 24}}>Email</CustomText>
-                    <TextInput 
-                        style={[globalStyles.input, {marginTop: 10}]} 
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                    <CustomText style={{ fontSize: 22, marginTop: 24 }}>Email</CustomText>
+                    <TextInput
+                        style={[globalStyles.input, { marginTop: 10 }]}
                         value={email}
                         onChangeText={setEmail}
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {emailError && emailError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{emailError}</CustomText> : <></>}
-                    <CustomText style={{fontSize: 22, marginTop: 24}}>Password</CustomText>
-                    <TextInput 
-                        style={[globalStyles.input, {marginTop: 10}]} 
+                    {emailError && emailError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{emailError}</CustomText> : <></>}
+                    <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
+                    <TextInput
+                        style={[globalStyles.input, { marginTop: 10 }]}
                         value={password}
                         onChangeText={setPassword}
                         keyboardType='default'
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {passwordError && passwordError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{passwordError}</CustomText> : <></>}
+                    {passwordError && passwordError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{passwordError}</CustomText> : <></>}
                     {!isProcessing ? (
-                        <View style={{width: '100%'}}>
-                            <CustomButton label='Login' type='primary' style={{marginTop: 56}} onPress={handleSignIn} />
-                            <View style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
-                                {signInError && signInError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{signInError}</CustomText> : <></>}
-                                <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{marginTop: 16}} onPress={() => {}}/>
+                        <View style={{ width: '100%' }}>
+                            <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
+                            <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                {signInError && signInError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{signInError}</CustomText> : <></>}
+                                <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{ marginTop: 16 }} onPress={() => { }} />
                             </View>
                         </View>
                     ) : (<></>)}
