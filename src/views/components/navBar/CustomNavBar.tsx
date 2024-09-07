@@ -13,13 +13,14 @@ const CustomNavBar = (props: CustomNavBarProps) => {
     return (
         <View 
             style={{
-                paddingTop: top, 
+                marginTop: top, 
                 flexDirection: 'row', 
                 position: 'absolute', 
                 left: 0, 
                 right: 0,
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                height: 48
             }}
         >
             {leftBtn ? (
