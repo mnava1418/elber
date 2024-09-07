@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAfOPoD5CR2rPyKea0tIacMms1mSsNtoa8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>590540904764</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.Elber</string>
+	<key>PROJECT_ID</key>
+	<string>dotai-3ce4c</string>
+	<key>STORAGE_BUCKET</key>
+	<string>dotai-3ce4c.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:590540904764:ios:a05fd53347508558a52639</string>
+	<key>DATABASE_URL</key>
+	<string>https://dotai-3ce4c-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>
