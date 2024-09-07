@@ -1,0 +1,1 @@
+type CustomErrorType = 'email' | 'password' | 'default'

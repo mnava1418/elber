@@ -1,3 +1,4 @@
+import CustomError from "../../models/CustomError";
 import AuthAdapter from "./auth.adapter";
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth'
 
@@ -7,7 +8,7 @@ class FireBaseAuth implements AuthAdapter {
             const userCredential = await auth().signInWithEmailAndPassword(email, password)
             return userCredential
         } catch (error) {
-            throw new Error("Email y/o Password no válido");
+            throw new CustomError('Email y/o Password no válido.');
         }
     }
 }
