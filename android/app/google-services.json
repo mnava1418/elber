@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "590540904764",
+    "firebase_url": "https://dotai-3ce4c-default-rtdb.firebaseio.com",
+    "project_id": "dotai-3ce4c",
+    "storage_bucket": "dotai-3ce4c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590540904764:android:7badfb9d9f5b56cda52639",
+        "android_client_info": {
+          "package_name": "com.elber"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVkMaTVMCYkPyQbLRlkD3eWp5rkx-cUfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
