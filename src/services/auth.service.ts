@@ -1,38 +1,33 @@
 import AuthAdapter from "../adapters/auth/auth.adapter";
+import CustomError from "../models/CustomError";
 
 export const signIn = async (fetcher: AuthAdapter, email: string, password: string) => {
-    const credsValidation = validateLoginFields(email, password)
+  try {
+    validateLoginFields(email, password)
+    const userCredential = await fetcher.signIn(email, password)
 
-    if(credsValidation.isValid) {
-        try {
-            const userCredential = await fetcher.signIn(email,password)
-
-            if(!userCredential.user.emailVerified) {
-                throw new Error('Verifica tu correo para poder continuar.');
-            }
-        } catch (error) {
-            if(error instanceof Error) {
-                throw new Error(error.message);
-            } else {
-                throw new Error('Error inesperado. Intenta nuevamente');
-            }
-        }
-    } else {
-        throw new Error(credsValidation.errors[0]);
+    if (!userCredential.user.emailVerified) {
+      throw new CustomError('El correo no ha sido verificado.');
     }
+  } catch (error) {
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Error inesperado. Intenta nuevamente.');
+    }
+  }
 }
 
-const validateLoginFields = (email: string, password: string): { isValid: boolean; errors: string[] } => {
+const validateLoginFields = (email: string, password: string) => {
   const errors: string[] = [];
 
   if (!email || email.trim() === '') {
-    errors.push('El email es obligatorio.');
+    throw new CustomError('El email es obligatorio.', 'email')
   } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-    errors.push('El email no es válido.');
+    throw new CustomError('El email no es válido.', 'email')
   }
 
   if (!password || password.trim() === '') {
-    errors.push('El password es obligatorio.');
-  } 
-  return { isValid: errors.length === 0, errors };
+    throw new CustomError('El password es obligatorio.', 'password');
+  }
 }

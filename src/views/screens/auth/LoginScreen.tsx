@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import MainView from '../../components/ui/MainView'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { StackNavigationProps } from '../../Elber'
@@ -13,13 +13,20 @@ import CustomButton from '../../components/ui/CustomButton'
 import { Platform } from 'react-native'
 import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
 import * as AuthServices from '../../../services/auth.service'
+import useSignIn from '../../../hooks/auth/useSignIn'
+import CustomError from '../../../models/CustomError'
 
 const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const {top} = useSafeAreaInsets()
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const {
+        email, setEmail, emailError, setEmailError,
+        password, setPassword, passwordError, setPasswordError,
+        signInError, setSignInError,
+        isProcessing, setIsProcessing,
+        clearErrors
+    } = useSignIn()
 
     const leftBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
@@ -28,11 +35,28 @@ const LoginScreen = () => {
 
     const handleSignIn = async() => {
         try {
+            clearErrors()
+            setIsProcessing(true)
             await AuthServices.signIn(fbAuthFetcher, email, password)
-            console.log('User signed in!');
+            setIsProcessing(false)
           } catch (error) {
-            console.error(error);
+            setIsProcessing(false)
+            if(error instanceof CustomError) {
+                handleErrors(error)
+            } else {
+                setSignInError('Error inesperado. Intenta nuevamente.')
+            }
           }
+    }
+
+    const handleErrors = (error: CustomError) => {
+        if(error.type === 'email') {
+            setEmailError(error.message)
+        } else if(error.type === 'password') {
+            setPasswordError(error.message)
+        } else {
+            setSignInError(error.message)
+        }
     }
 
     return (
@@ -53,6 +77,7 @@ const LoginScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
+                    {emailError && emailError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{emailError}</CustomText> : <></>}
                     <CustomText style={{fontSize: 22, marginTop: 24}}>Password</CustomText>
                     <TextInput 
                         style={[globalStyles.input, {marginTop: 10}]} 
@@ -62,10 +87,16 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    <CustomButton label='Login' type='primary' style={{marginTop: 56}} onPress={handleSignIn} />
-                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                        <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{marginTop: 16}} onPress={() => {}}/>
-                    </View>
+                    {passwordError && passwordError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{passwordError}</CustomText> : <></>}
+                    {!isProcessing ? (
+                        <View style={{width: '100%'}}>
+                            <CustomButton label='Login' type='primary' style={{marginTop: 56}} onPress={handleSignIn} />
+                            <View style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
+                                {signInError && signInError.trim() !== '' ? <CustomText style={{color: '#FF4C4C', marginTop: 8}}>{signInError}</CustomText> : <></>}
+                                <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{marginTop: 16}} onPress={() => {}}/>
+                            </View>
+                        </View>
+                    ) : (<></>)}
                 </ScrollView>
             </KeyboardAvoidingView>
         </MainView>
