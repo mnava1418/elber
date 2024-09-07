@@ -11,6 +11,8 @@ import CustomText from '../../components/ui/CustomText'
 import { globalStyles } from '../../../styles/mainStyles'
 import CustomButton from '../../components/ui/CustomButton'
 import { Platform } from 'react-native'
+import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
+import * as AuthServices from '../../../services/auth.service'
 
 const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -22,6 +24,15 @@ const LoginScreen = () => {
     const leftBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
         onPress: () => {navigation.goBack()}
+    }
+
+    const handleSignIn = async() => {
+        try {
+            await AuthServices.signIn(fbAuthFetcher, email, password)
+            console.log('User signed in!');
+          } catch (error) {
+            console.error(error);
+          }
     }
 
     return (
@@ -51,7 +62,7 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    <CustomButton label='Login' type='primary' style={{marginTop: 56}} onPress={() => {}} />
+                    <CustomButton label='Login' type='primary' style={{marginTop: 56}} onPress={handleSignIn} />
                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                         <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{marginTop: 16}} onPress={() => {}}/>
                     </View>
