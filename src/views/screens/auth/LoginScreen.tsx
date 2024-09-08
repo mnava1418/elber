@@ -21,11 +21,10 @@ const LoginScreen = () => {
     const { top } = useSafeAreaInsets()
 
     const {
-        email, setEmail, emailError, setEmailError,
-        password, setPassword, passwordError, setPasswordError,
-        signInError, setSignInError,
+        email, setEmail,
+        password, setPassword,
         isProcessing, setIsProcessing,
-        clearErrors
+        authErrors, setAuthErrors
     } = useSignIn()
 
     const leftBtn: CustomNavBtnProps = {
@@ -34,28 +33,19 @@ const LoginScreen = () => {
     }
 
     const handleSignIn = async () => {
-        try {
-            clearErrors()
-            setIsProcessing(true)
-            await AuthServices.signIn(fbAuthFetcher, email, password)
-            setIsProcessing(false)
-        } catch (error) {
-            setIsProcessing(false)
-            if (error instanceof CustomError) {
-                handleErrors(error)
-            } else {
-                setSignInError('Error inesperado. Intenta nuevamente.')
-            }
-        }
-    }
+        setAuthErrors({default: '', email: '', password: ''})
+        setIsProcessing(true)
 
-    const handleErrors = (error: CustomError) => {
-        if (error.type === 'email') {
-            setEmailError(error.message)
-        } else if (error.type === 'password') {
-            setPasswordError(error.message)
-        } else {
-            setSignInError(error.message)
+        try {
+            await AuthServices.signIn(fbAuthFetcher, email, password)
+        } catch (error) {
+            if (error instanceof CustomError) {
+                setAuthErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
+            } else {
+                setAuthErrors((prevErrors) => ({...prevErrors, default: 'Error inesperado. Intenta nuevamente.'}))
+            }
+        } finally {
+            setIsProcessing(false)
         }
     }
 
@@ -77,7 +67,7 @@ const LoginScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {emailError && emailError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{emailError}</CustomText> : <></>}
+                    {authErrors.email && authErrors.email.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.email}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -87,12 +77,12 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {passwordError && passwordError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{passwordError}</CustomText> : <></>}
+                    {authErrors.password && authErrors.password.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.password}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {signInError && signInError.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{signInError}</CustomText> : <></>}
+                                {authErrors.default && authErrors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.default}</CustomText> : <></>}
                                 <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{ marginTop: 16 }} onPress={() => { }} />
                             </View>
                         </View>
