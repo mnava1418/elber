@@ -1,5 +1,5 @@
 class CustomError extends Error {
-    type?: CustomErrorType
+    type: CustomErrorType
 
     constructor(message: string, type?: CustomErrorType) {
         super(message)

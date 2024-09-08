@@ -1,27 +1,22 @@
 import { useState } from 'react'
 
+type SignInErrors = {
+    email: string,
+    password: string,
+    default: string
+}
+
 const useSignIn = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-
-    const[emailError, setEmailError] = useState('')
-    const[passwordError, setPasswordError] = useState('')
-    const[signInError, setSignInError] = useState('')
-
     const[isProcessing, setIsProcessing] = useState(false)
-
-    const clearErrors = () => {
-        setEmailError('')
-        setPasswordError('')
-        setSignInError('')
-    }
+    const[authErrors, setAuthErrors] = useState<SignInErrors>({default: '', email: '', password: ''})
 
     return {
-        email, setEmail, emailError, setEmailError,
-        password, setPassword, passwordError, setPasswordError,
-        signInError, setSignInError,
+        email, setEmail,
+        password, setPassword,
         isProcessing, setIsProcessing,
-        clearErrors
+        authErrors, setAuthErrors
     }
 }
 
