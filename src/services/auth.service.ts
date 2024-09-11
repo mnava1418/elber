@@ -31,3 +31,12 @@ const validateLoginFields = (email: string, password: string) => {
     throw new CustomError('El password es obligatorio.', 'password');
   }
 }
+
+export const signOut = async (fetcher: AuthAdapter) => {
+  try {
+    await fetcher.signOut()
+  } catch (error) {
+    throw new Error('Unable to sign out.');
+    
+  }
+}
