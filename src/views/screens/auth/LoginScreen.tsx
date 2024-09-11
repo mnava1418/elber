@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import MainView from '../../components/ui/MainView'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { StackNavigationProps } from '../../Elber'
@@ -6,19 +6,22 @@ import CustomNavBar from '../../components/navBar/CustomNavBar'
 import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import Subtitle from '../../components/ui/Subtitle'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
 import CustomText from '../../components/ui/CustomText'
-import { globalStyles } from '../../../styles/mainStyles'
+import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomButton from '../../components/ui/CustomButton'
 import { Platform } from 'react-native'
 import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
 import * as AuthServices from '../../../services/auth.service'
 import useSignIn from '../../../hooks/auth/useSignIn'
 import CustomError from '../../../models/CustomError'
+import { GlobalContext } from '../../../store/GlobalState'
+import { setIsAuthenticated } from '../../../store/actions/auth.actions'
 
 const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const { top } = useSafeAreaInsets()
+    const {dispatch} = useContext(GlobalContext)
 
     const {
         email, setEmail,
@@ -38,6 +41,7 @@ const LoginScreen = () => {
 
         try {
             await AuthServices.signIn(fbAuthFetcher, email, password)
+            dispatch(setIsAuthenticated(true))
         } catch (error) {
             if (error instanceof CustomError) {
                 setAuthErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
@@ -86,7 +90,7 @@ const LoginScreen = () => {
                                 <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{ marginTop: 16 }} onPress={() => { }} />
                             </View>
                         </View>
-                    ) : (<></>)}
+                    ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
         </MainView>
