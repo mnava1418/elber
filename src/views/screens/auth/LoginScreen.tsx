@@ -87,7 +87,7 @@ const LoginScreen = () => {
                             <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 {authErrors.default && authErrors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.default}</CustomText> : <></>}
-                                <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{ marginTop: 16 }} onPress={() => { }} />
+                                <CustomButton label='¿Olvidaste tu contraseña?' type='transparent' style={{ marginTop: 16 }} onPress={() => {navigation.navigate('Recover', {originalEmail: email})}} />
                             </View>
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}

@@ -8,11 +8,13 @@ import { selectIsAuthenticated } from '../store/selectors/auth.selector';
 import { globalColors } from '../styles/mainStyles';
 import auth from '@react-native-firebase/auth'
 import { setIsAuthenticated } from '../store/actions/auth.actions';
+import RecoverScreen from './screens/auth/RecoverScreen';
 
 export type StackNavigationProps = {
     AuthInit: undefined,
     Home: undefined,
-    Login: undefined
+    Login: undefined,
+    Recover: {originalEmail: string}
 }
 
 const Stack = createStackNavigator<StackNavigationProps>();
@@ -41,6 +43,7 @@ const Elber = () => {
                 <>
                     <Stack.Screen name='AuthInit' component={AuthInitScreen} />
                     <Stack.Screen name='Login' component={LoginScreen} />
+                    <Stack.Screen name='Recover' component={RecoverScreen}/>
                 </>
             )}
         </Stack.Navigator>
