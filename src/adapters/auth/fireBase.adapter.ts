@@ -11,6 +11,14 @@ class FireBaseAuth implements AuthAdapter {
             throw new CustomError('Email y/o Password no válido.');
         }
     }
+
+    async signOut(): Promise<void> {
+        try {
+            await auth().signOut()
+        } catch (error) {
+            throw new Error('Unable to sign out.');
+        }
+    }
 }
 
 export default FireBaseAuth
