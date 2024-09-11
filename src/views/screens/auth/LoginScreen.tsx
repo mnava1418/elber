@@ -6,9 +6,9 @@ import CustomNavBar from '../../components/navBar/CustomNavBar'
 import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import Subtitle from '../../components/ui/Subtitle'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
 import CustomText from '../../components/ui/CustomText'
-import { globalStyles } from '../../../styles/mainStyles'
+import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomButton from '../../components/ui/CustomButton'
 import { Platform } from 'react-native'
 import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
@@ -90,7 +90,7 @@ const LoginScreen = () => {
                                 <CustomButton label='¿Olvidaste tu password?' type='transparent' style={{ marginTop: 16 }} onPress={() => { }} />
                             </View>
                         </View>
-                    ) : (<></>)}
+                    ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
         </MainView>
