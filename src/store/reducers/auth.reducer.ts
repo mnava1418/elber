@@ -6,7 +6,7 @@ export const initialAuthState: AuthState = {
     isAuthenticated: false
 }
 
-type AuthAction = 
+export type AuthAction = 
 | {type: 'SET_AUTHENTICATED', payload: boolean}
 
 export const authReducer = (state: AuthState, action: AuthAction): AuthState => {

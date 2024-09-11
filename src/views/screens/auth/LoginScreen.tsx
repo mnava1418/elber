@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import MainView from '../../components/ui/MainView'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { StackNavigationProps } from '../../Elber'
@@ -15,10 +15,13 @@ import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
 import * as AuthServices from '../../../services/auth.service'
 import useSignIn from '../../../hooks/auth/useSignIn'
 import CustomError from '../../../models/CustomError'
+import { GlobalContext } from '../../../store/GlobalState'
+import { setIsAuthenticated } from '../../../store/actions/auth.actions'
 
 const LoginScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const { top } = useSafeAreaInsets()
+    const {dispatch} = useContext(GlobalContext)
 
     const {
         email, setEmail,
@@ -38,6 +41,7 @@ const LoginScreen = () => {
 
         try {
             await AuthServices.signIn(fbAuthFetcher, email, password)
+            dispatch(setIsAuthenticated(true))
         } catch (error) {
             if (error instanceof CustomError) {
                 setAuthErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))

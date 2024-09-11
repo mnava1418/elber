@@ -1,8 +1,10 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 import AuthInitScreen from './screens/auth/AuthInitScreen';
 import HomeScreen from './screens/app/HomeScreen';
 import LoginScreen from './screens/auth/LoginScreen';
+import { GlobalContext } from '../store/GlobalState';
+import { selectIsAuthenticated } from '../store/selectors/auth.selector';
 
 export type StackNavigationProps = {
     AuthInit: undefined,
@@ -13,11 +15,12 @@ export type StackNavigationProps = {
 const Stack = createStackNavigator<StackNavigationProps>();
 
 const Elber = () => {
-    const [isSignedIn, setIsSignedIn] = useState(false)
-
+    const {state} = useContext(GlobalContext)
+    const isAuthenticated = selectIsAuthenticated(state.auth)
+    
     return (
         <Stack.Navigator screenOptions={{headerShown: false}}>
-            {isSignedIn ? (
+            {isAuthenticated ? (
                 <Stack.Screen name='Home' component={HomeScreen} />
             ) : (
                 <>
