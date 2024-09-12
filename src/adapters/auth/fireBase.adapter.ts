@@ -19,6 +19,15 @@ class FireBaseAuth implements AuthAdapter {
             throw new Error('Unable to sign out.');
         }
     }
+
+    async resetPassword(email: string): Promise<void> {
+        try {
+            await auth().sendPasswordResetEmail(email)
+        } catch (error) {
+            throw new Error('Ocurrió un error al enviar el correo de recuperación.');
+            
+        }
+    }
 }
 
 export default FireBaseAuth

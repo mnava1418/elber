@@ -1,5 +1,6 @@
 import AuthAdapter from "../adapters/auth/auth.adapter";
 import CustomError from "../models/CustomError";
+import { isValidEmail } from "../utils/inputs.ustils";
 
 export const signIn = async (fetcher: AuthAdapter, email: string, password: string) => {
   try {
@@ -23,7 +24,7 @@ const validateLoginFields = (email: string, password: string) => {
 
   if (!email || email.trim() === '') {
     throw new CustomError('El email es obligatorio.', 'email')
-  } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+  } else if (!isValidEmail(email)) {
     throw new CustomError('El email no es válido.', 'email')
   }
 
@@ -38,5 +39,18 @@ export const signOut = async (fetcher: AuthAdapter) => {
   } catch (error) {
     throw new Error('Unable to sign out.');
     
+  }
+}
+
+export const recoverPassword = async (fetcher: AuthAdapter, email: string) => {
+  try {
+    validateLoginFields(email, 'password')
+    await fetcher.resetPassword(email)
+  } catch (error) {
+    if(error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error('Error inesperado. Intenta nuevamente.');
+    }
   }
 }
