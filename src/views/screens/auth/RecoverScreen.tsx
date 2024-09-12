@@ -11,12 +11,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import { StackNavigationProps } from '../../Elber'
 import useRecover from '../../../hooks/auth/useRecover'
+import { recoverPassword } from '../../../services/auth.service'
+import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
+
 
 const RecoverScreen = () => {
     const recoverProps = useRoute<RouteProp<StackNavigationProps, 'Recover'>>().params
     const {originalEmail} = recoverProps
 
-    const {info, setInfo, isProcessing} = useRecover(originalEmail)
+    const {info, setInfo, isProcessing, setIsProcessing} = useRecover(originalEmail)
     
 
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -27,8 +30,18 @@ const RecoverScreen = () => {
         onPress: () => { navigation.goBack() }
     }
 
-    const handleSubmit = () => {
-        console.log('revover password', info.email)
+    const handleSubmit = async() => {
+        setInfo({...info, error: '', result: ''})
+        setIsProcessing(true)
+        
+        try {
+            await recoverPassword(fbAuthFetcher, info.email)
+            setInfo((prev) => ({...prev, result: 'Por favor, revisa tu bandeja de entrada para restablecer tu contraseña.'}))
+        } catch (error) {
+            setInfo((prev) => ({...prev, error: (error as Error).message}))
+        } finally {
+            setIsProcessing(false)
+        }
     }
 
     return (
@@ -54,6 +67,7 @@ const RecoverScreen = () => {
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Recuperar' type='primary' style={{ marginTop: 56 }} onPress={handleSubmit} />
+                            {info.result && info.result.trim() !== '' ? <CustomText style={{ color: globalColors.text, marginTop: 16 }}>{info.result}</CustomText> : <></>}
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
