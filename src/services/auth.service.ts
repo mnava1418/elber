@@ -54,3 +54,22 @@ export const recoverPassword = async (fetcher: AuthAdapter, email: string) => {
     }
   }
 }
+
+export const requestCode = async(fetcher: HttpAdapter, email: string): Promise<string> => {
+  try {
+    validateLoginFields(email, 'password')
+    const {data, status} = await fetcher.post('/auth/users/requestCode', {email})
+
+    if(status === 200) {
+      return data.message
+    } else {
+      throw new CustomError(data.error);
+    }
+  } catch (error) {
+    if(error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError((error as Error).message);
+    }
+  }
+}
