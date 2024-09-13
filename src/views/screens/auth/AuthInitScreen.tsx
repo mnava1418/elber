@@ -39,7 +39,7 @@ const AuthInitScreen = () => {
                 <CustomText style={{textAlign: 'center', marginHorizontal: 24, marginTop: 16}}>Bienvenido a tu asistente virtual. Estoy listo para ayudarte en todo lo que necesites.</CustomText>
             </View>
             <View style={{width: '100%', paddingBottom: bottom + 32}}>
-                <CustomButton type='primary' label='Crea tu cuenta' onPress={() => {console.log('crear cuenta')}}/>
+                <CustomButton type='primary' label='Crea tu cuenta' onPress={() => {navigation.navigate('RequestCode')}}/>
                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', marginTop: 16}}>
                     <CustomText style={{fontSize: globalStyles.btnText.fontSize}}>¿Ya tienes cuenta?</CustomText>
                     <CustomButton 
