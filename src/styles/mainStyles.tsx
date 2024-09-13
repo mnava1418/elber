@@ -51,4 +51,16 @@ export const globalStyles = StyleSheet.create({
         color: '#000',
         fontSize: 18
     },
+
+    textArea: {
+        height: 200,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        backgroundColor: globalColors.text,
+        borderRadius: 15,
+        width: '100%',
+        color: '#000',
+        fontSize: 18,
+        textAlignVertical: 'top',
+    }
 })

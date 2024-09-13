@@ -11,6 +11,7 @@ import { setIsAuthenticated } from '../store/actions/auth.actions';
 import RecoverScreen from './screens/auth/RecoverScreen';
 import RequestCodeScreen from './screens/auth/signUp/RequestCodeScreen';
 import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
+import SignUpScreen from './screens/auth/signUp/SignUpScreen';
 
 export type StackNavigationProps = {
     AuthInit: undefined,
@@ -18,7 +19,8 @@ export type StackNavigationProps = {
     Login: undefined,
     Recover: {originalEmail: string},
     RequestCode: undefined,
-    SendCode: undefined
+    SendCode: undefined,
+    SignUp: {code: string}
 }
 
 const Stack = createStackNavigator<StackNavigationProps>();
@@ -50,6 +52,7 @@ const Elber = () => {
                     <Stack.Screen name='Recover' component={RecoverScreen}/>
                     <Stack.Screen name='RequestCode' component={RequestCodeScreen}/>
                     <Stack.Screen name='SendCode' component={SendCodeScreen}/>
+                    <Stack.Screen name='SignUp' component={SignUpScreen}/>
                 </>
             )}
         </Stack.Navigator>
