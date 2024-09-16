@@ -64,7 +64,7 @@ const SignUpScreen = () => {
                         style={[globalStyles.input, { marginTop: 10 }]}
                         value={name}
                         onChangeText={setName}
-                        keyboardType='email-address'
+                        keyboardType='default'
                         autoCapitalize='none'
                     />
                     {errors.name && errors.name.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.name}</CustomText> : <></>}
@@ -73,7 +73,7 @@ const SignUpScreen = () => {
                         style={[globalStyles.input, { marginTop: 10 }]}
                         value={passwords.newPwd}
                         onChangeText={(e) => {setPasswords({...passwords, newPwd: e})}}
-                        keyboardType='email-address'
+                        keyboardType='default'
                         autoCapitalize='none'
                         secureTextEntry
                     />
@@ -83,7 +83,7 @@ const SignUpScreen = () => {
                         style={[globalStyles.input, { marginTop: 10 }]}
                         value={passwords.confirmPwd}
                         onChangeText={(e) => {setPasswords({...passwords, confirmPwd: e})}}
-                        keyboardType='email-address'
+                        keyboardType='default'
                         autoCapitalize='none'
                         secureTextEntry
                     />
