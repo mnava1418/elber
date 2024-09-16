@@ -12,7 +12,6 @@ import { CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { StackNavigationProps } from '../../../Elber'
 import useSignUp from '../../../../hooks/auth/useSignUp'
 import { requestCode } from '../../../../services/auth.service'
-import axiosFetcher from '../../../../adapters/http/axios.fetcher'
 import CustomError from '../../../../models/CustomError'
 
 const RequestCodeScreen = () => {
@@ -37,7 +36,7 @@ const RequestCodeScreen = () => {
         resetState()
 
         try {
-            const response = await requestCode(axiosFetcher, email)
+            const response = await requestCode(email)
             setResult(response)
         } catch (error) {
             if (error instanceof CustomError) {

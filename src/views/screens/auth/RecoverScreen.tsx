@@ -12,8 +12,6 @@ import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import { StackNavigationProps } from '../../Elber'
 import useRecover from '../../../hooks/auth/useRecover'
 import { recoverPassword } from '../../../services/auth.service'
-import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
-
 
 const RecoverScreen = () => {
     const recoverProps = useRoute<RouteProp<StackNavigationProps, 'Recover'>>().params
@@ -35,7 +33,7 @@ const RecoverScreen = () => {
         setIsProcessing(true)
         
         try {
-            await recoverPassword(fbAuthFetcher, info.email)
+            await recoverPassword(info.email)
             setInfo((prev) => ({...prev, result: 'Por favor, revisa tu bandeja de entrada para restablecer tu contraseña.'}))
         } catch (error) {
             setInfo((prev) => ({...prev, error: (error as Error).message}))
