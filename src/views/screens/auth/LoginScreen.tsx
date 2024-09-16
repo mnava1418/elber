@@ -11,7 +11,6 @@ import CustomText from '../../components/ui/CustomText'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomButton from '../../components/ui/CustomButton'
 import { Platform } from 'react-native'
-import { fbAuthFetcher } from '../../../adapters/auth/fbFecther.adapter'
 import * as AuthServices from '../../../services/auth.service'
 import useSignIn from '../../../hooks/auth/useSignIn'
 import CustomError from '../../../models/CustomError'
@@ -40,7 +39,7 @@ const LoginScreen = () => {
         setIsProcessing(true)
 
         try {
-            await AuthServices.signIn(fbAuthFetcher, email, password)
+            await AuthServices.signIn(email, password)
             dispatch(setIsAuthenticated(true))
         } catch (error) {
             if (error instanceof CustomError) {
