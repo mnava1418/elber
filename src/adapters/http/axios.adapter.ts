@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance } from "axios";
 
 class AxiosAdapter implements HttpAdapter {
     private axiosInstance: AxiosInstance
@@ -12,12 +12,20 @@ class AxiosAdapter implements HttpAdapter {
         })
     }
 
-    async post(endpoint: string, body?: Record<string, any>): Promise<HttpResponse> {
+    async post<T>(endpoint: string, body?: Record<string, any>, token?: string): Promise<T> {
         try {
-            const {data, status} = await this.axiosInstance.post<HttpResponse>(endpoint, body)
-            return {data, status}
+            if(token) {
+                this.axiosInstance.defaults.headers.post['token'] = token
+            }
+            
+            const {data} = await this.axiosInstance.post<T>(endpoint, body)
+            return data
         } catch (error) {
-            throw new Error(`Unable to fetch data from: ${endpoint} `)
+            if(error instanceof AxiosError) {
+                throw new Error(error.response?.data.error);
+            } else {
+                throw new Error(`Unable to fetch data from: ${endpoint} `)
+            }
         }
     }
 }

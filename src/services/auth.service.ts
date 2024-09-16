@@ -1,11 +1,15 @@
-import AuthAdapter from "../adapters/auth/auth.adapter";
+import { fbAuthFetcher } from "../adapters/auth/fbFecther.adapter";
+import axiosFetcher from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
 import { isValidEmail } from "../utils/inputs.ustils";
 
-export const signIn = async (fetcher: AuthAdapter, email: string, password: string) => {
+const authFetcher = fbAuthFetcher
+const httpFetcher = axiosFetcher 
+
+export const signIn = async (email: string, password: string) => {
   try {
     validateLoginFields(email, password)
-    const userCredential = await fetcher.signIn(email, password)
+    const userCredential = await authFetcher.signIn(email, password)
 
     if (!userCredential.user.emailVerified) {
       throw new CustomError('El correo no ha sido verificado.');
@@ -20,8 +24,6 @@ export const signIn = async (fetcher: AuthAdapter, email: string, password: stri
 }
 
 const validateLoginFields = (email: string, password: string) => {
-  const errors: string[] = [];
-
   if (!email || email.trim() === '') {
     throw new CustomError('El email es obligatorio.', 'email')
   } else if (!isValidEmail(email)) {
@@ -33,19 +35,19 @@ const validateLoginFields = (email: string, password: string) => {
   }
 }
 
-export const signOut = async (fetcher: AuthAdapter) => {
+export const signOut = async () => {
   try {
-    await fetcher.signOut()
+    await authFetcher.signOut()
   } catch (error) {
     throw new Error('Unable to sign out.');
     
   }
 }
 
-export const recoverPassword = async (fetcher: AuthAdapter, email: string) => {
+export const recoverPassword = async (email: string) => {
   try {
     validateLoginFields(email, 'password')
-    await fetcher.resetPassword(email)
+    await authFetcher.resetPassword(email)
   } catch (error) {
     if(error instanceof Error) {
       throw new Error(error.message);
@@ -55,21 +57,62 @@ export const recoverPassword = async (fetcher: AuthAdapter, email: string) => {
   }
 }
 
-export const requestCode = async(fetcher: HttpAdapter, email: string): Promise<string> => {
+export const requestCode = async(email: string): Promise<string> => {
   try {
     validateLoginFields(email, 'password')
-    const {data, status} = await fetcher.post('/auth/users/requestCode', {email})
-
-    if(status === 200) {
-      return data.message
-    } else {
-      throw new CustomError(data.error);
-    }
+    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/requestCode', {email})
+    return data.message
   } catch (error) {
     if(error instanceof CustomError) {
       throw error
     } else {
       throw new CustomError((error as Error).message);
+    }
+  }
+}
+
+const validateSignUpFileds = (name: string, password: string, confirmPwd: string) => {
+  if(name.trim() === '') {
+    throw new CustomError('El nombre es obligatorio.', 'name')
+  }
+
+  if(password.trim() === '') {
+    throw new CustomError('El password es obligatorio.', 'password')
+  }
+
+  const lengthPattern = /.{8,}/
+  const uppercasePattern = /[A-Z]/
+  const lowercasePattern = /[a-z]/
+  const numberPattern = /[0-9]/
+
+  if (!lengthPattern.test(password)) {
+    throw new CustomError('El password debe tener al menos 8 caracteres.', 'password')
+  }
+  if (!uppercasePattern.test(password)) {
+    throw new CustomError('El password debe contener al menos una letra mayúscula.', 'password')
+  }
+  if (!lowercasePattern.test(password)) {
+    throw new CustomError('El password debe contener al menos una letra minúscula.', 'password')
+  }
+  if (!numberPattern.test(password)) {
+    throw new CustomError('El password debe contener al menos un número.', 'password')
+  }
+
+  if(password !== confirmPwd) {
+    throw new CustomError('Los passwords no son iguales.', 'password')
+  }
+}
+
+export const signUp = async (code: string, name: string, password: string, confirmPwd: string): Promise<string> => {
+  try {
+    validateSignUpFileds(name, password, confirmPwd)
+    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/register', {password, name}, code)
+    return data.message
+  } catch (error) {
+    if(error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError((error as Error).message)
     }
   }
 }
