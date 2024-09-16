@@ -51,7 +51,7 @@ const SendCodeScreen = () => {
                       style={[globalStyles.textArea, {marginTop: 24}]}
                       value={code}
                       onChangeText={setCode}
-                      keyboardType='email-address'
+                      keyboardType='default'
                       autoCapitalize='none'
                       multiline={true}
                       numberOfLines={15}
