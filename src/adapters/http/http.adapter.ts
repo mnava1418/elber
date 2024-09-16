@@ -1,3 +1,3 @@
 abstract class HttpAdapter {
-    abstract post(endpoint: string, body?: Record<string, any>): Promise<HttpResponse>
+    abstract post<T>(endpoint: string, body?: Record<string, any>, token?: string): Promise<T>
 }

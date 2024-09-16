@@ -1,4 +1,3 @@
-type HttpResponse = {
-    data: any
-    status: number
+type SimpleHttpResponse = {
+    message: string
 }
