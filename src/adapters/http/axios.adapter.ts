@@ -21,7 +21,7 @@ class AxiosAdapter implements HttpAdapter {
             const {data} = await this.axiosInstance.post<T>(endpoint, body)
             return data
         } catch (error) {
-            if(error instanceof AxiosError) {
+            if(error instanceof AxiosError && error.response?.data.error) {
                 throw new Error(error.response?.data.error);
             } else {
                 throw new Error(`Unable to fetch data from: ${endpoint} `)

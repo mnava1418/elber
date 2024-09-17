@@ -1,7 +1,7 @@
 import { fbAuthFetcher } from "../adapters/auth/fbFecther.adapter";
 import axiosFetcher from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
-import { isValidEmail } from "../utils/inputs.ustils";
+import { isValidEmail } from "../utils/inputs.utils";
 
 const authFetcher = fbAuthFetcher
 const httpFetcher = axiosFetcher 
@@ -106,7 +106,7 @@ const validateSignUpFileds = (name: string, password: string, confirmPwd: string
 export const signUp = async (code: string, name: string, password: string, confirmPwd: string): Promise<string> => {
   try {
     validateSignUpFileds(name, password, confirmPwd)
-    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/register', {password, name}, code)
+    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/register', {password, name}, code.trim())
     return data.message
   } catch (error) {
     if(error instanceof CustomError) {
