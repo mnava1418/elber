@@ -6,8 +6,8 @@ type SignInErrors = {
     default: string
 }
 
-const useSignIn = () => {
-    const [email, setEmail] = useState('')
+const useSignIn = (currentEmail: string) => {
+    const [email, setEmail] = useState(currentEmail)
     const [password, setPassword] = useState('')
     const[isProcessing, setIsProcessing] = useState(false)
     const[authErrors, setAuthErrors] = useState<SignInErrors>({default: '', email: '', password: ''})
