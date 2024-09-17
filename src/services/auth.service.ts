@@ -106,7 +106,7 @@ const validateSignUpFileds = (name: string, password: string, confirmPwd: string
 export const signUp = async (code: string, name: string, password: string, confirmPwd: string): Promise<string> => {
   try {
     validateSignUpFileds(name, password, confirmPwd)
-    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/register', {password, name}, code)
+    const data = await httpFetcher.post<SimpleHttpResponse>('/auth/users/register', {password, name}, code.trim())
     return data.message
   } catch (error) {
     if(error instanceof CustomError) {
