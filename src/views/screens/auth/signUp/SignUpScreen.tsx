@@ -36,7 +36,8 @@ const SignUpScreen = () => {
         resetState()
         setIsProcessing(true)
         try {
-            await signUp(code, name, passwords.newPwd, passwords.confirmPwd)
+            const signedEmail = await signUp(code, name, passwords.newPwd, passwords.confirmPwd)
+            navigation.navigate('Welcome', {name, email: signedEmail})
         } catch (error) {
             if (error instanceof CustomError) {
                 setErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
