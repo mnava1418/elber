@@ -1,7 +1,7 @@
 import { fbAuthFetcher } from "../adapters/auth/fbFecther.adapter";
 import axiosFetcher from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
-import { isValidEmail } from "../utils/inputs.ustils";
+import { isValidEmail } from "../utils/inputs.utils";
 
 const authFetcher = fbAuthFetcher
 const httpFetcher = axiosFetcher 
