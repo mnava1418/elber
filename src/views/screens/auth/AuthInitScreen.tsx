@@ -46,7 +46,7 @@ const AuthInitScreen = () => {
                         type='transparent' 
                         label='Inicia sesión' 
                         style={{ paddingHorizontal: 0, paddingVertical: 0, marginLeft: 5 }}
-                        onPress={() => {navigation.navigate('Login')}}
+                        onPress={() => {navigation.navigate('Login', {email: ''})}}
                     />
                 </View>
             </View>

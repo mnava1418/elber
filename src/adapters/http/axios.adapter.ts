@@ -5,7 +5,7 @@ class AxiosAdapter implements HttpAdapter {
 
     constructor() {
         this.axiosInstance = axios.create({
-            baseURL: 'http://192.168.1.153:4041',
+            baseURL: 'http://10.2.58.247:4041',
             headers: {
                 'Content-Type': 'application/json'
             }

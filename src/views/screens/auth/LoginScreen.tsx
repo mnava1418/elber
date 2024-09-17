@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import MainView from '../../components/ui/MainView'
-import { useNavigation, NavigationProp } from '@react-navigation/native'
+import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native'
 import { StackNavigationProps } from '../../Elber'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
 import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
@@ -18,6 +18,7 @@ import { GlobalContext } from '../../../store/GlobalState'
 import { setIsAuthenticated } from '../../../store/actions/auth.actions'
 
 const LoginScreen = () => {
+    const props = useRoute<RouteProp<StackNavigationProps, 'Login'>>().params
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const { top } = useSafeAreaInsets()
     const {dispatch} = useContext(GlobalContext)
@@ -27,7 +28,7 @@ const LoginScreen = () => {
         password, setPassword,
         isProcessing, setIsProcessing,
         authErrors, setAuthErrors
-    } = useSignIn()
+    } = useSignIn(props.email)
 
     const leftBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',

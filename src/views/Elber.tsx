@@ -12,15 +12,22 @@ import RecoverScreen from './screens/auth/RecoverScreen';
 import RequestCodeScreen from './screens/auth/signUp/RequestCodeScreen';
 import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
 import SignUpScreen from './screens/auth/signUp/SignUpScreen';
+import WelcomeScreen from './screens/auth/signUp/WelcomeScreen';
 
 export type StackNavigationProps = {
+    /*1. AUTHENTICATION */
     AuthInit: undefined,
     Home: undefined,
-    Login: undefined,
+
+    /*1.1 LOGIN */
+    Login: {email: string},
     Recover: {originalEmail: string},
+
+    /*1.2 SIGNUP */
     RequestCode: undefined,
     SendCode: undefined,
     SignUp: {code: string}
+    Welcome: {name: string, email: string}
 }
 
 const Stack = createStackNavigator<StackNavigationProps>();
@@ -53,6 +60,7 @@ const Elber = () => {
                     <Stack.Screen name='RequestCode' component={RequestCodeScreen}/>
                     <Stack.Screen name='SendCode' component={SendCodeScreen}/>
                     <Stack.Screen name='SignUp' component={SignUpScreen}/>
+                    <Stack.Screen name='Welcome' component={WelcomeScreen}/>
                 </>
             )}
         </Stack.Navigator>
