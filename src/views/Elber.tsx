@@ -49,7 +49,7 @@ const Elber = () => {
     }, [])
     
     return (
-        <Stack.Navigator screenOptions={{headerShown: false, cardStyle: {backgroundColor: globalColors.primary}}}>
+        <Stack.Navigator screenOptions={{headerShown: false, cardStyle: {backgroundColor: globalColors.background}}}>
             {isAuthenticated ? (
                 <Stack.Screen name='Home' component={HomeScreen} />
             ) : (
