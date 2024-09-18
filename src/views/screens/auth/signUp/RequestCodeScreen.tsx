@@ -50,7 +50,7 @@ const RequestCodeScreen = () => {
     }
 
     return (
-        <MainView>
+        <MainView showBgImage >
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Hola, ¡empecemos tu registro!</Subtitle>
             <KeyboardAvoidingView

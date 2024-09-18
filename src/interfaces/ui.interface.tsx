@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import { StyleProp, TextStyle, ViewStyle } from "react-native"
 
 export interface CustomViewProps extends PropsWithChildren {
+    showBgImage?: boolean
     style?: StyleProp<ViewStyle>
 }
 

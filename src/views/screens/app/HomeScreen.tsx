@@ -1,13 +1,13 @@
 import React from 'react'
-import { View } from 'react-native'
 import CustomButton from '../../components/ui/CustomButton'
 import * as AuthServices from '../../../services/auth.service'
+import MainView from '../../components/ui/MainView'
 
 const HomeScreen = () => {
     return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
+        <MainView style={{justifyContent: 'center', alignItems: 'center'}}>
             <CustomButton label='Sign Out' type='primary' onPress={() => {AuthServices.signOut()}}/>
-        </View>
+        </MainView>
     )
 }
 

@@ -37,7 +37,7 @@ const SendCodeScreen = () => {
   }
 
   return (
-      <MainView>
+      <MainView showBgImage >
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Código de registro</Subtitle>
             <KeyboardAvoidingView
