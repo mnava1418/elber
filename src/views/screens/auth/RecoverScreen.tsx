@@ -43,7 +43,7 @@ const RecoverScreen = () => {
     }
 
     return (
-        <MainView>
+        <MainView showBgImage >
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>¿Olvidaste tu contraseña?</Subtitle>
             <KeyboardAvoidingView

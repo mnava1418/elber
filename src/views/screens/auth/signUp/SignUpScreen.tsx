@@ -50,7 +50,7 @@ const SignUpScreen = () => {
     }
     
     return (
-        <MainView>
+        <MainView showBgImage >
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Completa tu registro</Subtitle>
             <KeyboardAvoidingView

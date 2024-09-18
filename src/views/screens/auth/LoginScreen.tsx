@@ -54,7 +54,7 @@ const LoginScreen = () => {
     }
 
     return (
-        <MainView>
+        <MainView showBgImage >
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Bienvenido, que gusto verte de nuevo.</Subtitle>
             <KeyboardAvoidingView

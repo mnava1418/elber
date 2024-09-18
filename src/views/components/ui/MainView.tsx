@@ -4,8 +4,17 @@ import { CustomViewProps } from '../../../interfaces/ui.interface'
 
 const backgroundImage = require('../../../assets/images/mainBackground.png')
 
-const MainView = ({style, children}: CustomViewProps) => {
-    return (
+const MainView = ({style, children, showBgImage = false}: CustomViewProps) => {
+    const getMainView = () => (
+        <View style={[
+            {flex: 1, paddingHorizontal: 20},
+            style
+        ]}>
+            {children}
+        </View>
+    )
+
+    const getMainViewWithImg = () => (
         <ImageBackground source={backgroundImage} style={{flex: 1}} blurRadius={50}>
             <View style={[
                 {flex: 1, paddingHorizontal: 20},
@@ -14,6 +23,12 @@ const MainView = ({style, children}: CustomViewProps) => {
                 {children}
             </View>
         </ImageBackground>
+    )
+
+    return (
+        <>
+            {showBgImage ? getMainViewWithImg() : getMainView()}
+        </>
     )
 }
 

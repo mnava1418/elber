@@ -28,7 +28,7 @@ const AuthInitScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     
     return (
-        <MainView style={{justifyContent: 'space-between', alignItems:'center'}}>
+        <MainView showBgImage style={{justifyContent: 'space-between', alignItems:'center'}}>
             <View style={{flex: 1,  justifyContent: 'center', alignItems: 'center'}}>
                 <Animated.Image 
                     source={logo} 
