@@ -56,7 +56,7 @@ export const globalStyles = StyleSheet.create({
     textArea: {
         height: 200,
         paddingHorizontal: 10,
-        paddingVertical: 8,
+        paddingVertical: 10,
         backgroundColor: globalColors.text,
         borderRadius: 15,
         width: '100%',
