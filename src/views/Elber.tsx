@@ -7,7 +7,7 @@ import { GlobalContext } from '../store/GlobalState';
 import { selectIsAuthenticated } from '../store/selectors/auth.selector';
 import { globalColors } from '../styles/mainStyles';
 import auth from '@react-native-firebase/auth'
-import { setIsAuthenticated } from '../store/actions/auth.actions';
+import { setAuthenticatedUser, setIsAuthenticated } from '../store/actions/auth.actions';
 import RecoverScreen from './screens/auth/RecoverScreen';
 import RequestCodeScreen from './screens/auth/signUp/RequestCodeScreen';
 import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
@@ -40,6 +40,7 @@ const Elber = () => {
         const unsubscribe = auth().onAuthStateChanged((user) => {
             if(user && user.emailVerified) {
                 dispatch(setIsAuthenticated(true))
+                dispatch(setAuthenticatedUser({email: user.email || '', name: user.displayName || ''}))
             } else {
                 dispatch(setIsAuthenticated(false))
             }
