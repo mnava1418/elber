@@ -1,7 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext, useEffect } from 'react'
 import AuthInitScreen from './screens/auth/AuthInitScreen';
-import HomeScreen from './screens/app/HomeScreen';
 import LoginScreen from './screens/auth/LoginScreen';
 import { GlobalContext } from '../store/GlobalState';
 import { selectIsAuthenticated } from '../store/selectors/auth.selector';
@@ -13,11 +12,12 @@ import RequestCodeScreen from './screens/auth/signUp/RequestCodeScreen';
 import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
 import SignUpScreen from './screens/auth/signUp/SignUpScreen';
 import WelcomeScreen from './screens/auth/signUp/WelcomeScreen';
+import MainScreen from './screens/app/MainScreen';
 
 export type StackNavigationProps = {
     /*1. AUTHENTICATION */
     AuthInit: undefined,
-    Home: undefined,
+    Main: undefined,
 
     /*1.1 LOGIN */
     Login: {email: string},
@@ -52,7 +52,7 @@ const Elber = () => {
     return (
         <Stack.Navigator screenOptions={{headerShown: false, cardStyle: {backgroundColor: globalColors.background}}}>
             {isAuthenticated ? (
-                <Stack.Screen name='Home' component={HomeScreen} />
+                <Stack.Screen name='Main' component={MainScreen} />
             ) : (
                 <>
                     <Stack.Screen name='AuthInit' component={AuthInitScreen} />
