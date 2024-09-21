@@ -1,13 +1,14 @@
 import React from 'react'
 import { ImageBackground, View } from 'react-native'
 import { CustomViewProps } from '../../../interfaces/ui.interface'
+import { globalColors } from '../../../styles/mainStyles'
 
 const backgroundImage = require('../../../assets/images/mainBackground.png')
 
 const MainView = ({style, children, showBgImage = false}: CustomViewProps) => {
     const getMainView = () => (
         <View style={[
-            {flex: 1, paddingHorizontal: 20},
+            {flex: 1, paddingHorizontal: 20, backgroundColor: globalColors.background},
             style
         ]}>
             {children}
