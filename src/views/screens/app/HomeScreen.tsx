@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { View, Animated, Pressable, TextInput } from 'react-native'
 import usePulseImage from '../../../hooks/animations/usePulseImage'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
+import CustomNavBar from '../../components/navBar/CustomNavBar'
 
 const logo = require('../../../assets/images/dot.png')
 
@@ -28,7 +29,8 @@ const HomeScreen = () => {
     }
 
     return (
-        <MainView style={{paddingTop: top + 40}}>
+        <MainView style={{paddingTop: top}}>
+            <CustomNavBar title='Elber'/>
             <View style={{flex: 1,  justifyContent: 'center', alignItems: 'center'}}>
                 <Pressable onPress={handleBtnTouch}>
                     <Animated.Image 
