@@ -8,10 +8,10 @@ import MainView from '../../components/ui/MainView'
 import Subtitle from '../../components/ui/Subtitle'
 import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import { StackNavigationProps } from '../../Elber'
 import useRecover from '../../../hooks/auth/useRecover'
 import { recoverPassword } from '../../../services/auth.service'
+import NavBarBackBtn from '../../components/navBar/NavBarBackBtn'
 
 const RecoverScreen = () => {
     const recoverProps = useRoute<RouteProp<StackNavigationProps, 'Recover'>>().params
@@ -23,10 +23,7 @@ const RecoverScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const { top } = useSafeAreaInsets()
    
-    const leftBtn: CustomNavBtnProps = {
-        icon: 'chevron-back-outline',
-        onPress: () => { navigation.goBack() }
-    }
+    const leftBtn = NavBarBackBtn(navigation)
 
     const handleSubmit = async() => {
         setInfo({...info, error: '', result: ''})

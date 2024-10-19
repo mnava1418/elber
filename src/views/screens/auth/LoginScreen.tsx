@@ -3,7 +3,6 @@ import MainView from '../../components/ui/MainView'
 import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native'
 import { StackNavigationProps } from '../../Elber'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
-import { CustomNavBtnProps } from '../../../interfaces/ui.interface'
 import Subtitle from '../../components/ui/Subtitle'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ActivityIndicator, KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
@@ -16,6 +15,7 @@ import useSignIn from '../../../hooks/auth/useSignIn'
 import CustomError from '../../../models/CustomError'
 import { GlobalContext } from '../../../store/GlobalState'
 import { setIsAuthenticated } from '../../../store/actions/auth.actions'
+import NavBarBackBtn from '../../components/navBar/NavBarBackBtn'
 
 const LoginScreen = () => {
     const props = useRoute<RouteProp<StackNavigationProps, 'Login'>>().params
@@ -30,10 +30,7 @@ const LoginScreen = () => {
         authErrors, setAuthErrors
     } = useSignIn(props.email)
 
-    const leftBtn: CustomNavBtnProps = {
-        icon: 'chevron-back-outline',
-        onPress: () => { navigation.goBack() }
-    }
+    const leftBtn = NavBarBackBtn(navigation)
 
     const handleSignIn = async () => {
         setAuthErrors({default: '', email: '', password: ''})

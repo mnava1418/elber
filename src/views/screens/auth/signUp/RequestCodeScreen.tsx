@@ -8,11 +8,11 @@ import MainView from '../../../components/ui/MainView'
 import Subtitle from '../../../components/ui/Subtitle'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { StackNavigationProps } from '../../../Elber'
 import useSignUp from '../../../../hooks/auth/useSignUp'
 import { requestCode } from '../../../../services/auth.service'
 import CustomError from '../../../../models/CustomError'
+import NavBarBackBtn from '../../../components/navBar/NavBarBackBtn'
 
 const RequestCodeScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -26,10 +26,7 @@ const RequestCodeScreen = () => {
         resetState
     } = useSignUp()
     
-    const leftBtn: CustomNavBtnProps = {
-        icon: 'chevron-back-outline',
-        onPress: () => { navigation.goBack() }
-    }
+    const leftBtn = NavBarBackBtn(navigation)
 
     const handleRequest = async() => {
         setIsProcessing(true)
