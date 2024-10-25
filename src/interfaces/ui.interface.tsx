@@ -26,3 +26,8 @@ export interface CustomNavBarProps {
     rightBtn?: CustomNavBtnProps
     title?: string
 }
+
+export interface SectionItemProps {
+    title: string,
+    screenName: string
+}
