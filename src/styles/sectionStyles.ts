@@ -12,7 +12,5 @@ export const sectionStyles = StyleSheet.create({
         flexDirection: 'row', 
         alignItems: 'center', 
         padding: 16, 
-        borderBottomWidth: 1, 
-        borderBottomColor: globalColors.background
     }
 })

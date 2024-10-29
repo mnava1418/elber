@@ -12,7 +12,7 @@ const SectionContainer = ({sectionItems}: SectionContainerProps) => {
     return (
         <View style={sectionStyles.container}>
             {sectionItems.map((item, index) => (
-                <SectionItem key={index} item={{title: item.title, screenName: item.screenName}} />    
+                <SectionItem key={index} current={index} count={sectionItems.length} item={{title: item.title, screenName: item.screenName}} />    
             ))}
         </View>
     )
