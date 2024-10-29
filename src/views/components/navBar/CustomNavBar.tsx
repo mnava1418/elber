@@ -28,7 +28,7 @@ const CustomNavBar = (props: CustomNavBarProps) => {
             ) : (
                 <View style={{width: 40, height: 40}} />
             )}
-            <View style={{flex: 1}}><Title style={{textAlign: 'center', fontSize: 24}}>{props.title}</Title></View>
+            <View style={{flex: 1}}><Title style={{textAlign: 'center', fontSize: 18}}>{props.title}</Title></View>
             {rightBtn ? (
                 <CustomNavBtn icon={rightBtn.icon} onPress={rightBtn.onPress} style={rightBtn.style} />
             ) : (

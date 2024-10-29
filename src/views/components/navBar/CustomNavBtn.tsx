@@ -13,7 +13,7 @@ const CustomNavBtn = ({icon = '', onPress = () => {}, style}: CustomNavBtnProps)
             )}
             onPress={onPress}
         >
-            <AppIcon name={icon} />
+            <AppIcon name={icon} size={32} />
         </Pressable>
     )
 }
