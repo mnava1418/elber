@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MainView from '../../components/ui/MainView'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
@@ -16,7 +16,7 @@ const HomeScreen = () => {
     const {top} = useSafeAreaInsets()
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
     const [isListening, setIsListening] = useState(false)
-    const [prompt, setPrompt] = useState(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
+    const [prompt, setPrompt] = useState('')
 
     const handleBtnTouch = () => {
         if(isListening) {
@@ -28,6 +28,10 @@ const HomeScreen = () => {
         }
     }
 
+    useEffect(() => {
+        setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
+    }, [user])
+    
     return (
         <MainView style={{paddingTop: top}}>
             <CustomNavBar title='Elber'/>
