@@ -28,6 +28,7 @@ export interface CustomNavBarProps {
 }
 
 export interface SectionItemProps {
+    icon: string,
     title: string,
     screenName: string
 }

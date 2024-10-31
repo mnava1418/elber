@@ -2,10 +2,12 @@ import { SectionItemProps } from "../interfaces/ui.interface";
 
 export const settingsSections: SectionItemProps[] = [
     {
-        title: 'Cuenta',
+        icon: 'person',
+        title: 'Perfil',
         screenName: 'SettingsAccount'
     },
     {
+        icon: 'lock-closed',
         title: 'Privacidad',
         screenName: 'SettingsPrivacy'
     }
