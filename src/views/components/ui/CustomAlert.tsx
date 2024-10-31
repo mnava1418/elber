@@ -20,7 +20,7 @@ const CustomAlert = (props: CustomAlertProps) => {
         <Modal transparent={true} visible={visible} animationType="fade">
             <View style={globalStyles.modalBackground}>
                 <View style={globalStyles.alertContainer}>
-                    <Subtitle style={{marginBottom: 8, textAlign: 'center'}}>{title}</Subtitle>
+                    <Subtitle style={{marginBottom: 8, textAlign: 'center', fontSize: 20}}>{title}</Subtitle>
                     <CustomText style={{marginBottom: 16, textAlign: 'center'}}>{message}</CustomText>
                     {alertBtns.map((btn, index) => (
                         <CustomButton 
