@@ -5,11 +5,11 @@ export const sectionStyles = StyleSheet.create({
     container: {
         backgroundColor: globalColors.primary, 
         borderRadius: 15, 
-        marginVertical: 24
     },
 
     item: {
         flexDirection: 'row', 
+        justifyContent: 'flex-start',
         alignItems: 'center', 
         padding: 16, 
         borderBottomColor: globalColors.background

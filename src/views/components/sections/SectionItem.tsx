@@ -5,7 +5,6 @@ import CustomText from '../ui/CustomText'
 import { sectionStyles } from '../../../styles/sectionStyles'
 import { SectionItemProps } from '../../../interfaces/ui.interface'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { globalColors } from '../../../styles/mainStyles'
 
 type Props = {
     item: SectionItemProps,
@@ -14,7 +13,7 @@ type Props = {
 }
 
 const SectionItem = ({item, current, count}: Props) => {
-    const {title, screenName} = item
+    const {title, screenName, icon} = item
     const navigation = useNavigation<NavigationProp<any>>()
     return (
         <Pressable 
@@ -26,6 +25,9 @@ const SectionItem = ({item, current, count}: Props) => {
                 {borderBottomWidth: current < count - 1 ? 1 : 0}
             ]}
             >
+                <View style={{marginRight: 8}}>
+                    <AppIcon name={icon} size={27} />
+                </View>
                 <CustomText style={{fontWeight: 600}}>{title}</CustomText>
                 <View style={{position: 'absolute', right: 8}}>
                     <AppIcon name={'chevron-forward-outline'} size={30} />
