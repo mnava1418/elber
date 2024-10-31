@@ -1,6 +1,6 @@
 import React from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput } from 'react-native'
-import { globalStyles } from '../../../../styles/mainStyles'
+import { globalColors, globalStyles } from '../../../../styles/mainStyles'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import CustomButton from '../../../components/ui/CustomButton'
 import CustomText from '../../../components/ui/CustomText'
@@ -54,7 +54,7 @@ const SendCodeScreen = () => {
                       numberOfLines={15}
                       textAlignVertical="top"
                     />
-                    {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.default}</CustomText> : <></>}
+                    {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}
                     <CustomButton label='Continuar' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
                 </ScrollView>
             </KeyboardAvoidingView>

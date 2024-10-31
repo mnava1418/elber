@@ -68,7 +68,7 @@ const LoginScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {authErrors.email && authErrors.email.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.email}</CustomText> : <></>}
+                    {authErrors.email && authErrors.email.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.email}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -78,12 +78,12 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {authErrors.password && authErrors.password.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.password}</CustomText> : <></>}
+                    {authErrors.password && authErrors.password.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.password}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {authErrors.default && authErrors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{authErrors.default}</CustomText> : <></>}
+                                {authErrors.default && authErrors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.default}</CustomText> : <></>}
                                 <CustomButton label='¿Olvidaste tu contraseña?' type='transparent' style={{ marginTop: 16 }} onPress={() => {navigation.navigate('Recover', {originalEmail: email})}} />
                             </View>
                         </View>

@@ -3,7 +3,8 @@ import { StyleSheet } from "react-native"
 export const globalColors = {
     primary: '#20516D',
     text: '#94B8D7',
-    background: '#012E46'
+    background: '#012E46',
+    alert: '#FF4C4C'
 }
 
 export const globalStyles = StyleSheet.create({
@@ -39,7 +40,6 @@ export const globalStyles = StyleSheet.create({
     btnText: {
         fontWeight: "600",
         fontSize: 20,
-        color: globalColors.text
     },
 
     input: {
@@ -63,5 +63,20 @@ export const globalStyles = StyleSheet.create({
         color: '#000',
         fontSize: 18,
         textAlignVertical: 'top',
-    }
+    },
+
+    modalBackground: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    alertContainer: {
+        width: 300,
+        padding: 20,
+        backgroundColor: globalColors.primary,
+        borderRadius: 15,
+        alignItems: 'center',
+    },
 })
