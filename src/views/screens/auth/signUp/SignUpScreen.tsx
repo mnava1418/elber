@@ -65,7 +65,7 @@ const SignUpScreen = () => {
                         keyboardType='default'
                         autoCapitalize='none'
                     />
-                    {errors.name && errors.name.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.name}</CustomText> : <></>}
+                    {errors.name && errors.name.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.name}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -75,7 +75,7 @@ const SignUpScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {errors.password && errors.password.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.password}</CustomText> : <></>}
+                    {errors.password && errors.password.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.password}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Confirma tu password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -88,7 +88,7 @@ const SignUpScreen = () => {
                     {!isProcessing ? (
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <CustomButton label='Registrar' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
-                            {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.default}</CustomText> : <></>}                        
+                            {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}                        
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>

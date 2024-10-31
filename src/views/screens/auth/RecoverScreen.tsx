@@ -58,7 +58,7 @@ const RecoverScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {info.error && info.error.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{info.error}</CustomText> : <></>}
+                    {info.error && info.error.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{info.error}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Recuperar' type='primary' style={{ marginTop: 56 }} onPress={handleSubmit} />

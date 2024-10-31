@@ -65,12 +65,12 @@ const RequestCodeScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {errors.email && errors.email.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.email}</CustomText> : <></>}
+                    {errors.email && errors.email.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.email}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Solicitar código' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: '#FF4C4C', marginTop: 8 }}>{errors.default}</CustomText> : <></>}
+                                {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}
                                 {result.trim() !== '' ? <CustomText style={{marginTop: 8, textAlign: 'center' }}>{result}</CustomText> : <></>}
                                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', marginTop: 16}}>
                                     <CustomText style={{fontSize: globalStyles.btnText.fontSize}}>¿Ya tienes tu código?</CustomText>
