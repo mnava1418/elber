@@ -1,7 +1,7 @@
 import React from 'react'
 import { Pressable, Text } from 'react-native'
 import { CustomButtonProps } from '../../../interfaces/ui.interface'
-import { globalStyles } from '../../../styles/mainStyles'
+import { globalColors, globalStyles } from '../../../styles/mainStyles'
 
 
 const CustomButton = ({label, type, style, onPress}: CustomButtonProps) => {
@@ -26,7 +26,7 @@ const CustomButton = ({label, type, style, onPress}: CustomButtonProps) => {
             ])}
             onPress={onPress}
         >
-            <Text style={globalStyles.btnText}>
+            <Text style={[globalStyles.btnText, {color: type === 'danger' ? globalColors.alert : globalColors.text}]}>
                 {label}
             </Text>
         </Pressable>

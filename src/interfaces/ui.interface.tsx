@@ -11,7 +11,7 @@ export interface CustomTextProps extends PropsWithChildren {
 }
 
 export interface CustomButtonProps extends CustomViewProps {
-    type: 'primary' | 'transparent'
+    type: 'primary' | 'transparent' | 'danger'
     label: string
     onPress: () => void
 }
@@ -30,4 +30,10 @@ export interface CustomNavBarProps {
 export interface SectionItemProps {
     title: string,
     screenName: string
+}
+
+export interface AlertBtnProps {
+    type: 'default' | 'cancel'
+    label: string,
+    action: () => void
 }
