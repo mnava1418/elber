@@ -6,10 +6,14 @@ import { menuStyles } from '../../../styles/menuStyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TabIcon from './TabIcon';
 
-const TabBar = ({state, navigation}: BottomTabBarProps) => {
+interface TabBarProps extends BottomTabBarProps {
+    showTabBar: boolean
+}
+
+const TabBar = ({state, navigation, showTabBar}: TabBarProps) => {
     const {bottom} = useSafeAreaInsets()
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', backgroundColor: globalColors.background }}>
+        <View style={{ display: showTabBar ? 'flex' : 'none', flexDirection: 'row', justifyContent: 'center', backgroundColor: globalColors.background }}>
             <View style={[menuStyles.container, {marginBottom: bottom + 8}]}>
                 {state.routes.map((route, index) => {
                     let icon = ''
