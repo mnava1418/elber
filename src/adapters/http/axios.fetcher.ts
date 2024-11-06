@@ -1,4 +1,7 @@
 import AxiosAdapter from "./axios.adapter";
 
-const axiosFetcher = new AxiosAdapter()
-export default axiosFetcher
+export const getAxiosFetcher = (url: string ): AxiosAdapter => {
+    const axiosFetcher = new AxiosAdapter(url)
+    return axiosFetcher
+
+}
