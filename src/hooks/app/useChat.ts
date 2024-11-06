@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const useChat = () => {
-
+    const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
     const [btnType, setBtnType] = useState<'primary' | 'outline'>('outline')
     const [inputState, setInputState] = useState({
@@ -12,7 +12,8 @@ const useChat = () => {
     return {
         inputState, setInputState,
         message, setMessage,
-        btnType, setBtnType
+        btnType, setBtnType,
+        loading, setLoading
     }
 }
 
