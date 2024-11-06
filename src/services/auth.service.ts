@@ -1,10 +1,11 @@
+import { BACK_URL } from "@env";
 import { fbAuthFetcher } from "../adapters/auth/fbFecther.adapter";
-import axiosFetcher from "../adapters/http/axios.fetcher";
+import { getAxiosFetcher } from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
 import { isValidEmail } from "../utils/inputs.utils";
 
 const authFetcher = fbAuthFetcher
-const httpFetcher = axiosFetcher 
+const httpFetcher = getAxiosFetcher(`${BACK_URL}:4041`) 
 
 export const signIn = async (email: string, password: string) => {
   try {
