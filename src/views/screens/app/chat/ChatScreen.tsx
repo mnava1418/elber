@@ -11,6 +11,7 @@ import { chatStyles } from '../../../../styles/chatStyles'
 import { ChatMessageType } from '../../../../interfaces/app.interface'
 import ChatMessage from './ChatMessage'
 import useChat from '../../../../hooks/app/useChat'
+import { generateChatMessage, sendElberMessage } from '../../../../services/elber.service'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -25,7 +26,8 @@ const ChatScreen = () => {
     const {
         message, setMessage,
         inputState, setInputState,
-        btnType, setBtnType
+        btnType, setBtnType,
+        loading, setLoading,
     } = useChat()
 
     useEffect(() => {
@@ -44,26 +46,23 @@ const ChatScreen = () => {
         }
     }, []);
 
-    const sendMessage = async () => {
+    const sendMessage = async() => {
         if (message.trim() === '') return;
 
         setMessage('')
+        setLoading(true)
+        setMessages((prevMessages) => [generateChatMessage(message, 'user'), ...prevMessages]);
 
-        /*TO-DO Use setLoading*/
-    
-        const userMessage: ChatMessageType = {
-            id: Math.random().toString(36).substring(7),
-            text: message,
-            sender: 'user',
-        };
+        const responseMessage = await sendElberMessage(message)
+        .then(result => {
+            return result
+        })
+        .catch(error => {
+            return `Perdón mi hermano, está cosa tronó: ${(error as Error).message}`
+        })
 
-        const elberMessage: ChatMessageType = {
-            id: Math.random().toString(36).substring(7),
-            text: `Respuesta de: ${message}`,
-            sender: 'bot',
-        };
-    
-        setMessages((prevMessages) => [elberMessage, userMessage, ...prevMessages]);
+        setMessages((prevMessages) => [generateChatMessage(responseMessage, 'bot'), ...prevMessages]);
+        setLoading(false)
     };
 
     return (
@@ -100,11 +99,16 @@ const ChatScreen = () => {
                     onContentSizeChange={(event) => setInputState({...inputState, height: event.nativeEvent.contentSize.height})}
                     keyboardType='default'
                     autoCapitalize='sentences'
+                    editable= {!loading}
                 />
-                <ChatBtn type={btnType} icon={btnType === 'primary' ? 'send' : 'camera-outline'} onPress={() => {
-                    setBtnType('outline')
-                    sendMessage()
-                }} />
+                {loading ? (
+                    <ChatBtn type='primary' icon='ellipse' onPress={() => {}} />
+                ) : (
+                    <ChatBtn type={btnType} icon={btnType === 'primary' ? 'send' : 'camera-outline'} onPress={() => {
+                        setBtnType('outline')
+                        sendMessage()
+                    }} />
+                )}
             </View>
             </KeyboardAvoidingView>
          </MainView>
