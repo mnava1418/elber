@@ -3,9 +3,9 @@ import axios, { AxiosError, AxiosInstance } from "axios";
 class AxiosAdapter implements HttpAdapter {
     private axiosInstance: AxiosInstance
 
-    constructor() {
+    constructor(url: string) {
         this.axiosInstance = axios.create({
-            baseURL: 'http://192.168.1.153:4041',
+            baseURL: url,
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -15,7 +15,7 @@ class AxiosAdapter implements HttpAdapter {
     async post<T>(endpoint: string, body?: Record<string, any>, token?: string): Promise<T> {
         try {
             if(token) {
-                this.axiosInstance.defaults.headers.post['token'] = token
+                this.axiosInstance.defaults.headers.Authorization = `Bearer ${token}`
             }
             
             const {data} = await this.axiosInstance.post<T>(endpoint, body)
