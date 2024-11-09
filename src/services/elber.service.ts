@@ -13,7 +13,7 @@ export const sendElberMessage = async(query: string) => {
             throw new Error('User not authenticated.');
         }    
 
-        const token = await currentUser.getIdToken()
+        const token = await currentUser.getIdToken(true)
         const data = await httpFetcher.post<ElberResponse>('/dialog', {query}, token)
         return data.responseText
     } catch (error) {
