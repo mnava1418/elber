@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import MainView from '../../../components/ui/MainView'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
@@ -8,10 +8,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
 import ChatBtn from './ChatBtn'
 import { chatStyles } from '../../../../styles/chatStyles'
-import { ChatMessageType } from '../../../../interfaces/app.interface'
+import { ChatHistoryType } from '../../../../interfaces/app.interface'
 import ChatMessage from './ChatMessage'
 import useChat from '../../../../hooks/app/useChat'
-import { generateChatMessage, sendElberMessage } from '../../../../services/elber.service'
+import * as elberService from '../../../../services/elber.service'
+import { GlobalContext } from '../../../../store/GlobalState'
+import { selectChatMessages } from '../../../../store/selectors/chat.selector'
+import { setChatMessages, setNewMessage } from '../../../../store/actions/chat.actions'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -22,7 +25,9 @@ const ChatScreen = () => {
         onPress: () => { navigation.navigate('Home')}
     }
 
-    const [messages, setMessages] = useState<ChatMessageType[]>([]);
+    const {state, dispatch} = useContext(GlobalContext)
+    const chatMessages = selectChatMessages(state.chat)
+    
     const {
         message, setMessage,
         inputState, setInputState,
@@ -44,6 +49,12 @@ const ChatScreen = () => {
             keyboardDidHideListener.remove();
           };
         }
+
+        elberService.loadChatMessages()
+        .then((response: ChatHistoryType) => {
+            console.log('lastKey', response.lastKey)
+            dispatch(setChatMessages(response.messages))
+        })
     }, []);
 
     const sendMessage = async() => {
@@ -51,17 +62,19 @@ const ChatScreen = () => {
 
         setMessage('')
         setLoading(true)
-        setMessages((prevMessages) => [generateChatMessage(message, 'user'), ...prevMessages]);
 
-        const responseMessage = await sendElberMessage(message)
+        const userMessage = elberService.generateChatMessage(message, 'user')
+        dispatch(setNewMessage(userMessage))
+
+        const botMessage = await elberService.sendElberMessage(userMessage)
         .then(result => {
-            return result
+            return elberService.generateChatMessage(result.responseText, 'bot', false, result.id)
         })
         .catch(error => {
-            return `Perdón mi hermano, está cosa tronó: ${(error as Error).message}`
+            return elberService.generateChatMessage(`Perdón mi hermano, está cosa tronó: ${(error as Error).message}`, 'bot')
         })
 
-        setMessages((prevMessages) => [generateChatMessage(responseMessage, 'bot'), ...prevMessages]);
+        dispatch(setNewMessage(botMessage))
         setLoading(false)
     };
 
@@ -74,7 +87,7 @@ const ChatScreen = () => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : inputState.keyboardOffset}
             >
             <FlatList
-                data={messages}
+                data={chatMessages}
                 renderItem={({item}) => (
                     <ChatMessage message={item} />
                 )}

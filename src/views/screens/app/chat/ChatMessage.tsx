@@ -14,7 +14,7 @@ const ChatMessage = ({message}: ChatMessageProps) => {
                 chatStyles.messageContainer,
             message.sender === 'user' ? chatStyles.userMessage : chatStyles.botMessage,
         ]}>
-            <Text style={chatStyles.messageText}>{message.text}</Text>
+            <Text style={chatStyles.messageText}>{message.message}</Text>
         </View>
     )
 }

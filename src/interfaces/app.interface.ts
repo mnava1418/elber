@@ -1,5 +1,11 @@
 export type ChatMessageType = {
-    id: string;
-    text: string;
-    sender: 'user' | 'bot';
+    message: string;
+    sender: 'user' | 'bot'
+    isFavorite: boolean
+    id: string
+}
+
+export type ChatHistoryType = {
+    messages: ChatMessageType[]
+    lastKey: string | null
 }

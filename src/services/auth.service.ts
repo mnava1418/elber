@@ -3,6 +3,7 @@ import { fbAuthFetcher } from "../adapters/auth/fbFecther.adapter";
 import { getAxiosFetcher } from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
 import { isValidEmail } from "../utils/inputs.utils";
+import { SimpleHttpResponse, SigUpResponse } from "../interfaces/http.interface";
 
 const authFetcher = fbAuthFetcher
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4041`) 
