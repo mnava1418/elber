@@ -1,7 +1,9 @@
 import {BACK_URL} from '@env'
 import { getAxiosFetcher } from '../adapters/http/axios.fetcher'
 import auth  from '@react-native-firebase/auth'
-import { ChatMessageType } from '../interfaces/app.interface'
+import { ChatHistoryType, ChatMessageType } from '../interfaces/app.interface'
+import { ElberResponse, ChatHistoryResponse } from '../interfaces/http.interface'
+import ChatMapper from '../mappers/chat.mapper'
 
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4042`)
 
@@ -21,12 +23,23 @@ export const sendElberMessage = async(query: string) => {
     }
 }
 
-export const generateChatMessage = (message: string, sender: 'user' | 'bot'):ChatMessageType => {
-    const chatMessage: ChatMessageType = {
-        id: Math.random().toString(36).substring(7),
-        text: message,
-        sender: sender,
-    };
+export const generateChatMessage = (message: string, sender: 'user' | 'bot', isFavorite: boolean):ChatMessageType => {
+    const chatMessage: ChatMessageType = {isFavorite, message, sender};
 
     return chatMessage
+}
+
+export const loadChatMessages = async (lastKey: string | null = null): Promise<ChatHistoryType> => {
+    try {
+        const token = await auth().currentUser?.getIdToken(true)
+        .catch(() => {
+            throw new Error('User not authenticated.');
+        })
+
+        const endpoint = lastKey ? `/chat?lastKey=${lastKey}` : '/chat'
+        const data = await httpFetcher.get<ChatHistoryResponse>(endpoint, token)
+        return ChatMapper.mapChatHistory(data)
+    } catch (error) {
+        throw new Error((error as Error).message);
+    }
 }
