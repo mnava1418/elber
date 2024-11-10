@@ -2,7 +2,7 @@ export type ChatMessageType = {
     message: string;
     sender: 'user' | 'bot'
     isFavorite: boolean
-    id?: string
+    id: string
 }
 
 export type ChatHistoryType = {

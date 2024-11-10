@@ -7,7 +7,7 @@ import ChatMapper from '../mappers/chat.mapper'
 
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4042`)
 
-export const sendElberMessage = async(query: string) => {
+export const sendElberMessage = async(chatMessage: ChatMessageType): Promise<ElberResponse> => {
     try {
         const currentUser = auth().currentUser
 
@@ -15,16 +15,21 @@ export const sendElberMessage = async(query: string) => {
             throw new Error('User not authenticated.');
         }    
 
+        const body = {id: chatMessage.id, query: chatMessage.message}
         const token = await currentUser.getIdToken(true)
-        const data = await httpFetcher.post<ElberResponse>('/dialog', {query}, token)
-        return data.responseText
+        const data = await httpFetcher.post<ElberResponse>('/dialog', body, token)
+        return data
     } catch (error) {
         throw new Error((error as Error).message);
     }
 }
 
-export const generateChatMessage = (message: string, sender: 'user' | 'bot', isFavorite: boolean):ChatMessageType => {
-    const chatMessage: ChatMessageType = {isFavorite, message, sender};
+export const generateChatMessage = (message: string, sender: 'user' | 'bot', isFavorite: boolean = false, id: string | null = null):ChatMessageType => {
+    if(!id) {
+        id = Date.now().toString()
+    }
+
+    const chatMessage: ChatMessageType = {isFavorite, message, sender, id};
 
     return chatMessage
 }

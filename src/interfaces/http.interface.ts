@@ -12,6 +12,7 @@ export type SigUpResponse = {
 export type ElberResponse = {
     intentName:string 
     responseText:string
+    id: string
 }
 
 export type ChatHistoryResponse = {
