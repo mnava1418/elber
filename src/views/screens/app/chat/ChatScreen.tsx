@@ -52,8 +52,7 @@ const ChatScreen = () => {
 
         elberService.loadChatMessages()
         .then((response: ChatHistoryType) => {
-            console.log('lastKey', response.lastKey)
-            dispatch(setChatMessages(response.messages))
+            dispatch(setChatMessages({messages: response.messages, lastKey: response.lastKey}))
         })
     }, []);
 
