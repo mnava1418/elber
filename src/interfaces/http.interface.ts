@@ -16,6 +16,6 @@ export type ElberResponse = {
 }
 
 export type ChatHistoryResponse = {
-    messages: {[key:string]: ChatMessageType},
+    messages: ChatMessageType[],
     lastKey: string | null
 }

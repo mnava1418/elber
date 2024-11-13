@@ -1,20 +1,20 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import MainView from '../../../components/ui/MainView'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainScreenTapProps } from '../MainScreen'
 import { CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { FlatList, Keyboard, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native'
+import { FlatList, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
 import ChatBtn from './ChatBtn'
 import { chatStyles } from '../../../../styles/chatStyles'
-import { ChatHistoryType } from '../../../../interfaces/app.interface'
 import ChatMessage from './ChatMessage'
 import useChat from '../../../../hooks/app/useChat'
 import * as elberService from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
-import { selectChatMessages } from '../../../../store/selectors/chat.selector'
-import { setChatMessages, setNewMessage } from '../../../../store/actions/chat.actions'
+import { selectChatHistory } from '../../../../store/selectors/chat.selector'
+import { setChatMessages, setNewMessage, setLastKey } from '../../../../store/actions/chat.actions'
+import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -26,7 +26,9 @@ const ChatScreen = () => {
     }
 
     const {state, dispatch} = useContext(GlobalContext)
-    const chatMessages = selectChatMessages(state.chat)
+    const {chatMessages, lastKey} = selectChatHistory(state.chat)
+
+    const isLoadingMessages = useRef(false)
     
     const {
         message, setMessage,
@@ -51,8 +53,9 @@ const ChatScreen = () => {
         }
 
         elberService.loadChatMessages()
-        .then((response: ChatHistoryType) => {
-            dispatch(setChatMessages({messages: response.messages, lastKey: response.lastKey}))
+        .then((response: ChatHistoryResponse) => {
+            dispatch(setChatMessages(response.messages))
+            dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
         })
     }, []);
 
@@ -77,6 +80,26 @@ const ChatScreen = () => {
         setLoading(false)
     };
 
+    const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        if ( isLoadingMessages.current || lastKey === null ) return;
+        
+        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+        const isEndReached = ( contentOffset.y + layoutMeasurement.height ) >= contentSize.height -20
+        if ( !isEndReached ) return;
+
+        isLoadingMessages.current = true
+
+        elberService.loadChatMessages(lastKey)
+        .then((response: ChatHistoryResponse) => {
+            dispatch(setChatMessages(response.messages))
+            dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
+            
+            setTimeout(() => {
+                isLoadingMessages.current = false
+            }, 500);
+        })
+    }
+
     return (
         <MainView>
             <CustomNavBar leftBtn={backBtn} title='Chat'/>
@@ -90,9 +113,10 @@ const ChatScreen = () => {
                 renderItem={({item}) => (
                     <ChatMessage message={item} />
                 )}
-                keyExtractor={(item) => item.id}
-                inverted
+                keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
+                inverted
+                onScroll={onScroll}
             />
             <View style={chatStyles.inputContainer}>
                 <TextInput
