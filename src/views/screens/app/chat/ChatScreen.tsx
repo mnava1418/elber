@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useRef } from 'react'
+import React, { useContext, useEffect } from 'react'
 import MainView from '../../../components/ui/MainView'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainScreenTapProps } from '../MainScreen'
 import { CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { FlatList, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
 import ChatBtn from './ChatBtn'
 import { chatStyles } from '../../../../styles/chatStyles'
 import ChatMessage from './ChatMessage'
@@ -15,6 +15,8 @@ import { GlobalContext } from '../../../../store/GlobalState'
 import { selectChatHistory } from '../../../../store/selectors/chat.selector'
 import { setChatMessages, setNewMessage, setLastKey } from '../../../../store/actions/chat.actions'
 import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
+import { globalColors } from '../../../../styles/mainStyles'
+import useChatHistory from '../../../../hooks/app/useChatHistory'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -28,7 +30,10 @@ const ChatScreen = () => {
     const {state, dispatch} = useContext(GlobalContext)
     const {chatMessages, lastKey} = selectChatHistory(state.chat)
 
-    const isLoadingMessages = useRef(false)
+    const {
+        isLoadingHistory, setIsLoadingHistory, 
+        isLoadingMessages
+    } = useChatHistory()
     
     const {
         message, setMessage,
@@ -56,6 +61,7 @@ const ChatScreen = () => {
         .then((response: ChatHistoryResponse) => {
             dispatch(setChatMessages(response.messages))
             dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
+            setIsLoadingHistory(false)
         })
     }, []);
 
@@ -84,38 +90,35 @@ const ChatScreen = () => {
         if ( isLoadingMessages.current || lastKey === null ) return;
         
         const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-        const isEndReached = ( contentOffset.y + layoutMeasurement.height ) >= contentSize.height -20
+        const isEndReached = ( contentOffset.y + layoutMeasurement.height ) >= contentSize.height - 20
         if ( !isEndReached ) return;
 
         isLoadingMessages.current = true
-
+        
         elberService.loadChatMessages(lastKey)
         .then((response: ChatHistoryResponse) => {
             dispatch(setChatMessages(response.messages))
             dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
-            
             setTimeout(() => {
                 isLoadingMessages.current = false
             }, 500);
         })
     }
 
-    return (
-        <MainView>
-            <CustomNavBar leftBtn={backBtn} title='Chat'/>
-            <KeyboardAvoidingView
+    const getChatView = () => (
+        <KeyboardAvoidingView
                 style={[chatStyles.container, {marginBottom: bottom + 8, marginTop: top + 72}]}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : inputState.keyboardOffset}
             >
             <FlatList
+                inverted
                 data={chatMessages}
                 renderItem={({item}) => (
                     <ChatMessage message={item} />
                 )}
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
-                inverted
                 onScroll={onScroll}
             />
             <View style={chatStyles.inputContainer}>
@@ -146,7 +149,20 @@ const ChatScreen = () => {
                     }} />
                 )}
             </View>
-            </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+    )
+
+    return (
+        <MainView>
+            <CustomNavBar leftBtn={backBtn} title='Chat'/>
+            {isLoadingHistory ? (
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                    <ActivityIndicator size={'large'} color={globalColors.text} />
+                </View>
+            ) : (
+                getChatView()
+            )}
+            
          </MainView>
     )
 }
