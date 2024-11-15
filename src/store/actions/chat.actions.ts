@@ -15,3 +15,7 @@ export const setNewMessage = (message: ChatMessageType): ChatAction => ({
     type: 'ADD_MESSAGE',
     payload: message
 })
+
+export const deleteAllMessages = (): ChatAction => ({
+    type: 'DELETE_ALL'
+})
