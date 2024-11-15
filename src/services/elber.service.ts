@@ -47,3 +47,17 @@ export const loadChatMessages = async (lastKey: string | null = null): Promise<C
         throw new Error((error as Error).message);
     }
 }
+
+export const deleteMessages = async(messageId: string | null = null) => {
+    try {
+        const token = await auth().currentUser?.getIdToken(true)
+        .catch(() => {
+            throw new Error('User not authenticated.');
+        })
+
+        const endpoint = messageId ? `/chat/${messageId}` : '/chat'
+        await httpFetcher.delete(endpoint, token)
+    } catch (error) {
+        throw new Error((error as Error).message);
+    }
+}

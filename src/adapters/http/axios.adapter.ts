@@ -45,6 +45,23 @@ class AxiosAdapter implements HttpAdapter {
             }
         }
     }
+
+    async delete<T>(endpoint: string, token?: string): Promise<T> {
+        try {
+            if(token) {
+                this.axiosInstance.defaults.headers.Authorization = `Bearer ${token}`
+            }
+            
+            const {data} = await this.axiosInstance.delete<T>(endpoint)
+            return data
+        } catch (error) {
+            if(error instanceof AxiosError && error.response?.data.error) {
+                throw new Error(error.response?.data.error);
+            } else {
+                throw new Error(`Unable to fetch data from: ${endpoint} `)
+            }
+        }
+    }
 }
 
 export default AxiosAdapter
