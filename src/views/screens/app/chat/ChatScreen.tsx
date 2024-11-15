@@ -13,7 +13,7 @@ import useChat from '../../../../hooks/app/useChat'
 import * as elberService from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
 import { selectChatHistory } from '../../../../store/selectors/chat.selector'
-import { setChatMessages, setNewMessage, setLastKey } from '../../../../store/actions/chat.actions'
+import * as chatActions from '../../../../store/actions/chat.actions'
 import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
@@ -25,6 +25,20 @@ const ChatScreen = () => {
     const backBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
         onPress: () => { navigation.navigate('Home')}
+    }
+
+    const deleteBtn: CustomNavBtnProps = {
+        icon: 'trash-outline',
+        onPress: () => {
+            elberService.deleteMessages()
+            .then(() => {
+                dispatch(chatActions.deleteAllMessages())
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        },
+        style: {marginRight: 16}
     }
 
     const {state, dispatch} = useContext(GlobalContext)
@@ -59,9 +73,12 @@ const ChatScreen = () => {
 
         elberService.loadChatMessages()
         .then((response: ChatHistoryResponse) => {
-            dispatch(setChatMessages(response.messages))
-            dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
+            dispatch(chatActions.setChatMessages(response.messages))
+            dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
             setIsLoadingHistory(false)
+        })
+        .catch((error) => {
+            console.error(error)
         })
     }, []);
 
@@ -72,7 +89,7 @@ const ChatScreen = () => {
         setLoading(true)
 
         const userMessage = elberService.generateChatMessage(message, 'user')
-        dispatch(setNewMessage(userMessage))
+        dispatch(chatActions.setNewMessage(userMessage))
 
         const botMessage = await elberService.sendElberMessage(userMessage)
         .then(result => {
@@ -82,7 +99,7 @@ const ChatScreen = () => {
             return elberService.generateChatMessage(`Perdón mi hermano, está cosa tronó: ${(error as Error).message}`, 'bot')
         })
 
-        dispatch(setNewMessage(botMessage))
+        dispatch(chatActions.setNewMessage(botMessage))
         setLoading(false)
     };
 
@@ -97,11 +114,14 @@ const ChatScreen = () => {
         
         elberService.loadChatMessages(lastKey)
         .then((response: ChatHistoryResponse) => {
-            dispatch(setChatMessages(response.messages))
-            dispatch(setLastKey(response.messages.length > 0 ? response.lastKey : null))
+            dispatch(chatActions.setChatMessages(response.messages))
+            dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
             setTimeout(() => {
                 isLoadingMessages.current = false
             }, 500);
+        })
+        .catch((error) => {
+            console.error(error)
         })
     }
 
@@ -154,7 +174,7 @@ const ChatScreen = () => {
 
     return (
         <MainView>
-            <CustomNavBar leftBtn={backBtn} title='Chat'/>
+            <CustomNavBar leftBtn={backBtn} title='Chat' rightBtn={deleteBtn}/>
             {isLoadingHistory ? (
                 <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                     <ActivityIndicator size={'large'} color={globalColors.text} />

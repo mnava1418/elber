@@ -14,6 +14,7 @@ export type ChatAction =
 | {type: 'LOAD_MESSAGES', payload: ChatMessageType[]}
 | {type: 'SET_LAST_KEY', payload: null | string}
 | {type: 'ADD_MESSAGE', payload: ChatMessageType}
+| {type: 'DELETE_ALL'}
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
@@ -23,6 +24,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return {...state, lastKey: action.payload}
         case 'ADD_MESSAGE':
             return {...state, chatMessages: [action.payload, ...state.chatMessages]}
+        case 'DELETE_ALL':
+            return {...state, chatMessages:[]}
         default:
             return state
     }
