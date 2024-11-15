@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import CustomButton from '../../../components/ui/CustomButton'
 import MainView from '../../../components/ui/MainView'
 import { signOut } from '../../../../services/auth.service'
@@ -6,8 +6,6 @@ import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Subtitle from '../../../components/ui/Subtitle'
-import { GlobalContext } from '../../../../store/GlobalState'
-import { selectAuthenticatedUser } from '../../../../store/selectors/auth.selector'
 import SectionContainer from '../../../components/sections/SectionContainer'
 import { settingsSections } from '../../../../utils/appData.utils'
 import CustomAlert from '../../../components/ui/CustomAlert'
@@ -15,9 +13,7 @@ import { AlertBtnProps } from '../../../../interfaces/ui.interface'
 
 const SettingsScreen = () => {
     const {top} = useSafeAreaInsets()
-    const {state} = useContext(GlobalContext)
-    const user = selectAuthenticatedUser(state.auth)
-
+    
     const [modalVisible, setModalVisible] = useState(false);
     const alertBtns: AlertBtnProps[] = [
         {
