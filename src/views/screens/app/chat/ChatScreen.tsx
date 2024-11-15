@@ -1,9 +1,9 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MainView from '../../../components/ui/MainView'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainScreenTapProps } from '../MainScreen'
-import { CustomNavBtnProps } from '../../../../interfaces/ui.interface'
+import { AlertBtnProps, CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
 import ChatBtn from './ChatBtn'
@@ -17,10 +17,14 @@ import * as chatActions from '../../../../store/actions/chat.actions'
 import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
+import CustomAlert from '../../../components/ui/CustomAlert'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
     const {top, bottom} = useSafeAreaInsets()
+    const {state, dispatch} = useContext(GlobalContext)
+    const {chatMessages, lastKey} = selectChatHistory(state.chat)
+    const [modalVisible, setModalVisible] = useState(false)
     
     const backBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
@@ -30,19 +34,12 @@ const ChatScreen = () => {
     const deleteBtn: CustomNavBtnProps = {
         icon: 'trash-outline',
         onPress: () => {
-            elberService.deleteMessages()
-            .then(() => {
-                dispatch(chatActions.deleteAllMessages())
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+            if(chatMessages.length > 0) {
+                setModalVisible(true)
+            }
         },
         style: {marginRight: 16}
-    }
-
-    const {state, dispatch} = useContext(GlobalContext)
-    const {chatMessages, lastKey} = selectChatHistory(state.chat)
+    }    
 
     const {
         isLoadingHistory, setIsLoadingHistory, 
@@ -55,6 +52,30 @@ const ChatScreen = () => {
         btnType, setBtnType,
         loading, setLoading,
     } = useChat()
+
+    const alertBtns: AlertBtnProps[] = [
+        {
+            type: 'default',
+            label: 'Continuar',
+            action: () => {
+                setModalVisible(false)
+                elberService.deleteMessages()
+                .then(() => {
+                    dispatch(chatActions.deleteAllMessages())
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+            }
+        },
+        {
+            type: 'cancel',
+            label: 'Cancelar',
+            action: () => {
+                setModalVisible(false)
+            }
+        }
+    ]
 
     useEffect(() => {
         if (Platform.OS === 'android') {
@@ -182,7 +203,7 @@ const ChatScreen = () => {
             ) : (
                 getChatView()
             )}
-            
+            <CustomAlert title='Borrar Mensajes' message='¿Estás seguro de querer vaciar tu chat?' alertBtns={alertBtns} visible={modalVisible} />
          </MainView>
     )
 }
