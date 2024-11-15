@@ -75,7 +75,7 @@ export const globalStyles = StyleSheet.create({
     alertContainer: {
         width: 300,
         padding: 20,
-        backgroundColor: globalColors.primary,
+        backgroundColor: globalColors.background,
         borderRadius: 15,
         alignItems: 'center',
     },

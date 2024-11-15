@@ -24,7 +24,7 @@ const CustomAlert = (props: CustomAlertProps) => {
                     <CustomText style={{marginBottom: 16, textAlign: 'center'}}>{message}</CustomText>
                     {alertBtns.map((btn, index) => (
                         <CustomButton 
-                            style={{width: '100%', borderBottomWidth: index < alertBtns.length - 1 ? 1 : 0, borderColor: globalColors.background}}     
+                            style={{width: '100%', borderBottomWidth: index < alertBtns.length - 1 ? 1 : 0, borderColor: globalColors.primary}}     
                             key={index} 
                             type={btn.type === 'cancel' ? 'danger' : 'transparent'}
                             label={btn.label} 
