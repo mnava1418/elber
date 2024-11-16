@@ -3,11 +3,20 @@ import { ChatMessageType } from "../../interfaces/app.interface"
 export type ChatState = {
     chatMessages: ChatMessageType[],
     lastKey: null | string
+    selectedMeasure: null | MessageMeasure
+}
+
+export type MessageMeasure = {
+    px: number,
+    py: number,
+    pv: 'right' | 'left'
+    height: number,
 }
 
 export const initialChatState: ChatState = {
     chatMessages: [],
-    lastKey: null
+    lastKey: null,
+    selectedMeasure: null
 }
 
 export type ChatAction = 
@@ -15,6 +24,7 @@ export type ChatAction =
 | {type: 'SET_LAST_KEY', payload: null | string}
 | {type: 'ADD_MESSAGE', payload: ChatMessageType}
 | {type: 'DELETE_ALL'}
+| {type: 'SET_MEASURE', payload: MessageMeasure}
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
@@ -26,6 +36,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return {...state, chatMessages: [action.payload, ...state.chatMessages]}
         case 'DELETE_ALL':
             return {...state, chatMessages:[]}
+        case 'SET_MEASURE':
+            return {...state, selectedMeasure: action.payload}
         default:
             return state
     }

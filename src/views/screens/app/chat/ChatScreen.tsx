@@ -18,6 +18,7 @@ import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
 import CustomAlert from '../../../components/ui/CustomAlert'
+import ChatActions from './ChatActions'
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -25,6 +26,8 @@ const ChatScreen = () => {
     const {state, dispatch} = useContext(GlobalContext)
     const {chatMessages, lastKey} = selectChatHistory(state.chat)
     const [modalVisible, setModalVisible] = useState(false)
+    
+    const [actionVisible, setActionVisible] = useState(false)
     
     const backBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
@@ -92,15 +95,19 @@ const ChatScreen = () => {
           };
         }
 
-        elberService.loadChatMessages()
-        .then((response: ChatHistoryResponse) => {
-            dispatch(chatActions.setChatMessages(response.messages))
-            dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
+        if(chatMessages.length === 0) {
+            elberService.loadChatMessages()
+            .then((response: ChatHistoryResponse) => {
+                dispatch(chatActions.setChatMessages(response.messages))
+                dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
+                setIsLoadingHistory(false)
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        } else {
             setIsLoadingHistory(false)
-        })
-        .catch((error) => {
-            console.error(error)
-        })
+        }
     }, []);
 
     const sendMessage = async() => {
@@ -156,7 +163,7 @@ const ChatScreen = () => {
                 inverted
                 data={chatMessages}
                 renderItem={({item}) => (
-                    <ChatMessage message={item} />
+                    <ChatMessage message={item} showActions={setActionVisible} />
                 )}
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
@@ -204,6 +211,7 @@ const ChatScreen = () => {
                 getChatView()
             )}
             <CustomAlert title='Borrar Mensajes' message='¿Estás seguro de querer vaciar tu chat?' alertBtns={alertBtns} visible={modalVisible} />
+            <ChatActions visible={actionVisible} setVisible={setActionVisible}/>
          </MainView>
     )
 }
