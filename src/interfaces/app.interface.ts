@@ -9,3 +9,9 @@ export type ChatHistoryType = {
     messages: ChatMessageType[]
     lastKey: string | null
 }
+
+export type ChatActionType =  {
+    text: string,
+    icon: string,
+    type: 'delete-message'
+}

@@ -18,7 +18,10 @@ const ChatMessage = ({message, showActions}: ChatMessageProps) => {
 
         if (messageRef.current) {
             messageRef.current.measure((fx, fy, width, height, px, py) => {
-                dispatch(setSelectedMeasure({height, px, py, pv: message.sender === 'user' ? 'right' : 'left'}))
+                dispatch(setSelectedMeasure({
+                    layout: {height, px, py, pv: message.sender === 'user' ? 'right' : 'left'}, 
+                    id: message.id
+                }))
             })
 
             showActions(true)

@@ -54,5 +54,12 @@ export const chatStyles = StyleSheet.create({
         backgroundColor: globalColors.primary,
         borderRadius: 50
     },  
+
+    chatAction: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        width: '100%'
+    }
   });
   
