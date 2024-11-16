@@ -1,5 +1,5 @@
 import { ChatMessageType } from "../../interfaces/app.interface";
-import { ChatAction } from "../reducers/chat.reducer";
+import { ChatAction, MessageMeasure } from "../reducers/chat.reducer";
 
 export const setChatMessages = (chatMessages: ChatMessageType[]): ChatAction => ({
     type: 'LOAD_MESSAGES',
@@ -18,4 +18,9 @@ export const setNewMessage = (message: ChatMessageType): ChatAction => ({
 
 export const deleteAllMessages = (): ChatAction => ({
     type: 'DELETE_ALL'
+})
+
+export const setSelectedMeasure = (selectedMeasure: MessageMeasure): ChatAction => ({
+    type: 'SET_MEASURE',
+    payload: selectedMeasure
 })
