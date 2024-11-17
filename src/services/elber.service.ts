@@ -14,7 +14,7 @@ export const sendElberMessage = async(chatMessage: ChatMessageType): Promise<Elb
             throw new Error('User not authenticated.');
         }    
 
-        const body = {id: chatMessage.id, query: chatMessage.message}
+        const body = {id: chatMessage.id, query: chatMessage.text}
         const token = await currentUser.getIdToken(true)
         const data = await httpFetcher.post<ElberResponse>('/dialog', body, token)
         return data
@@ -23,12 +23,12 @@ export const sendElberMessage = async(chatMessage: ChatMessageType): Promise<Elb
     }
 }
 
-export const generateChatMessage = (message: string, sender: 'user' | 'bot', isFavorite: boolean = false, id: string | null = null):ChatMessageType => {
+export const generateChatMessage = (text: string, sender: 'user' | 'bot', isFavorite: boolean = false, id: string | null = null):ChatMessageType => {
     if(!id) {
         id = Date.now().toString()
     }
 
-    const chatMessage: ChatMessageType = {isFavorite, message, sender, id};
+    const chatMessage: ChatMessageType = {isFavorite, text, sender, id};
 
     return chatMessage
 }
