@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { Pressable, View } from 'react-native'
-import { ChatActionType } from '../../../../interfaces/app.interface'
+import Clipboard from '@react-native-clipboard/clipboard'
+import { ChatActionType, ChatMessageType } from '../../../../interfaces/app.interface'
 import AppIcon from '../../../components/ui/AppIcon'
 import CustomText from '../../../components/ui/CustomText'
 import { chatStyles } from '../../../../styles/chatStyles'
@@ -9,19 +10,23 @@ import { GlobalContext } from '../../../../store/GlobalState'
 import { deleteMessageById } from '../../../../store/actions/chat.actions'
 
 type ChatActionItemProps = {
-    messageId: string
+    message: ChatMessageType
     action: ChatActionType
+    isLast: boolean
     setVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ChatActionItem = ({action, messageId, setVisible}: ChatActionItemProps) => {
+const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemProps) => {
     const {dispatch} = useContext(GlobalContext)
 
     const handleAction = () => {
         switch (action.type) {
-            case 'delete-message':
+            case 'delete':
                 deleteMessage()
-                break;
+                break
+            case 'copy':
+                copyMessage()
+                break
             default:
                 break;
         }
@@ -30,13 +35,17 @@ const ChatActionItem = ({action, messageId, setVisible}: ChatActionItemProps) =>
     }
 
     const deleteMessage = () => {
-        elberServices.deleteMessages(messageId)
+        elberServices.deleteMessages(message.id)
         .then(() => {
-            dispatch(deleteMessageById(messageId))
+            dispatch(deleteMessageById(message.id))
         })
         .catch((error: Error) => {
             console.error(error.message)
         })
+    }
+
+    const copyMessage = () => {
+        Clipboard.setString(message.text)
     }
 
     return (
@@ -44,7 +53,7 @@ const ChatActionItem = ({action, messageId, setVisible}: ChatActionItemProps) =>
             style={({pressed}) => ([{opacity: pressed ? 0.8 : 1.0}])}
             onPress={handleAction}
         >
-            <View style={chatStyles.chatAction}>
+            <View style={[chatStyles.chatAction, {marginBottom: isLast ? 0 : 20 }]}>
                 <CustomText>{action.text}</CustomText>
                 <AppIcon name={action.icon} size={30} />
             </View>

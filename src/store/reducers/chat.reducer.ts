@@ -13,7 +13,7 @@ export type SelectedMessage = {
         pv: 'right' | 'left'
         height: number,
     },
-    id: string 
+    content: ChatMessageType
 }
 
 export const initialChatState: ChatState = {

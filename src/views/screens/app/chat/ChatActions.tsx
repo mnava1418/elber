@@ -47,7 +47,7 @@ const ChatActions = (props: ChatActionsProps) => {
                         <View style={globalStyles.modalBackground}>
                             <View ref={actionsRef} style={[globalStyles.alertContainer, customStyle]}>
                                 {chatActions.map((action, index) => (
-                                    <ChatActionItem key={index} messageId={selectedMessage.id} action={action} setVisible={setVisible} />
+                                    <ChatActionItem key={index} message={selectedMessage.content} action={action} isLast={index === chatActions.length - 1} setVisible={setVisible} />
                                 ))}
                             </View>
                         </View>

@@ -16,8 +16,13 @@ export const settingsSections: SectionItemProps[] = [
 
 export const chatActions: ChatActionType[] = [
     {
+        text: 'Copiar',
+        icon: 'copy-outline',
+        type: 'copy'
+    },
+    {
         text: 'Eliminar',
         icon: 'trash-outline',
-        type: 'delete-message'
+        type: 'delete'
     }
 ]
