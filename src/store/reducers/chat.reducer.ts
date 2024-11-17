@@ -28,6 +28,12 @@ export type ChatAction =
 | {type: 'ADD_MESSAGE', payload: ChatMessageType}
 | {type: 'DELETE_ALL'}
 | {type: 'SET_SELECTED_MESSAGE', payload: SelectedMessage}
+| {type: 'DELETE_MESSAGE', payload: string}
+
+const deleteMessage = (state: ChatState, messageId: string): ChatState => {
+    const newMessages = [...state.chatMessages].filter(message => message.id !== messageId)
+    return {...state, chatMessages: newMessages}
+}
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
@@ -41,6 +47,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return {...state, chatMessages:[]}
         case 'SET_SELECTED_MESSAGE':
             return {...state, selectedMessage: action.payload}
+        case 'DELETE_MESSAGE':
+            return (deleteMessage(state, action.payload))
         default:
             return state
     }

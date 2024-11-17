@@ -66,8 +66,8 @@ const ChatScreen = () => {
                 .then(() => {
                     dispatch(chatActions.deleteAllMessages())
                 })
-                .catch((error) => {
-                    console.error(error)
+                .catch((error: Error) => {
+                    console.error(error.message)
                 })
             }
         },
@@ -81,20 +81,6 @@ const ChatScreen = () => {
     ]
 
     useEffect(() => {
-        if (Platform.OS === 'android') {
-          const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            setInputState({...inputState, keyboardOffset: 60})
-          });
-          const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-            setInputState({...inputState, keyboardOffset: 0})
-          });
-    
-          return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-          };
-        }
-
         if(chatMessages.length === 0) {
             elberService.loadChatMessages()
             .then((response: ChatHistoryResponse) => {
@@ -102,12 +88,26 @@ const ChatScreen = () => {
                 dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
                 setIsLoadingHistory(false)
             })
-            .catch((error) => {
-                console.error(error)
+            .catch((error: Error) => {
+                console.error(error.message)
             })
         } else {
             setIsLoadingHistory(false)
         }
+
+        if (Platform.OS === 'android') {
+            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+                setInputState({...inputState, keyboardOffset: 60})
+            });
+            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+                setInputState({...inputState, keyboardOffset: 0})
+            });
+        
+            return () => {
+                keyboardDidShowListener.remove();
+                keyboardDidHideListener.remove();
+            };
+        }        
     }, []);
 
     const sendMessage = async() => {
@@ -148,8 +148,8 @@ const ChatScreen = () => {
                 isLoadingMessages.current = false
             }, 500);
         })
-        .catch((error) => {
-            console.error(error)
+        .catch((error: Error) => {
+            console.error(error.message)
         })
     }
 

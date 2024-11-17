@@ -24,3 +24,8 @@ export const setSelectedMeasure = (selectedMeasure: SelectedMessage): ChatAction
     type: 'SET_SELECTED_MESSAGE',
     payload: selectedMeasure
 })
+
+export const deleteMessageById = (messageId: string): ChatAction => ({
+    type: 'DELETE_MESSAGE',
+    payload: messageId
+})
