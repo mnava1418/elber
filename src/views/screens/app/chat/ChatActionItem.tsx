@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Pressable, View } from 'react-native'
 import { ChatActionType } from '../../../../interfaces/app.interface'
 import AppIcon from '../../../components/ui/AppIcon'
 import CustomText from '../../../components/ui/CustomText'
 import { chatStyles } from '../../../../styles/chatStyles'
+import * as elberServices from '../../../../services/elber.service'
+import { GlobalContext } from '../../../../store/GlobalState'
+import { deleteMessageById } from '../../../../store/actions/chat.actions'
 
 type ChatActionItemProps = {
     messageId: string
@@ -12,6 +15,7 @@ type ChatActionItemProps = {
 }
 
 const ChatActionItem = ({action, messageId, setVisible}: ChatActionItemProps) => {
+    const {dispatch} = useContext(GlobalContext)
 
     const handleAction = () => {
         switch (action.type) {
@@ -26,7 +30,13 @@ const ChatActionItem = ({action, messageId, setVisible}: ChatActionItemProps) =>
     }
 
     const deleteMessage = () => {
-        console.log('Vamos a borrar el mensaje', messageId )
+        elberServices.deleteMessages(messageId)
+        .then(() => {
+            dispatch(deleteMessageById(messageId))
+        })
+        .catch((error: Error) => {
+            console.error(error.message)
+        })
     }
 
     return (
