@@ -45,7 +45,7 @@ const ChatActions = (props: ChatActionsProps) => {
                 <Modal transparent={true} visible={visible} animationType="fade">
                     <Pressable style={{flex: 1}} onPress={() => {setVisible(false)}}>
                         <View style={globalStyles.modalBackground}>
-                            <View ref={actionsRef} style={[globalStyles.alertContainer, customStyle]}>
+                            <View ref={actionsRef} style={[globalStyles.alertContainer, customStyle, {width: 250}]}>
                                 {chatActions.map((action, index) => (
                                     <ChatActionItem key={index} message={selectedMessage.content} action={action} isLast={index === chatActions.length - 1} setVisible={setVisible} />
                                 ))}

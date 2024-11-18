@@ -55,7 +55,7 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
         >
             <View style={[chatStyles.chatAction, {marginBottom: isLast ? 0 : 20 }]}>
                 <CustomText>{action.text}</CustomText>
-                <AppIcon name={action.icon} size={30} />
+                <AppIcon name={action.icon} size={22} />
             </View>
         </Pressable>
     )
