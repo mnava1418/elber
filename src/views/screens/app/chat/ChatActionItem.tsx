@@ -8,6 +8,7 @@ import { chatStyles } from '../../../../styles/chatStyles'
 import * as elberServices from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
 import { deleteMessageById } from '../../../../store/actions/chat.actions'
+import Share from 'react-native-share';
 
 type ChatActionItemProps = {
     message: ChatMessageType
@@ -26,6 +27,9 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
                 break
             case 'copy':
                 copyMessage()
+                break
+            case 'share':
+                shareMessage()
                 break
             default:
                 break;
@@ -48,6 +52,15 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
         Clipboard.setString(message.text)
     }
 
+    const shareMessage = async () => {
+        await Share.open({
+            message: message.text
+        })
+        .catch((error: Error) => {
+            console.error( error.message)
+        })
+    }
+
     return (
         <Pressable 
             style={({pressed}) => ([{opacity: pressed ? 0.8 : 1.0}])}
@@ -55,7 +68,7 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
         >
             <View style={[chatStyles.chatAction, {marginBottom: isLast ? 0 : 20 }]}>
                 <CustomText>{action.text}</CustomText>
-                <AppIcon name={action.icon} size={22} />
+                <AppIcon name={action.icon} size={24} />
             </View>
         </Pressable>
     )

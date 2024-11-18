@@ -13,5 +13,5 @@ export type ChatHistoryType = {
 export type ChatActionType =  {
     text: string,
     icon: string,
-    type: 'delete' | 'copy'
+    type: 'delete' | 'copy' | 'share'
 }
