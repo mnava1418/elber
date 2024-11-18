@@ -16,6 +16,11 @@ export const settingsSections: SectionItemProps[] = [
 
 export const chatActions: ChatActionType[] = [
     {
+        text: 'Compartir',
+        icon: 'share-outline',
+        type: 'share'
+    },
+    {
         text: 'Copiar',
         icon: 'copy-outline',
         type: 'copy'
