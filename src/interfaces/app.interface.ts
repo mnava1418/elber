@@ -1,5 +1,5 @@
 export type ChatMessageType = {
-    message: string;
+    text: string;
     sender: 'user' | 'bot'
     isFavorite: boolean
     id: string
@@ -13,5 +13,5 @@ export type ChatHistoryType = {
 export type ChatActionType =  {
     text: string,
     icon: string,
-    type: 'delete-message'
+    type: 'delete' | 'copy'
 }

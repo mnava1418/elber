@@ -20,7 +20,7 @@ const ChatMessage = ({message, showActions}: ChatMessageProps) => {
             messageRef.current.measure((fx, fy, width, height, px, py) => {
                 dispatch(setSelectedMeasure({
                     layout: {height, px, py, pv: message.sender === 'user' ? 'right' : 'left'}, 
-                    id: message.id
+                    content: message
                 }))
             })
 
@@ -43,7 +43,7 @@ const ChatMessage = ({message, showActions}: ChatMessageProps) => {
                     chatStyles.messageContainer,
                 message.sender === 'user' ? chatStyles.userMessage : chatStyles.botMessage,
             ]}>
-                <Text style={chatStyles.messageText}>{message.message}</Text>
+                <Text style={chatStyles.messageText}>{message.text}</Text>
             </View>
         </Pressable>
     )
