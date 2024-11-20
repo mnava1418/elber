@@ -23,7 +23,7 @@ export interface CustomNavBtnProps extends CustomViewProps {
 
 export interface CustomNavBarProps {
     leftBtn?: CustomNavBtnProps
-    rightBtn?: CustomNavBtnProps
+    rightBtns?: CustomNavBtnProps[]
     title?: string
 }
 

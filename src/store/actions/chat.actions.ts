@@ -34,3 +34,7 @@ export const setIsFavoriteMessage = (messageId: string): ChatAction => ({
     type: 'FAVORITE_MESSAGE',
     payload: messageId
 })
+
+export const setShowFavorites = (): ChatAction => ({
+    type: 'SET_SHOW_FAVORITE'
+})
