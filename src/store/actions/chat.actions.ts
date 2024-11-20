@@ -29,3 +29,8 @@ export const deleteMessageById = (messageId: string): ChatAction => ({
     type: 'DELETE_MESSAGE',
     payload: messageId
 })
+
+export const setIsFavoriteMessage = (messageId: string): ChatAction => ({
+    type: 'FAVORITE_MESSAGE',
+    payload: messageId
+})

@@ -16,6 +16,11 @@ export const settingsSections: SectionItemProps[] = [
 
 export const chatActions: ChatActionType[] = [
     {
+        text: 'Destacar',
+        icon: 'star-outline',
+        type: 'favorite'
+    },
+    {
         text: 'Compartir',
         icon: 'share-outline',
         type: 'share'
