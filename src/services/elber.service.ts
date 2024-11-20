@@ -61,3 +61,16 @@ export const deleteMessages = async(messageId: string | null = null) => {
         throw new Error((error as Error).message);
     }
 }
+
+export const setIsFavorite = async (messageId:string, isFavorite: boolean) => {
+    try {
+        const token = await auth().currentUser?.getIdToken(true)
+        .catch(() => {
+            throw new Error('User not authenticated.');
+        })
+
+        await httpFetcher.post('/chat/isFavorite', {messageId, isFavorite}, token)
+    } catch (error) {
+        throw new Error((error as Error).message);
+    }
+}

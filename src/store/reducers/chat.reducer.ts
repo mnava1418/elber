@@ -26,12 +26,25 @@ export type ChatAction =
 | {type: 'LOAD_MESSAGES', payload: ChatMessageType[]}
 | {type: 'SET_LAST_KEY', payload: null | string}
 | {type: 'ADD_MESSAGE', payload: ChatMessageType}
-| {type: 'DELETE_ALL'}
 | {type: 'SET_SELECTED_MESSAGE', payload: SelectedMessage}
 | {type: 'DELETE_MESSAGE', payload: string}
+| {type: 'FAVORITE_MESSAGE', payload: string}
+| {type: 'DELETE_ALL'}
 
 const deleteMessage = (state: ChatState, messageId: string): ChatState => {
     const newMessages = [...state.chatMessages].filter(message => message.id !== messageId)
+    return {...state, chatMessages: newMessages}
+}
+
+const setIsFavorite = (state: ChatState, messageId: string): ChatState => {
+    const newMessages = state.chatMessages.map((message) => {
+        if(message.id === messageId) {
+            message.isFavorite = !message.isFavorite
+        }
+
+        return message
+    })
+
     return {...state, chatMessages: newMessages}
 }
 
@@ -49,6 +62,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return {...state, selectedMessage: action.payload}
         case 'DELETE_MESSAGE':
             return (deleteMessage(state, action.payload))
+        case 'FAVORITE_MESSAGE':
+            return (setIsFavorite(state, action.payload))
         default:
             return state
     }

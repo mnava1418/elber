@@ -7,7 +7,7 @@ import CustomText from '../../../components/ui/CustomText'
 import { chatStyles } from '../../../../styles/chatStyles'
 import * as elberServices from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
-import { deleteMessageById } from '../../../../store/actions/chat.actions'
+import { deleteMessageById, setIsFavoriteMessage } from '../../../../store/actions/chat.actions'
 import Share from 'react-native-share';
 
 type ChatActionItemProps = {
@@ -31,6 +31,9 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
             case 'share':
                 shareMessage()
                 break
+            case 'favorite':
+                setFavorite()
+                break
             default:
                 break;
         }
@@ -52,6 +55,16 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
         Clipboard.setString(message.text)
     }
 
+    const setFavorite = () => {
+        elberServices.setIsFavorite(message.id, !message.isFavorite)
+        .then(() => {
+            dispatch(setIsFavoriteMessage(message.id))
+        })
+        .catch((error: Error) => {
+            console.error(error.message)
+        })
+    }
+
     const shareMessage = async () => {
         await Share.open({
             message: message.text
@@ -67,8 +80,8 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
             onPress={handleAction}
         >
             <View style={[chatStyles.chatAction, {marginBottom: isLast ? 0 : 20 }]}>
-                <CustomText>{action.text}</CustomText>
-                <AppIcon name={action.icon} size={24} />
+                <CustomText>{action.type === 'favorite' && message.isFavorite ? `No ${action.text}`: action.text}</CustomText>
+                <AppIcon name={action.type === 'favorite' && message.isFavorite ? 'star': action.icon} size={24} />
             </View>
         </Pressable>
     )
