@@ -24,7 +24,7 @@ const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
     const {top, bottom} = useSafeAreaInsets()
     const {state, dispatch} = useContext(GlobalContext)
-    const {chatMessages, lastKey} = selectChatHistory(state.chat)
+    const {chatMessages, lastKey, showFavorites} = selectChatHistory(state.chat)
     const [modalVisible, setModalVisible] = useState(false)
     
     const [actionVisible, setActionVisible] = useState(false)
@@ -33,6 +33,14 @@ const ChatScreen = () => {
         icon: 'chevron-back-outline',
         onPress: () => { navigation.navigate('Home')}
     }
+
+    const favoriteBtn: CustomNavBtnProps = {
+        icon: showFavorites ? 'star' : 'star-outline',
+        onPress: () => {
+            dispatch(chatActions.setShowFavorites())
+        },
+        style: {marginRight: 16}
+    }    
 
     const deleteBtn: CustomNavBtnProps = {
         icon: 'trash-outline',
@@ -202,7 +210,7 @@ const ChatScreen = () => {
 
     return (
         <MainView>
-            <CustomNavBar leftBtn={backBtn} title='Chat' rightBtn={deleteBtn}/>
+            <CustomNavBar leftBtn={backBtn} title='Chat' rightBtns={[favoriteBtn, deleteBtn]}/>
             {isLoadingHistory ? (
                 <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                     <ActivityIndicator size={'large'} color={globalColors.text} />

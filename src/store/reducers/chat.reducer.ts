@@ -3,7 +3,8 @@ import { ChatMessageType } from "../../interfaces/app.interface"
 export type ChatState = {
     chatMessages: ChatMessageType[],
     lastKey: null | string
-    selectedMessage: null | SelectedMessage
+    selectedMessage: null | SelectedMessage,
+    showFavorites: boolean
 }
 
 export type SelectedMessage = {
@@ -19,7 +20,8 @@ export type SelectedMessage = {
 export const initialChatState: ChatState = {
     chatMessages: [],
     lastKey: null,
-    selectedMessage: null
+    selectedMessage: null,
+    showFavorites: false
 }
 
 export type ChatAction = 
@@ -30,6 +32,7 @@ export type ChatAction =
 | {type: 'DELETE_MESSAGE', payload: string}
 | {type: 'FAVORITE_MESSAGE', payload: string}
 | {type: 'DELETE_ALL'}
+| {type: 'SET_SHOW_FAVORITE'}
 
 const deleteMessage = (state: ChatState, messageId: string): ChatState => {
     const newMessages = [...state.chatMessages].filter(message => message.id !== messageId)
@@ -64,6 +67,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return (deleteMessage(state, action.payload))
         case 'FAVORITE_MESSAGE':
             return (setIsFavorite(state, action.payload))
+        case 'SET_SHOW_FAVORITE':
+            return {...state, showFavorites: !state.showFavorites}
         default:
             return state
     }
