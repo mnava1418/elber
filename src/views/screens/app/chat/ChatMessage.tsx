@@ -4,6 +4,7 @@ import { chatStyles } from '../../../../styles/chatStyles'
 import { ChatMessageType } from '../../../../interfaces/app.interface'
 import { GlobalContext } from '../../../../store/GlobalState'
 import { setSelectedMeasure } from '../../../../store/actions/chat.actions'
+import AppIcon from '../../../components/ui/AppIcon'
 
 type ChatMessageProps = {
     message: ChatMessageType
@@ -43,7 +44,16 @@ const ChatMessage = ({message, showActions}: ChatMessageProps) => {
                     chatStyles.messageContainer,
                 message.sender === 'user' ? chatStyles.userMessage : chatStyles.botMessage,
             ]}>
-                <Text style={chatStyles.messageText}>{message.text}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+                    <Text style={chatStyles.messageText}>{message.text}</Text>
+                    {message.isFavorite ? (
+                        <View style={{marginLeft: 8}}>
+                            <AppIcon name='star' size={16} />
+                        </View>
+                    ) : (
+                        <></>
+                    )}                    
+                </View>
             </View>
         </Pressable>
     )
