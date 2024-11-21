@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import MainView from '../../../components/ui/MainView'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
@@ -28,6 +28,7 @@ const ChatScreen = () => {
     const [modalVisible, setModalVisible] = useState(false)
     
     const [actionVisible, setActionVisible] = useState(false)
+    const flatListRef = useRef<FlatList>(null)
     
     const backBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
@@ -161,6 +162,13 @@ const ChatScreen = () => {
         })
     }
 
+    const scrollToMessage = (index: number) => {
+        flatListRef.current?.scrollToIndex({
+            index: index,
+            animated: true
+        })
+    }
+
     const getChatView = () => (
         <KeyboardAvoidingView
                 style={[chatStyles.container, {marginBottom: bottom + 8, marginTop: top + 72}]}
@@ -168,10 +176,11 @@ const ChatScreen = () => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : inputState.keyboardOffset}
             >
             <FlatList
+                ref={flatListRef}
                 inverted
                 data={chatMessages}
-                renderItem={({item}) => (
-                    <ChatMessage message={item} showActions={setActionVisible} />
+                renderItem={({item, index}) => (
+                    <ChatMessage key={index} index={index} message={item} showActions={setActionVisible} scrollToMessage={scrollToMessage} />
                 )}
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
