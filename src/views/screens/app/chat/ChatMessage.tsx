@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import { chatStyles } from '../../../../styles/chatStyles'
 import { ChatMessageType } from '../../../../interfaces/app.interface'
@@ -6,18 +6,26 @@ import { GlobalContext } from '../../../../store/GlobalState'
 import { setSelectedMeasure, setShowFavorites } from '../../../../store/actions/chat.actions'
 import AppIcon from '../../../components/ui/AppIcon'
 import { selectShowFavorites } from '../../../../store/selectors/chat.selector'
+import useAnimateText from '../../../../hooks/animations/useAnimateText'
 
 type ChatMessageProps = {
     index: number
     message: ChatMessageType
+    isNewMessage: boolean
+    setIsNewMessage: React.Dispatch<React.SetStateAction<boolean>>
     showActions: React.Dispatch<React.SetStateAction<boolean>>
     scrollToMessage: (index: number) => void
 }
 
-const ChatMessage = ({index, message, showActions, scrollToMessage}: ChatMessageProps) => {
+const ChatMessage = ({index, message, isNewMessage, setIsNewMessage, showActions, scrollToMessage}: ChatMessageProps) => {
     const messageRef = useRef<View>(null)
     const {state, dispatch} = useContext(GlobalContext)
     const showFavorites = selectShowFavorites(state.chat)
+    const {animatedText, animateText} = useAnimateText()
+
+    useEffect(() => {
+        animateText(message.text, 0)
+    }, [])    
 
     const handleLongPress = () => {
         if (messageRef.current) {
@@ -38,6 +46,18 @@ const ChatMessage = ({index, message, showActions, scrollToMessage}: ChatMessage
             setTimeout(() => {
                 scrollToMessage(index)
             }, 200)
+        }
+    }
+
+    const getMessageText = () => {
+        if(index === 0 && message.sender === 'bot' && isNewMessage) {            
+            return (
+                <Text style={chatStyles.messageText}>{animatedText}</Text>
+            )
+        } else {
+            return(
+                <Text style={chatStyles.messageText}>{message.text}</Text>
+            )
         }
     }
 
@@ -62,7 +82,7 @@ const ChatMessage = ({index, message, showActions, scrollToMessage}: ChatMessage
                             ]}
                         >
                             <View style={{flexShrink: 1}}>
-                                <Text style={chatStyles.messageText}>{message.text}</Text>
+                                {getMessageText()}
                             </View>
                             {message.isFavorite ? (
                                 <View style={{marginLeft: 8}}>

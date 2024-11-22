@@ -29,6 +29,7 @@ const ChatScreen = () => {
     
     const [actionVisible, setActionVisible] = useState(false)
     const flatListRef = useRef<FlatList>(null)
+    const [isNewMessage, setIsNewMessage] = useState(false)
     
     const backBtn: CustomNavBtnProps = {
         icon: 'chevron-back-outline',
@@ -91,6 +92,7 @@ const ChatScreen = () => {
 
     useEffect(() => {
         if(chatMessages.length === 0) {
+            setIsNewMessage(false)
             elberService.loadChatMessages()
             .then((response: ChatHistoryResponse) => {
                 dispatch(chatActions.setChatMessages(response.messages))
@@ -180,7 +182,7 @@ const ChatScreen = () => {
                 inverted
                 data={chatMessages}
                 renderItem={({item, index}) => (
-                    <ChatMessage key={index} index={index} message={item} showActions={setActionVisible} scrollToMessage={scrollToMessage} />
+                    <ChatMessage key={index} index={index} message={item} isNewMessage={isNewMessage} setIsNewMessage={setIsNewMessage} showActions={setActionVisible} scrollToMessage={scrollToMessage} />
                 )}
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
@@ -203,14 +205,15 @@ const ChatScreen = () => {
                     onContentSizeChange={(event) => setInputState({...inputState, height: event.nativeEvent.contentSize.height})}
                     keyboardType='default'
                     autoCapitalize='sentences'
-                    editable= {!loading}
+                    editable= {!loading && !showFavorites}
                 />
                 {loading ? (
                     <ChatBtn type='primary' icon='ellipse' onPress={() => {}} />
                 ) : (
                     <ChatBtn type={btnType} icon={btnType === 'primary' ? 'send' : 'camera-outline'} onPress={() => {
                         setBtnType('outline')
-                        scrollToMessage(0)
+                        setIsNewMessage(true)
+                        scrollToMessage(0)                        
                         sendMessage()
                     }} />
                 )}

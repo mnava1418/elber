@@ -69,8 +69,7 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
         await Share.open({
             message: message.text
         })
-        .catch((error: Error) => {
-            console.error( error.message)
+        .catch((error: Error) => {            
         })
     }
 
