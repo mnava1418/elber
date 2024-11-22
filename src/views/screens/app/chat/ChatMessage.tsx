@@ -53,21 +53,24 @@ const ChatMessage = ({index, message, showActions, scrollToMessage}: ChatMessage
                     onLongPress={handleLongPress}
                     onPress={handlePress}
                 >
-                    <View
-                        ref={messageRef}
-                        style={[
-                            chatStyles.messageContainer,
-                        message.sender === 'user' ? chatStyles.userMessage : chatStyles.botMessage,
-                    ]}>
-                        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-                            <Text style={chatStyles.messageText}>{message.text}</Text>
+                    <View style={[{flex: 1, flexDirection: 'row', justifyContent: message.sender === 'bot' ? 'flex-start' : 'flex-end'}]}>
+                        <View 
+                            ref={messageRef}
+                            style={[
+                                chatStyles.messageContainer,
+                                message.sender === 'user' ? chatStyles.userMessage : chatStyles.botMessage
+                            ]}
+                        >
+                            <View style={{flexShrink: 1}}>
+                                <Text style={chatStyles.messageText}>{message.text}</Text>
+                            </View>
                             {message.isFavorite ? (
                                 <View style={{marginLeft: 8}}>
                                     <AppIcon name='star' size={16} />
                                 </View>
                             ) : (
                                 <></>
-                            )}                    
+                            )}                
                         </View>
                     </View>
                 </Pressable>
@@ -80,7 +83,7 @@ const ChatMessage = ({index, message, showActions, scrollToMessage}: ChatMessage
     return (
         <>
             {generateMessage()}
-        </>
+        </>        
     )
 }
 

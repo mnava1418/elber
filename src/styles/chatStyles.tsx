@@ -6,21 +6,23 @@ export const chatStyles = StyleSheet.create({
         flex: 1,
     },
     messageContainer: {
-        margin: 10,
-        padding: 14,
-        borderRadius: 15,
-        maxWidth: '80%'
+        margin: 10, 
+        padding: 14, 
+        borderRadius: 15, 
+        maxWidth: '80%', 
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'flex-end'                
     },
     userMessage: {
         marginRight: 16,
-        backgroundColor: globalColors.primary,
-        alignSelf: 'flex-end',
+        backgroundColor: globalColors.primary,        
     },
     botMessage: {
-        backgroundColor: globalColors.background,
-        alignSelf: 'flex-start',
+        backgroundColor: globalColors.background,        
     },
     messageText: {
+        flexWrap: 'wrap',
         color: globalColors.text,
         fontSize: 18
     },
