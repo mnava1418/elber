@@ -213,7 +213,11 @@ const ChatScreen = () => {
                     <ChatBtn type={btnType} icon={btnType === 'primary' ? 'send' : 'camera-outline'} onPress={() => {
                         setBtnType('outline')
                         setIsNewMessage(true)
-                        scrollToMessage(0)                        
+
+                        if(chatMessages.length > 0) {
+                            scrollToMessage(0)
+                        }
+                                                
                         sendMessage()
                     }} />
                 )}

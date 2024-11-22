@@ -24,7 +24,7 @@ const ChatMessage = ({index, message, isNewMessage, setIsNewMessage, showActions
     const {animatedText, animateText} = useAnimateText()
 
     useEffect(() => {
-        animateText(message.text, 0)
+        animateText(message.text, 10)
     }, [])    
 
     const handleLongPress = () => {
