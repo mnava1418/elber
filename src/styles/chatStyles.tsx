@@ -15,7 +15,6 @@ export const chatStyles = StyleSheet.create({
         alignItems: 'flex-end'                
     },
     userMessage: {
-        marginRight: 16,
         backgroundColor: globalColors.primary,        
     },
     botMessage: {

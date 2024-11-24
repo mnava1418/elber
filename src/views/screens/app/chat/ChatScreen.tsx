@@ -185,6 +185,7 @@ const ChatScreen = () => {
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
                 onScroll={onScroll}
+                showsVerticalScrollIndicator={false}
             />
     )
 
