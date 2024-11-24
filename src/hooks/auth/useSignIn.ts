@@ -10,13 +10,13 @@ const useSignIn = (currentEmail: string) => {
     const [email, setEmail] = useState(currentEmail)
     const [password, setPassword] = useState('')
     const[isProcessing, setIsProcessing] = useState(false)
-    const[authErrors, setAuthErrors] = useState<SignInErrors>({default: '', email: '', password: ''})
+    const[authError, setAuthError] = useState('')
 
     return {
         email, setEmail,
         password, setPassword,
         isProcessing, setIsProcessing,
-        authErrors, setAuthErrors
+        authError, setAuthError
     }
 }
 

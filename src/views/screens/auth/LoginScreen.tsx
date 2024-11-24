@@ -16,34 +16,46 @@ import CustomError from '../../../models/CustomError'
 import { GlobalContext } from '../../../store/GlobalState'
 import { setIsAuthenticated } from '../../../store/actions/auth.actions'
 import NavBarBackBtn from '../../components/navBar/NavBarBackBtn'
+import CustomAlert from '../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../interfaces/ui.interface'
 
 const LoginScreen = () => {
     const props = useRoute<RouteProp<StackNavigationProps, 'Login'>>().params
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
     const { top } = useSafeAreaInsets()
     const {dispatch} = useContext(GlobalContext)
+    
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                setAuthError('')
+            }
+        }
+    ]
 
     const {
         email, setEmail,
         password, setPassword,
         isProcessing, setIsProcessing,
-        authErrors, setAuthErrors
+        authError, setAuthError
     } = useSignIn(props.email)
 
     const leftBtn = NavBarBackBtn(navigation)
 
     const handleSignIn = async () => {
-        setAuthErrors({default: '', email: '', password: ''})
+        setAuthError('')
         setIsProcessing(true)
 
         try {
             await AuthServices.signIn(email, password)
             dispatch(setIsAuthenticated(true))
         } catch (error) {
-            if (error instanceof CustomError) {
-                setAuthErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
+            if (error instanceof CustomError) {                
+                setAuthError(error.message)
             } else {
-                setAuthErrors((prevErrors) => ({...prevErrors, default: 'Error inesperado. Intenta nuevamente.'}))
+                setAuthError('Error inesperado. Intenta nuevamente.')
             }
         } finally {
             setIsProcessing(false)
@@ -68,7 +80,6 @@ const LoginScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {authErrors.email && authErrors.email.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.email}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -78,18 +89,17 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {authErrors.password && authErrors.password.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.password}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {authErrors.default && authErrors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{authErrors.default}</CustomText> : <></>}
                                 <CustomButton label='¿Olvidaste tu contraseña?' type='transparent' style={{ marginTop: 16 }} onPress={() => {navigation.navigate('Recover', {originalEmail: email})}} />
                             </View>
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
+            <CustomAlert title='Login' message={authError} visible={authError !== ''} alertBtns={alertBtns} />
         </MainView>
     )
 }
