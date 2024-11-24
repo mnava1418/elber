@@ -28,20 +28,29 @@ const AccountScreen = () => {
 
     const [isProcessing, setIsProcessing] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
-    const alertBtns: AlertBtnProps[] = [{
-        label: 'Ok',
-        type: 'default',
-        action: () => {
-            setModalVisible(false)
-            signOut(dispatch)
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                setModalVisible(false)
+                handleResetPassword()
+            }
+        },
+        {
+            label: 'Cancelar',
+            type: 'cancel',
+            action: () => {
+                setModalVisible(false)
+            }
         }
-    }]
+    ]
 
     const handleResetPassword = async() => {
         try {
             setIsProcessing(true)
-            await recoverPassword(user.email)
-            setModalVisible(true)
+            await recoverPassword(user.email)            
+            signOut(dispatch)
         } catch (error) {
             setModalVisible(false)
         } finally {
@@ -63,14 +72,14 @@ const AccountScreen = () => {
                     </View>
                 </View>
                 {!isProcessing ? 
-                    (<CustomButton style={{marginVertical: 24}} label='Cambiar Password' type='primary' onPress={handleResetPassword}/>) 
+                    (<CustomButton style={{marginVertical: 24}} label='Cambiar Password' type='primary' onPress={() => {setModalVisible(true)}}/>) 
                     : 
                     (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)
                 }
             </ScrollView>
             <CustomAlert 
                 title='Cambiar Password' 
-                message='Te hemos enviado un correo para que puedas cambiar tu password. Tu sesión va a finalizar.' 
+                message='¿Estás seguro de continuar? Te enviaremos un correo para que puedas cambiar tu contraseña, y tu sesión se cerrará.' 
                 alertBtns={alertBtns} 
                 visible={modalVisible} 
             />
