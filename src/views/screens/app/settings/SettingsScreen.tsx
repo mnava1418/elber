@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import CustomButton from '../../../components/ui/CustomButton'
 import MainView from '../../../components/ui/MainView'
 import { signOut } from '../../../../services/auth.service'
@@ -10,10 +10,12 @@ import SectionContainer from '../../../components/sections/SectionContainer'
 import { settingsSections } from '../../../../utils/appData.utils'
 import CustomAlert from '../../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../../interfaces/ui.interface'
+import { GlobalContext } from '../../../../store/GlobalState'
 
 const SettingsScreen = () => {
     const {top} = useSafeAreaInsets()
     
+    const {dispatch} = useContext(GlobalContext)
     const [modalVisible, setModalVisible] = useState(false);
     const alertBtns: AlertBtnProps[] = [
         {
@@ -21,7 +23,7 @@ const SettingsScreen = () => {
             label: 'Continuar',
             action: () => {
                 setModalVisible(false)
-                signOut()
+                signOut(dispatch)
             }
         },
         {

@@ -33,6 +33,7 @@ export type ChatAction =
 | {type: 'FAVORITE_MESSAGE', payload: string}
 | {type: 'DELETE_ALL'}
 | {type: 'SET_SHOW_FAVORITE'}
+| {type: 'RESET_CHAT_STATE'}
 
 const deleteMessage = (state: ChatState, messageId: string): ChatState => {
     const newMessages = [...state.chatMessages].filter(message => message.id !== messageId)
@@ -69,6 +70,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return (setIsFavorite(state, action.payload))
         case 'SET_SHOW_FAVORITE':
             return {...state, showFavorites: !state.showFavorites}
+        case 'RESET_CHAT_STATE':
+            return {...initialChatState}
         default:
             return state
     }

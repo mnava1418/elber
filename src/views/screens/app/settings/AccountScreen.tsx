@@ -23,7 +23,7 @@ const AccountScreen = () => {
     const leftBtn = NavBarBackBtn(navigation)
 
     const {top} = useSafeAreaInsets()
-    const {state} = useContext(GlobalContext)
+    const {dispatch, state} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
 
     const [isProcessing, setIsProcessing] = useState(false)
@@ -33,7 +33,7 @@ const AccountScreen = () => {
         type: 'default',
         action: () => {
             setModalVisible(false)
-            signOut()
+            signOut(dispatch)
         }
     }]
 
