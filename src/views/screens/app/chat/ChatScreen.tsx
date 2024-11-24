@@ -182,7 +182,7 @@ const ChatScreen = () => {
                 inverted
                 data={chatMessages}
                 renderItem={({item, index}) => (
-                    <ChatMessage key={index} index={index} message={item} isNewMessage={isNewMessage} setIsNewMessage={setIsNewMessage} showActions={setActionVisible} scrollToMessage={scrollToMessage} />
+                    <ChatMessage key={index} index={index} message={item} isNewMessage={isNewMessage} showActions={setActionVisible} scrollToMessage={scrollToMessage} />
                 )}
                 keyExtractor={(item,index) => `${item.id}-${index}`}
                 contentContainerStyle={{ paddingBottom: 10 }}
