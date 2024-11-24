@@ -38,3 +38,7 @@ export const setIsFavoriteMessage = (messageId: string): ChatAction => ({
 export const setShowFavorites = (): ChatAction => ({
     type: 'SET_SHOW_FAVORITE'
 })
+
+export const resetChatState = (): ChatAction => ({
+    type: 'RESET_CHAT_STATE'
+})

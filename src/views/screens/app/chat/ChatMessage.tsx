@@ -11,21 +11,22 @@ import useAnimateText from '../../../../hooks/animations/useAnimateText'
 type ChatMessageProps = {
     index: number
     message: ChatMessageType
-    isNewMessage: boolean
-    setIsNewMessage: React.Dispatch<React.SetStateAction<boolean>>
+    isNewMessage: boolean    
     showActions: React.Dispatch<React.SetStateAction<boolean>>
     scrollToMessage: (index: number) => void
 }
 
-const ChatMessage = ({index, message, isNewMessage, setIsNewMessage, showActions, scrollToMessage}: ChatMessageProps) => {
+const ChatMessage = ({index, message, isNewMessage, showActions, scrollToMessage}: ChatMessageProps) => {
     const messageRef = useRef<View>(null)
     const {state, dispatch} = useContext(GlobalContext)
     const showFavorites = selectShowFavorites(state.chat)
     const {animatedText, animateText} = useAnimateText()
 
     useEffect(() => {
-        animateText(message.text, 10)
-    }, [])    
+        if(message.text) {
+            animateText(message.text, 10)
+        }
+    }, [message])    
 
     const handleLongPress = () => {
         if (messageRef.current) {

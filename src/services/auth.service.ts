@@ -4,6 +4,8 @@ import { getAxiosFetcher } from "../adapters/http/axios.fetcher";
 import CustomError from "../models/CustomError";
 import { isValidEmail } from "../utils/inputs.utils";
 import { SimpleHttpResponse, SigUpResponse } from "../interfaces/http.interface";
+import { resetAuthState } from "../store/actions/auth.actions";
+import { resetChatState } from "../store/actions/chat.actions";
 
 const authFetcher = fbAuthFetcher
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4041`) 
@@ -37,9 +39,11 @@ const validateLoginFields = (email: string, password: string) => {
   }
 }
 
-export const signOut = async () => {
+export const signOut = async (dispatch: React.Dispatch<any>) => {
   try {
-    await authFetcher.signOut()
+    dispatch(resetAuthState())
+    dispatch(resetChatState())
+    await authFetcher.signOut()    
   } catch (error) {
     throw new Error('Unable to sign out.');
     

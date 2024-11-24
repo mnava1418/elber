@@ -9,3 +9,7 @@ export const setAuthenticatedUser = (user: AuthUser): AuthAction => ({
     type: 'SET_AUTHENTICATED_USER',
     payload: user
 })
+
+export const resetAuthState = (): AuthAction => ({
+    type: 'RESET_AUTH_STATE'
+})
