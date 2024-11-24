@@ -13,6 +13,8 @@ import useSignUp from '../../../../hooks/auth/useSignUp'
 import CustomError from '../../../../models/CustomError'
 import { signUp } from '../../../../services/auth.service'
 import NavBarBackBtn from '../../../components/navBar/NavBarBackBtn'
+import CustomAlert from '../../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../../interfaces/ui.interface'
 
 const SignUpScreen = () => {
     const {code} = useRoute<RouteProp<StackNavigationProps, 'SignUp'>>().params
@@ -22,10 +24,20 @@ const SignUpScreen = () => {
 
     const {
         name, setName,
-        errors, setErrors,
+        alertError, setAlertError,
         passwords, setPasswords,
         resetState
     } = useSignUp()
+
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                setAlertError('')
+            }
+        }
+    ]
 
     const leftBtn = NavBarBackBtn(navigation)
 
@@ -37,9 +49,9 @@ const SignUpScreen = () => {
             navigation.navigate('Welcome', {name, email: signedEmail})
         } catch (error) {
             if (error instanceof CustomError) {
-                setErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
+                setAlertError(error.message)
             } else {
-                setErrors((prevErrors) => ({...prevErrors, default: 'Error inesperado. Intenta nuevamente.'}))
+                setAlertError('Error inesperado. Intenta nuevamente.')
             }
         } finally {
             setIsProcessing(false)
@@ -65,7 +77,6 @@ const SignUpScreen = () => {
                         keyboardType='default'
                         autoCapitalize='none'
                     />
-                    {errors.name && errors.name.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.name}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -75,7 +86,6 @@ const SignUpScreen = () => {
                         autoCapitalize='none'
                         secureTextEntry
                     />
-                    {errors.password && errors.password.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.password}</CustomText> : <></>}
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Confirma tu password</CustomText>
                     <TextInput
                         style={[globalStyles.input, { marginTop: 10 }]}
@@ -88,11 +98,11 @@ const SignUpScreen = () => {
                     {!isProcessing ? (
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <CustomButton label='Registrar' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
-                            {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}                        
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
+            <CustomAlert title='Registro' message={alertError} visible={alertError !== ''} alertBtns={alertBtns} />
         </MainView>
     )
 }

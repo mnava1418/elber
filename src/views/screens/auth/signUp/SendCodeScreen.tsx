@@ -11,6 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { StackNavigationProps } from '../../../Elber'
 import useSignUp from '../../../../hooks/auth/useSignUp'
 import NavBarBackBtn from '../../../components/navBar/NavBarBackBtn'
+import CustomAlert from '../../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../../interfaces/ui.interface'
 
 const SendCodeScreen = () => {
   const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -20,14 +22,24 @@ const SendCodeScreen = () => {
 
   const {
     code, setCode,
-    errors, setErrors,
+    alertError, setAlertError,
     resetState
   } = useSignUp()
+
+  const alertBtns: AlertBtnProps[] = [
+    {
+        label: 'Ok',
+        type: 'default',
+        action: () => {
+            setAlertError('')
+        }
+    }
+]
 
   const handleRequest = () => {
     resetState()
     if(code.trim() === '') {
-      setErrors((prev) => ({...prev, default: 'El código de registro es obligatorio.'}))
+      setAlertError('El código de registro es obligatorio.')
     } else {
       navigation.navigate('SignUp', {code})
     }
@@ -54,10 +66,10 @@ const SendCodeScreen = () => {
                       numberOfLines={15}
                       textAlignVertical="top"
                     />
-                    {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}
                     <CustomButton label='Continuar' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
                 </ScrollView>
             </KeyboardAvoidingView>
+            <CustomAlert title='Registro' message={alertError} visible={alertError !== ''} alertBtns={alertBtns} />
         </MainView>
     
   )

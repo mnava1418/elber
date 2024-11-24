@@ -13,6 +13,8 @@ import useSignUp from '../../../../hooks/auth/useSignUp'
 import { requestCode } from '../../../../services/auth.service'
 import CustomError from '../../../../models/CustomError'
 import NavBarBackBtn from '../../../components/navBar/NavBarBackBtn'
+import CustomAlert from '../../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../../interfaces/ui.interface'
 
 const RequestCodeScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -22,11 +24,21 @@ const RequestCodeScreen = () => {
     const {
         email, setEmail,
         result, setResult,
-        errors, setErrors,
+        alertError, setAlertError,
         resetState
     } = useSignUp()
     
     const leftBtn = NavBarBackBtn(navigation)
+
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                setAlertError('')
+            }
+        }
+    ]
 
     const handleRequest = async() => {
         setIsProcessing(true)
@@ -36,10 +48,10 @@ const RequestCodeScreen = () => {
             const response = await requestCode(email)
             setResult(response)
         } catch (error) {
-            if (error instanceof CustomError) {
-                setErrors((prevErrors) => ({...prevErrors, [error.type]: error.message}))
+            if (error instanceof CustomError) {                
+                setAlertError(error.message)
             } else {
-                setErrors((prevErrors) => ({...prevErrors, default: 'Error inesperado. Intenta nuevamente.'}))
+                setAlertError('Error inesperado. Intenta nuevamente.')
             }
         } finally {
             setIsProcessing(false)
@@ -65,12 +77,10 @@ const RequestCodeScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {errors.email && errors.email.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.email}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Solicitar código' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
                             <View style={{ flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                {errors.default && errors.default.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{errors.default}</CustomText> : <></>}
                                 {result.trim() !== '' ? <CustomText style={{marginTop: 8, textAlign: 'center' }}>{result}</CustomText> : <></>}
                                 <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', marginTop: 16}}>
                                     <CustomText style={{fontSize: globalStyles.btnText.fontSize}}>¿Ya tienes tu código?</CustomText>
@@ -86,6 +96,7 @@ const RequestCodeScreen = () => {
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
+            <CustomAlert title='Registro' message={alertError} visible={alertError !== ''} alertBtns={alertBtns} />
         </MainView>
     )
 }
