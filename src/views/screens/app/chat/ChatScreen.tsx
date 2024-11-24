@@ -5,7 +5,7 @@ import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { MainScreenTapProps } from '../MainScreen'
 import { AlertBtnProps, CustomNavBtnProps } from '../../../../interfaces/ui.interface'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ActivityIndicator, FlatList, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Image, Keyboard, KeyboardAvoidingView, NativeScrollEvent, NativeSyntheticEvent, Platform, TextInput, View } from 'react-native'
 import ChatBtn from './ChatBtn'
 import { chatStyles } from '../../../../styles/chatStyles'
 import ChatMessage from './ChatMessage'
@@ -19,6 +19,9 @@ import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
 import CustomAlert from '../../../components/ui/CustomAlert'
 import ChatActions from './ChatActions'
+import Subtitle from '../../../components/ui/Subtitle'
+
+const logo = require('../../../../assets/images/dot.png')
 
 const ChatScreen = () => {
     const navigation = useNavigation<NavigationProp<MainScreenTapProps>>()
@@ -171,13 +174,8 @@ const ChatScreen = () => {
         })
     }
 
-    const getChatView = () => (
-        <KeyboardAvoidingView
-                style={[chatStyles.container, {marginBottom: bottom + 8, marginTop: top + 72}]}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : inputState.keyboardOffset}
-            >
-            <FlatList
+    const getChatHistory = () => (
+        <FlatList
                 ref={flatListRef}
                 inverted
                 data={chatMessages}
@@ -188,6 +186,22 @@ const ChatScreen = () => {
                 contentContainerStyle={{ paddingBottom: 10 }}
                 onScroll={onScroll}
             />
+    )
+
+    const getWelcomeView = () => (
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+            <Image style={{width: 150, height: 150, marginBottom: 24}} source={logo}/>
+            <Subtitle>¿En qué puedo ayudarte hoy?</Subtitle>            
+        </View>
+    )
+
+    const getChatView = () => (
+        <KeyboardAvoidingView
+                style={[chatStyles.container, {marginBottom: bottom + 8, marginTop: top + 72}]}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : inputState.keyboardOffset}
+            >
+            {chatMessages.length > 0 ? getChatHistory() : getWelcomeView()}
             <View style={chatStyles.inputContainer}>
                 <TextInput
                     style={[chatStyles.input, { height: inputState.height }]}

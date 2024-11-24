@@ -24,9 +24,9 @@ const ChatMessage = ({index, message, isNewMessage, showActions, scrollToMessage
 
     useEffect(() => {
         if(message.text) {
-            animateText(message.text, 10)
+            animateText(message.text, 20)
         }
-    }, [message])    
+    }, [])    
 
     const handleLongPress = () => {
         if (messageRef.current) {
@@ -63,7 +63,7 @@ const ChatMessage = ({index, message, isNewMessage, showActions, scrollToMessage
     }
 
     const generateMessage = () => {
-        if((showFavorites && message.isFavorite) || !showFavorites) {
+        if(message.text && ((showFavorites && message.isFavorite) || !showFavorites)) {
             return(
                 <Pressable 
                     style={({pressed}) => ([
