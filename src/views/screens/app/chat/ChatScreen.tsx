@@ -190,7 +190,7 @@ const ChatScreen = () => {
 
     const getWelcomeView = () => (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-            <Image style={{width: 150, height: 150, marginBottom: 24}} source={logo}/>
+            <Image style={{width: 200, height: 200, marginBottom: 24}} source={logo}/>
             <Subtitle>¿En qué puedo ayudarte hoy?</Subtitle>            
         </View>
     )
