@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View, ActivityIndicator } from 'react-native'
 import { globalStyles, globalColors } from '../../../styles/mainStyles'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
@@ -12,12 +12,25 @@ import { StackNavigationProps } from '../../Elber'
 import useRecover from '../../../hooks/auth/useRecover'
 import { recoverPassword } from '../../../services/auth.service'
 import NavBarBackBtn from '../../components/navBar/NavBarBackBtn'
+import CustomAlert from '../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../interfaces/ui.interface'
 
 const RecoverScreen = () => {
     const recoverProps = useRoute<RouteProp<StackNavigationProps, 'Recover'>>().params
     const {originalEmail} = recoverProps
 
     const {info, setInfo, isProcessing, setIsProcessing} = useRecover(originalEmail)
+    const [alertText, setAlertText] = useState('')
+
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                setAlertText('')
+            }
+        }
+    ]
     
 
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
@@ -26,14 +39,14 @@ const RecoverScreen = () => {
     const leftBtn = NavBarBackBtn(navigation)
 
     const handleSubmit = async() => {
-        setInfo({...info, error: '', result: ''})
+        setAlertText('')
         setIsProcessing(true)
         
         try {
             await recoverPassword(info.email)
-            setInfo((prev) => ({...prev, result: 'Por favor, revisa tu bandeja de entrada para restablecer tu contraseña.'}))
-        } catch (error) {
-            setInfo((prev) => ({...prev, error: (error as Error).message}))
+            setAlertText('Por favor, revisa tu bandeja de entrada para restablecer tu contraseña.')
+        } catch (error) {            
+            setAlertText((error as Error).message)
         } finally {
             setIsProcessing(false)
         }
@@ -58,15 +71,14 @@ const RecoverScreen = () => {
                         keyboardType='email-address'
                         autoCapitalize='none'
                     />
-                    {info.error && info.error.trim() !== '' ? <CustomText style={{ color: globalColors.alert, marginTop: 8 }}>{info.error}</CustomText> : <></>}
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
-                            <CustomButton label='Recuperar' type='primary' style={{ marginTop: 56 }} onPress={handleSubmit} />
-                            {info.result && info.result.trim() !== '' ? <CustomText style={{ color: globalColors.text, marginTop: 16 }}>{info.result}</CustomText> : <></>}
+                            <CustomButton label='Recuperar' type='primary' style={{ marginTop: 56 }} onPress={handleSubmit} />                            
                         </View>
                     ) : (<ActivityIndicator size={'large'} color={globalColors.text} style={{marginTop: 56}} />)}
                 </ScrollView>
             </KeyboardAvoidingView>
+            <CustomAlert title='Recuperar Password' message={alertText} visible={alertText !== ''} alertBtns={alertBtns} />
         </MainView>
     )
 }
