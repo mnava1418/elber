@@ -53,13 +53,13 @@ const RecoverScreen = () => {
     }
 
     return (
-        <MainView showBgImage >
+        <MainView>
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>¿Olvidaste tu contraseña?</Subtitle>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={60}
+                keyboardVerticalOffset={48}
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                     <CustomText style={{marginTop: 10}}>Ingresa tu email y te enviaremos un enlace para que puedas restablecer tu contraseña.</CustomText>

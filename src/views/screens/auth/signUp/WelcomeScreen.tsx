@@ -12,7 +12,7 @@ const WelcomeScreen = () => {
     const navigation = useNavigation<NavigationProp<StackNavigationProps>>()
 
     return (
-        <MainView showBgImage style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+        <MainView style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
             <Title>{`¡Hola ${name}!`}</Title>
             <Subtitle style={{marginTop: 40}}>Tu cuenta ha sido creada.</Subtitle>
             <CustomText style={{marginTop: 16, textAlign: 'center'}}>{`Hemos enviado un correo de verificación a ${email}. Verifica tu cuenta para poder iniciar sesión.`}</CustomText>

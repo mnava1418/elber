@@ -46,13 +46,13 @@ const SendCodeScreen = () => {
   }
 
   return (
-      <MainView showBgImage >
+      <MainView>
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Código de registro</Subtitle>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={60}
+                keyboardVerticalOffset={48}
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                     <CustomText style={{marginTop: 20}}><CustomText style={{fontWeight: '700'}}>Paso 2:</CustomText> Proporciona el código de registro que recibiste por correo electrónico.</CustomText>

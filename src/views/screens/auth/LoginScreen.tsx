@@ -63,13 +63,13 @@ const LoginScreen = () => {
     }
 
     return (
-        <MainView showBgImage >
+        <MainView>
             <CustomNavBar leftBtn={leftBtn} />
             <Subtitle style={{ marginTop: top + 56 }}>Bienvenido, que gusto verte de nuevo.</Subtitle>
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={60}
+                keyboardVerticalOffset={40}
             >
                 <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Email</CustomText>
