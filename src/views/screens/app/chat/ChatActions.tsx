@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Dimensions, Modal, Pressable, StyleProp, View, ViewStyle } from 'react-native'
 import { globalStyles } from '../../../../styles/mainStyles'
 import { GlobalContext } from '../../../../store/GlobalState'
