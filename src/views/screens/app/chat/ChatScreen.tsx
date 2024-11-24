@@ -219,7 +219,7 @@ const ChatScreen = () => {
                     onContentSizeChange={(event) => setInputState({...inputState, height: event.nativeEvent.contentSize.height})}
                     keyboardType='default'
                     autoCapitalize='sentences'
-                    editable= {!loading && !showFavorites}
+                    editable= {!showFavorites}
                 />
                 {loading ? (
                     <ChatBtn type='primary' icon='ellipse' onPress={() => {}} />
