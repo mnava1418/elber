@@ -42,10 +42,8 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
     }
 
     const deleteMessage = () => {
-        elberServices.deleteMessages(message.id)
-        .then(() => {
-            dispatch(deleteMessageById(message.id))
-        })
+        dispatch(deleteMessageById(message.id))
+        elberServices.deleteMessages(message.id)        
         .catch((error: Error) => {
             console.error(error.message)
         })
@@ -56,10 +54,8 @@ const ChatActionItem = ({action, message, isLast, setVisible}: ChatActionItemPro
     }
 
     const setFavorite = () => {
-        elberServices.setIsFavorite(message.id, !message.isFavorite)
-        .then(() => {
-            dispatch(setIsFavoriteMessage(message.id))
-        })
+        dispatch(setIsFavoriteMessage(message.id))
+        elberServices.setIsFavorite(message.id, !message.isFavorite)        
         .catch((error: Error) => {
             console.error(error.message)
         })

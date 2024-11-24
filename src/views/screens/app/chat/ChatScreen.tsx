@@ -75,10 +75,9 @@ const ChatScreen = () => {
             label: 'Continuar',
             action: () => {
                 setModalVisible(false)
-                elberService.deleteMessages()
-                .then(() => {
-                    dispatch(chatActions.deleteAllMessages())
-                })
+                dispatch(chatActions.deleteAllMessages())
+                
+                elberService.deleteMessages()                
                 .catch((error: Error) => {
                     console.error(error.message)
                 })
