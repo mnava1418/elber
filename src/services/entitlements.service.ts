@@ -1,9 +1,8 @@
 import AndroidPermissions from "../adapters/devicePermissions/androidPermissions.adapter";
 import DevicePermissions from "../adapters/devicePermissions/devicePermissions.adapter";
 import IosPermissions from "../adapters/devicePermissions/iosPermissions.adapter";
-import { setAuthPermissions } from "../store/actions/auth.actions";
 
-export const checkDevicePermissions = async (dispatch: React.Dispatch<any>, os: 'ios' | 'android') => {
+export const checkVoicePermissions = async (os: 'ios' | 'android') => {
     let devicePermissions: DevicePermissions;
 
     if(os === 'ios') {
@@ -18,5 +17,5 @@ export const checkDevicePermissions = async (dispatch: React.Dispatch<any>, os: 
     const speechRecognitionPermission: boolean = await devicePermissions.checkSpeechRecognitionPermission()
     .catch(() => false)    
 
-    dispatch(setAuthPermissions({microphonePermission, speechRecognitionPermission}))
+    return microphonePermission && speechRecognitionPermission
 }
