@@ -7,31 +7,60 @@ import { View, Animated, Pressable, TextInput, Platform } from 'react-native'
 import usePulseImage from '../../../hooks/animations/usePulseImage'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
-import { checkDevicePermissions } from '../../../services/entitlements.service'
+import { checkVoicePermissions } from '../../../services/entitlements.service'
+import CustomAlert from '../../components/ui/CustomAlert'
+import { AlertBtnProps } from '../../../interfaces/ui.interface'
+import { openSettings } from 'react-native-permissions'
 
 const logo = require('../../../assets/images/dot.png')
 
 const HomeScreen = () => {
-    const {dispatch, state} = useContext(GlobalContext)
+    const {state} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
     const {top} = useSafeAreaInsets()
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
     const [isListening, setIsListening] = useState(false)
     const [prompt, setPrompt] = useState('')
+    const [alertVisible, setAlertVisible] = useState(false)
 
-    const handleBtnTouch = () => {
-        if(isListening) {
-            pulseImage.reset()
-            setIsListening(false)
+    const handleBtnTouch = async () => {
+        const hasVoicePermissions = await checkVoicePermissions(Platform.OS === 'ios' ? 'ios' : 'android')
+        .catch(() => false)
+
+        if(hasVoicePermissions) {
+            if(isListening) {
+                pulseImage.reset()
+                
+            } else {
+                pulseImage.start()
+            }
+    
+            setIsListening(!isListening)
         } else {
-            pulseImage.start()
-            setIsListening(true)
+            setAlertVisible(true)
         }
     }
 
+    const alertBtns: AlertBtnProps[] = [
+        {
+            label: 'Ok',
+            type: 'default',
+            action: () => {
+                openSettings('application')
+                setAlertVisible(false)
+            }
+        },
+        {
+            label: 'Cancelar',
+            type: 'cancel',
+            action: () => {
+                setAlertVisible(false)
+            }
+        }
+    ]
+        
     useEffect(() => {
-        setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
-        checkDevicePermissions(dispatch, Platform.OS === 'ios' ? 'ios' : 'android')        
+        setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)        
     }, [user])
     
     return (
@@ -65,6 +94,13 @@ const HomeScreen = () => {
                     editable = {false}
                 />
             </View>
+            <CustomAlert 
+                visible={alertVisible}
+                title='Activa el Micrófono'
+                message='Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos'
+                alertBtns={alertBtns}
+
+            />
         </MainView>
     )
 }
