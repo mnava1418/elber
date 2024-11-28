@@ -12,7 +12,7 @@ import { checkDevicePermissions } from '../../../services/entitlements.service'
 const logo = require('../../../assets/images/dot.png')
 
 const HomeScreen = () => {
-    const {state} = useContext(GlobalContext)
+    const {dispatch, state} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
     const {top} = useSafeAreaInsets()
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
@@ -31,7 +31,7 @@ const HomeScreen = () => {
 
     useEffect(() => {
         setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
-        checkDevicePermissions(Platform.OS === 'ios' ? 'ios' : 'android')        
+        checkDevicePermissions(dispatch, Platform.OS === 'ios' ? 'ios' : 'android')        
     }, [user])
     
     return (
