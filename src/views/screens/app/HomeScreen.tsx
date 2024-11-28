@@ -3,10 +3,11 @@ import MainView from '../../components/ui/MainView'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { View, Animated, Pressable, TextInput } from 'react-native'
+import { View, Animated, Pressable, TextInput, Platform } from 'react-native'
 import usePulseImage from '../../../hooks/animations/usePulseImage'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
+import { checkDevicePermissions } from '../../../services/entitlements.service'
 
 const logo = require('../../../assets/images/dot.png')
 
@@ -30,6 +31,7 @@ const HomeScreen = () => {
 
     useEffect(() => {
         setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
+        checkDevicePermissions(Platform.OS === 'ios' ? 'ios' : 'android')        
     }, [user])
     
     return (
