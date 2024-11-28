@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSMicrophoneUsageDescription</key>
+  	<string>Elber necesita acceso al micrófono para comunicarse contigo.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Elber necesita usar el reconocimiento de voz para comunicarse contigo.</string>
 	<key>UIAppFonts</key>
 	<array>
 	<string>Ionicons.ttf</string>
