@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import MainView from '../../components/ui/MainView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { View, Animated, Pressable, TextInput, Platform } from 'react-native'
@@ -12,6 +12,7 @@ import { openSettings } from 'react-native-permissions'
 import Voice from '@react-native-voice/voice'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
+import useElber from '../../../hooks/app/useElber'
 
 const logo = require('../../../assets/images/dot.png')
 
@@ -20,11 +21,12 @@ const HomeScreen = () => {
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
     const {state} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
-    const [prompt, setPrompt] = useState('')
-    const [alertVisible, setAlertVisible] = useState(false)
-    const silenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const isListening = useRef(false)
-    const promptRef = useRef('')
+    
+    const {
+        silenceTimeout, isListening, promptRef,
+        prompt, setPrompt,
+        alertVisible, setAlertVisible
+    } = useElber()
 
     const handleBtnTouch = async () => {     
         if(isListening.current) {
