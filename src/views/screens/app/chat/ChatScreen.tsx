@@ -98,11 +98,13 @@ const ChatScreen = () => {
             elberService.loadChatMessages()
             .then((response: ChatHistoryResponse) => {
                 dispatch(chatActions.setChatMessages(response.messages))
-                dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))
-                setIsLoadingHistory(false)
+                dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))                
             })
             .catch((error: Error) => {
                 console.error(error.message)
+            })
+            .finally(() => {
+                setIsLoadingHistory(false)
             })
         } else {
             setIsLoadingHistory(false)
