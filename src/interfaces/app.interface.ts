@@ -15,3 +15,5 @@ export type ChatActionType =  {
     icon: string,
     type: 'delete' | 'copy' | 'share' | 'favorite'
 }
+
+export type LocalStorageKey = 'elberVoice'
