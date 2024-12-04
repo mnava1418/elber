@@ -1,11 +1,13 @@
-import Tts, { Voice } from "react-native-tts";
+import Tts, { ReactNativeTts, Voice } from "react-native-tts";
 import { ElberVoice } from "../store/reducers/elber.reducer";
 
 class ElberModel {
 
     private static instance: ElberModel
-
+    private ElberTts: ReactNativeTts
+    
     constructor() {        
+        this.ElberTts = Tts
     }
 
     public static getInstance(): ElberModel {
@@ -18,13 +20,17 @@ class ElberModel {
 
     public setVoice(voice: ElberVoice) {
         if(voice.id.trim() !== '' && voice.language.trim() !== '') {
-            Tts.setDefaultLanguage(voice.language)
-            Tts.setDefaultVoice(voice.id)
+            this.ElberTts.setDefaultLanguage(voice.language)
+            this.ElberTts.setDefaultVoice(voice.id)
         }        
     }
 
+    public speak(message: string) {
+        this.ElberTts.speak(message)
+    }
+
     public async getAvailableVoices(): Promise<Voice[]> {
-        const availableVoices: Voice[] = await Tts.voices()
+        const availableVoices: Voice[] = await this.ElberTts.voices()
         .catch(() => [])
 
         const spanishVoices = availableVoices.filter(voice => voice.language.trim().startsWith('es'))
@@ -35,6 +41,10 @@ class ElberModel {
             const englishVoices = availableVoices.filter(voice => voice.language.trim() === 'en-US')       
             return englishVoices
         }
+    }
+
+    public getTts(): ReactNativeTts {
+        return this.ElberTts
     }
 }
 

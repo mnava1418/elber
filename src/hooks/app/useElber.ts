@@ -5,6 +5,7 @@ import { selectElberVoice } from '../../store/selectors/elber.selector';
 import usePulseImage from '../animations/usePulseImage';
 import { checkVoicePermissions } from '../../services/entitlements.service';
 import { Platform } from 'react-native';
+import ElberModel from '../../models/ElberModel';
 
 const useElber = (state: ElberState) => {
     const [prompt, setPrompt] = useState('')
@@ -14,6 +15,7 @@ const useElber = (state: ElberState) => {
     const promptRef = useRef('')
     const elberVoice = selectElberVoice(state)
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
+    const isSpeaking = useRef(false)
 
     const clearSilenceTimeout = () => {
         if (silenceTimeout.current) {
@@ -35,10 +37,14 @@ const useElber = (state: ElberState) => {
     };
 
     const sendMessage = () => {
-        console.log('Vamos a mandar: ', promptRef.current)
+        ElberModel.getInstance().speak(promptRef.current)
     }
 
     const startListening = async () => {
+        if(isSpeaking.current) {
+            return
+        }
+
         const hasVoicePermissions = await checkVoicePermissions(Platform.OS === 'ios' ? 'ios' : 'android')
         .catch(() => false)
 
@@ -48,7 +54,7 @@ const useElber = (state: ElberState) => {
                 pulseImage.start()
                 await Voice.start('es-MX')
             } catch (error) {
-                console.log('Error al escuchar', error)
+                ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
             }
         } else {
             setAlertVisible(true)
@@ -62,7 +68,7 @@ const useElber = (state: ElberState) => {
             clearSilenceTimeout()
             await Voice.stop()            
         } catch (error) {
-            console.log('Error al detener la escucha', error)
+            ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
         }
     }
 
@@ -91,12 +97,29 @@ const useElber = (state: ElberState) => {
         }
 
         Voice.onSpeechError = (error) => {            
-            console.log('No te escuché! ¿Me lo repites, porfa?')
+            ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
         };
+
+        ElberModel.getInstance().getTts().addEventListener('tts-start', onStartSpeaking)
+        ElberModel.getInstance().getTts().addEventListener('tts-progress', onSpeaking)
+        ElberModel.getInstance().getTts().addEventListener('tts-finish', onFinishSpeaking)
+    }
+
+    const onStartSpeaking = () => {
+        isSpeaking.current = true
+    }
+
+    const onSpeaking = () => {}
+
+    const onFinishSpeaking = () => {
+        isSpeaking.current = false
     }
 
     const removeSpeechListener = () => {
         Voice.destroy().then(Voice.removeAllListeners)
+        ElberModel.getInstance().getTts().removeAllListeners('tts-start')
+        ElberModel.getInstance().getTts().removeAllListeners('tts-progress')
+        ElberModel.getInstance().getTts().removeAllListeners('tts-finish')
     }
     
     return {
