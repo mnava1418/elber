@@ -1,32 +1,33 @@
 import React, { useContext, useEffect } from 'react'
 import MainView from '../../components/ui/MainView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { View, Animated, Pressable, TextInput, Platform } from 'react-native'
-import usePulseImage from '../../../hooks/animations/usePulseImage'
+import { View, Animated, Pressable, TextInput } from 'react-native'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
-import { checkVoicePermissions } from '../../../services/entitlements.service'
 import CustomAlert from '../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../interfaces/ui.interface'
 import { openSettings } from 'react-native-permissions'
-import Voice from '@react-native-voice/voice'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import useElber from '../../../hooks/app/useElber'
+import { getElberVoice } from '../../../services/voice.service'
+import { setElberVoice } from '../../../store/actions/elber.actions'
+import ElberModel from '../../../models/ElberModel'
 
 const logo = require('../../../assets/images/dot.png')
 
 const HomeScreen = () => {
     const {top} = useSafeAreaInsets()
-    const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
-    const {state} = useContext(GlobalContext)
+    const {state, dispatch} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
     
     const {
-        silenceTimeout, isListening, promptRef,
+        isListening, promptRef, elberVoice, scaleImage,
         prompt, setPrompt,
+        prepareSpeech, removeSpeechListener,
+        stopListening, startListening,
         alertVisible, setAlertVisible
-    } = useElber()
+    } = useElber(state.elber)
 
     const handleBtnTouch = async () => {     
         if(isListening.current) {
@@ -53,37 +54,16 @@ const HomeScreen = () => {
             }
         }
     ]
-        
+
     useEffect(() => {  
-        Voice.onSpeechStart = () => {
-            isListening.current = true
-            resetSilenceTimeout()
-        }
-
-        Voice.onSpeechEnd = () => {
-            isListening.current = false
-            sendMessage()
-        }
-
-        Voice.onSpeechResults = (event) => {
-            if(event.value) {
-                setPrompt(event.value[0])
-                promptRef.current = event.value[0]
-            }
-        }
-
-        Voice.onSpeechPartialResults = () => {
-            if(isListening.current) {
-                resetSilenceTimeout()
-            }
-        }
-
-        Voice.onSpeechError = (error) => {            
-            console.log('No te escuché! ¿Me lo repites, porfa?')
-        };
+        prepareSpeech()
+       
+        getElberVoice().then(result => {
+            dispatch(setElberVoice(result))
+        })
 
         return () => {
-            Voice.destroy().then(Voice.removeAllListeners)
+            removeSpeechListener()
         }
     }, [])
 
@@ -95,56 +75,9 @@ const HomeScreen = () => {
         setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
     }, [user])
 
-    const startListening = async () => {
-        const hasVoicePermissions = await checkVoicePermissions(Platform.OS === 'ios' ? 'ios' : 'android')
-        .catch(() => false)
-
-        if(hasVoicePermissions) {
-            try {
-                setPrompt('')
-                pulseImage.start()
-                await Voice.start('es-MX')
-            } catch (error) {
-                console.log('Error al escuchar', error)
-            }
-        } else {
-            setAlertVisible(true)
-        }
-    }
-
-    const stopListening = async() => {
-        try {
-            pulseImage.reset()
-            isListening.current = false
-            clearSilenceTimeout()
-            await Voice.stop()            
-        } catch (error) {
-            console.log('Error al detener la escucha', error)
-        }
-    }
-
-    const resetSilenceTimeout = () => {
-        if (silenceTimeout.current) {
-            clearTimeout(silenceTimeout.current)
-        }
-
-        silenceTimeout.current = setTimeout(() => {
-            if (isListening.current) {                
-                stopListening()
-            }
-        }, 2000)
-    };
-
-    const clearSilenceTimeout = () => {
-        if (silenceTimeout.current) {
-          clearTimeout(silenceTimeout.current)
-          silenceTimeout.current = null
-        }
-    };
-
-    const sendMessage = () => {
-        console.log('Vamos a mandar: ', promptRef.current)
-    }
+    useEffect(() => {
+        ElberModel.getInstance().setVoice(elberVoice)
+    }, [elberVoice])
     
     return (
         <MainView style={{paddingTop: top}}>
@@ -182,7 +115,6 @@ const HomeScreen = () => {
                 title='Activa el Micrófono'
                 message='Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos'
                 alertBtns={alertBtns}
-
             />
         </MainView>
     )

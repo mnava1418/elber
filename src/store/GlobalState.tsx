@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useReducer } from 'react'
 import { authReducer, AuthState, initialAuthState } from './reducers/auth.reducer';
 import { chatReducer, ChatState, initialChatState } from './reducers/chat.reducer';
+import { elberReducer, ElberState, initialElberState } from './reducers/elber.reducer';
 
 type GlobalProviderProps = {
   children: ReactNode;
@@ -9,16 +10,19 @@ type GlobalProviderProps = {
 type State = {
   auth: AuthState
   chat: ChatState
+  elber: ElberState
 }
 
 const initialState: State = {
   auth: initialAuthState,
-  chat: initialChatState
+  chat: initialChatState,
+  elber: initialElberState
 }
 
-const rootReducer = ({auth, chat}: State, action: any): State => ({
+const rootReducer = ({auth, chat, elber}: State, action: any): State => ({
   auth: authReducer(auth, action),
-  chat: chatReducer(chat, action)
+  chat: chatReducer(chat, action),
+  elber: elberReducer(elber, action)
 });
 
 export const GlobalContext = createContext<{state: State, dispatch: React.Dispatch<any>}>({state: initialState, dispatch: () => null})
