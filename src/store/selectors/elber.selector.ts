@@ -1,3 +1,3 @@
-import { ElberState } from "../reducers/elber.reducer";
+import { ElberState, ElberVoice } from "../reducers/elber.reducer";
 
-export const selectElberVoice = (state: ElberState):string => state.elberVoice
+export const selectElberVoice = (state: ElberState):ElberVoice => state.elberVoice

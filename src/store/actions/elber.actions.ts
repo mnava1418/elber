@@ -1,6 +1,6 @@
-import { ElberAction } from "../reducers/elber.reducer";
+import { ElberAction, ElberVoice } from "../reducers/elber.reducer";
 
-export const setElberVoice = (elberVoice: string): ElberAction => ({
+export const setElberVoice = (elberVoice: ElberVoice): ElberAction => ({
     type: 'SET_ELBER_VOICE',
     payload: elberVoice
 })
