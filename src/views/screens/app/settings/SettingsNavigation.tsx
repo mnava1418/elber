@@ -4,11 +4,13 @@ import { globalColors } from '../../../../styles/mainStyles';
 import SettingsScreen from './SettingsScreen';
 import AccountScreen from './AccountScreen';
 import PrivacyScreen from './PrivacyScreen';
+import VoiceScreen from './VoiceScreen';
 
 export type SettingsNavigationProps = {
     SettingsInit: undefined,
     SettingsAccount: undefined,
-    SettingsPrivacy: undefined
+    SettingsPrivacy: undefined,
+    SettingsVoice: undefined
 }
 
 const Stack = createStackNavigator<SettingsNavigationProps>();
@@ -19,6 +21,7 @@ const SettingsNavigation = () => {
         <Stack.Screen name='SettingsInit' component={SettingsScreen} />
         <Stack.Screen name='SettingsAccount' component={AccountScreen} />
         <Stack.Screen name='SettingsPrivacy' component={PrivacyScreen} />
+        <Stack.Screen name='SettingsVoice' component={VoiceScreen} />
     </Stack.Navigator>
   )
 }

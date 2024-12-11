@@ -79,4 +79,12 @@ export const globalStyles = StyleSheet.create({
         borderRadius: 15,
         alignItems: 'center',
     },
+
+    voiceItem: {
+        paddingVertical: 16, 
+        flexDirection: 'row', 
+        alignItems: 'center',
+        borderBottomColor: globalColors.background,
+        borderBottomWidth: 1
+    }
 })
