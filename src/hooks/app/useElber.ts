@@ -100,9 +100,7 @@ const useElber = (state: ElberState) => {
             ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
         };
 
-        ElberModel.getInstance().getTts().addEventListener('tts-start', onStartSpeaking)
-        ElberModel.getInstance().getTts().addEventListener('tts-progress', onSpeaking)
-        ElberModel.getInstance().getTts().addEventListener('tts-finish', onFinishSpeaking)
+        ElberModel.getInstance().addListeners(onStartSpeaking, onSpeaking, onFinishSpeaking)
     }
 
     const onStartSpeaking = () => {
@@ -117,9 +115,7 @@ const useElber = (state: ElberState) => {
 
     const removeSpeechListener = () => {
         Voice.destroy().then(Voice.removeAllListeners)
-        ElberModel.getInstance().getTts().removeAllListeners('tts-start')
-        ElberModel.getInstance().getTts().removeAllListeners('tts-progress')
-        ElberModel.getInstance().getTts().removeAllListeners('tts-finish')
+        ElberModel.getInstance().removeListeners()
     }
     
     return {
