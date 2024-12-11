@@ -7,7 +7,7 @@ import { ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Subtitle from '../../../components/ui/Subtitle'
 import SectionContainer from '../../../components/sections/SectionContainer'
-import { settingsSections } from '../../../../utils/appData.utils'
+import { settingsAccount, settingsElber } from '../../../../utils/appData.utils'
 import CustomAlert from '../../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../../interfaces/ui.interface'
 import { GlobalContext } from '../../../../store/GlobalState'
@@ -41,7 +41,11 @@ const SettingsScreen = () => {
             <ScrollView style={{marginTop: top + 72}}>
                 <View>
                     <Subtitle style={{marginBottom: 16}}>Cuenta</Subtitle>
-                    <SectionContainer sectionItems={settingsSections} />
+                    <SectionContainer sectionItems={settingsAccount} />
+                </View>
+                <View style={{marginTop: 40}}>
+                    <Subtitle style={{marginBottom: 16}}>Elber</Subtitle>
+                    <SectionContainer sectionItems={settingsElber} />
                 </View>
             </ScrollView>
             <CustomButton style={{marginVertical: 24}} label='Sign Out' type='primary' onPress={() => {setModalVisible(true)}}/>
