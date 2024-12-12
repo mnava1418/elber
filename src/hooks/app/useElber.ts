@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import Voice from '@react-native-voice/voice'
 import { ElberState } from '../../store/reducers/elber.reducer';
 import { selectElberVoice } from '../../store/selectors/elber.selector';
@@ -6,6 +6,9 @@ import usePulseImage from '../animations/usePulseImage';
 import { checkVoicePermissions } from '../../services/entitlements.service';
 import { Platform } from 'react-native';
 import ElberModel from '../../models/ElberModel';
+import * as elberService from '../../services/elber.service'
+import { GlobalContext } from '../../store/GlobalState';
+import { setNewMessage } from '../../store/actions/chat.actions';
 
 const useElber = (state: ElberState) => {
     const [prompt, setPrompt] = useState('')
@@ -16,6 +19,7 @@ const useElber = (state: ElberState) => {
     const elberVoice = selectElberVoice(state)
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
     const isSpeaking = useRef(false)
+    const {dispatch} = useContext(GlobalContext)
 
     const clearSilenceTimeout = () => {
         if (silenceTimeout.current) {
@@ -33,11 +37,25 @@ const useElber = (state: ElberState) => {
             if (isListening.current) {                
                 stopListening()
             }
-        }, 2000)
+        }, 2500)
     };
 
-    const sendMessage = () => {
-        ElberModel.getInstance().speak(promptRef.current)
+    const sendMessage = async () => {
+        if (promptRef.current.trim() === '') return;
+
+        const userMessage = elberService.generateChatMessage(promptRef.current, 'user')
+        dispatch(setNewMessage(userMessage))
+        
+        const botMessage = await elberService.sendElberMessage(userMessage)
+        .then(result => {
+            return elberService.generateChatMessage(result.responseText, 'bot', false, result.id)
+        })
+        .catch(error => {
+            return elberService.generateChatMessage('Perdón mi hermano, está cosa tronó. Intenta nuevamente', 'bot')
+        })
+
+        dispatch(setNewMessage(botMessage))
+        ElberModel.getInstance().speak(botMessage.text)
     }
 
     const startListening = async () => {
@@ -51,6 +69,7 @@ const useElber = (state: ElberState) => {
         if(hasVoicePermissions) {
             try {
                 setPrompt('')
+                promptRef.current = ''
                 pulseImage.start()
                 await Voice.start('es-MX')
             } catch (error) {
@@ -97,6 +116,7 @@ const useElber = (state: ElberState) => {
         }
 
         Voice.onSpeechError = (error) => {            
+            isListening.current = false
             ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
         };
 

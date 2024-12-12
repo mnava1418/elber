@@ -128,12 +128,12 @@ const ChatScreen = () => {
     const sendMessage = async() => {
         if (message.trim() === '') return;
 
-        setMessage('')
         setLoading(true)
 
         const userMessage = elberService.generateChatMessage(message, 'user')
         dispatch(chatActions.setNewMessage(userMessage))
-
+        setMessage('')
+        
         const botMessage = await elberService.sendElberMessage(userMessage)
         .then(result => {
             return elberService.generateChatMessage(result.responseText, 'bot', false, result.id)
