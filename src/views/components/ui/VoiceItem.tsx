@@ -7,6 +7,8 @@ import { GlobalContext } from '../../../store/GlobalState'
 import { setElberVoice } from '../../../store/actions/elber.actions'
 import { globalStyles } from '../../../styles/mainStyles'
 import { saveElberVoice } from '../../../services/voice.service'
+import ElberModel from '../../../models/ElberModel'
+import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 
 type VoiceItemProps = {
     voice: ElberVoice
@@ -14,11 +16,15 @@ type VoiceItemProps = {
 }
 
 const VoiceItem = ({voice, isCurrentVoice}: VoiceItemProps) => {
-    const {dispatch} = useContext(GlobalContext)
+    const {state, dispatch} = useContext(GlobalContext)
+    const user = selectAuthenticatedUser(state.auth)
 
     const selectVoice = () => {
         dispatch(setElberVoice(voice))
         saveElberVoice(voice)
+        setTimeout(() => {
+            ElberModel.getInstance().speak(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
+        }, 300)
     }
 
     return (

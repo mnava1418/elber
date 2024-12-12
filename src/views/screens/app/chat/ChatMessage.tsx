@@ -46,7 +46,7 @@ const ChatMessage = ({index, message, isNewMessage, showActions, scrollToMessage
             dispatch(setShowFavorites())
             setTimeout(() => {
                 scrollToMessage(index)
-            }, 200)
+            }, 300)
         }
     }
 
