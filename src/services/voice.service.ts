@@ -1,6 +1,6 @@
 import { Voice } from "react-native-tts"
 import ElberModel from "../models/ElberModel"
-import { loadData } from "./localStorage.service"
+import { loadData, saveData } from "./localStorage.service"
 import { ElberVoice } from "../store/reducers/elber.reducer"
 
 export const getElberVoice = async (): Promise<ElberVoice> => {
@@ -14,11 +14,15 @@ export const getElberVoice = async (): Promise<ElberVoice> => {
         elberVoice = parseElberVoice(defaultVoice)
         
     } else {
-        console.log('Si tenemos voz')
         elberVoice = parseElberVoice(JSON.parse(savedVoice))
     }
 
     return elberVoice
+}
+
+export const saveElberVoice = async (elberVoice: ElberVoice) => {
+    await saveData('elberVoice', JSON.stringify(elberVoice))
+    .catch((error: Error) => {console.error(error.message)})
 }
 
 const getDefaultVoice = async (): Promise<ElberVoice | null> => {
