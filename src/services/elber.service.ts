@@ -34,6 +34,8 @@ export const generateChatMessage = (text: string, sender: 'user' | 'bot', isFavo
 }
 
 export const loadChatMessages = async (lastKey: string | null = null): Promise<ChatHistoryResponse> => {
+    console.log(BACK_URL)
+    
     try {
         const token = await auth().currentUser?.getIdToken(true)
         .catch(() => {
