@@ -6,6 +6,7 @@ import { ElberVoice } from '../../../store/reducers/elber.reducer'
 import { GlobalContext } from '../../../store/GlobalState'
 import { setElberVoice } from '../../../store/actions/elber.actions'
 import { globalStyles } from '../../../styles/mainStyles'
+import { saveElberVoice } from '../../../services/voice.service'
 
 type VoiceItemProps = {
     voice: ElberVoice
@@ -17,6 +18,7 @@ const VoiceItem = ({voice, isCurrentVoice}: VoiceItemProps) => {
 
     const selectVoice = () => {
         dispatch(setElberVoice(voice))
+        saveElberVoice(voice)
     }
 
     return (

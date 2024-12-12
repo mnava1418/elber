@@ -9,3 +9,11 @@ export const loadData = async (key: LocalStorageKey) => {
         throw new Error(`Unable to get value for key ${key}`);
     }
 }
+
+export const saveData = async (key: LocalStorageKey, value: string) => {
+    try {
+        await AsyncStorage.setItem(key, value)
+    } catch (error) {
+        throw new Error(`Unable to set data on ${key}`);
+    }
+}
