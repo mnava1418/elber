@@ -25,7 +25,7 @@ export const initialChatState: ChatState = {
 }
 
 export type ChatAction = 
-| {type: 'LOAD_MESSAGES', payload: ChatMessageType[]}
+| {type: 'LOAD_MESSAGES', payload: {messages: ChatMessageType[], reload: boolean}}
 | {type: 'SET_LAST_KEY', payload: null | string}
 | {type: 'ADD_MESSAGE', payload: ChatMessageType}
 | {type: 'SET_SELECTED_MESSAGE', payload: SelectedMessage}
@@ -52,10 +52,18 @@ const setIsFavorite = (state: ChatState, messageId: string): ChatState => {
     return {...state, chatMessages: newMessages}
 }
 
+const loadMessages = (state: ChatState, messages: ChatMessageType[], reload: boolean ): ChatState => {
+    if(reload) {
+        return {...state, chatMessages: [...messages]}
+    } else {
+        return {...state, chatMessages: [...state.chatMessages, ...messages]}
+    }
+}
+
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
         case 'LOAD_MESSAGES':
-            return {...state, chatMessages: [...state.chatMessages, ...action.payload]}
+            return (loadMessages(state, action.payload.messages, action.payload.reload ))
         case 'SET_LAST_KEY':
             return {...state, lastKey: action.payload}
         case 'ADD_MESSAGE':

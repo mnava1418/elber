@@ -1,9 +1,12 @@
 import { ChatMessageType } from "../../interfaces/app.interface";
 import { ChatAction, SelectedMessage } from "../reducers/chat.reducer";
 
-export const setChatMessages = (chatMessages: ChatMessageType[]): ChatAction => ({
+export const setChatMessages = (chatMessages: ChatMessageType[], reload = false): ChatAction => ({
     type: 'LOAD_MESSAGES',
-    payload: chatMessages
+    payload: {
+        messages: chatMessages,
+        reload
+    }
 })
 
 export const setLastKey = (lastKey: null | string): ChatAction => ({
