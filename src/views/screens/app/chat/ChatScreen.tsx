@@ -93,22 +93,18 @@ const ChatScreen = () => {
     ]
 
     useEffect(() => {
-        if(chatMessages.length === 0) {
-            setIsNewMessage(false)
-            elberService.loadChatMessages()
-            .then((response: ChatHistoryResponse) => {
-                dispatch(chatActions.setChatMessages(response.messages))
-                dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))                
-            })
-            .catch((error: Error) => {
-                console.error(error.message)
-            })
-            .finally(() => {
-                setIsLoadingHistory(false)
-            })
-        } else {
+        setIsNewMessage(false)
+        elberService.loadChatMessages()
+        .then((response: ChatHistoryResponse) => {
+            dispatch(chatActions.setChatMessages(response.messages, true))
+            dispatch(chatActions.setLastKey(response.messages.length > 0 ? response.lastKey : null))                
+        })
+        .catch((error: Error) => {
+            console.error(error.message)
+        })
+        .finally(() => {
             setIsLoadingHistory(false)
-        }
+        })
 
         if (Platform.OS === 'android') {
             const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {

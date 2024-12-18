@@ -31,7 +31,7 @@ class ElberModel {
         const availableVoices: Voice[] = await Tts.voices()
         .catch(() => [])
 
-        const spanishVoices = availableVoices.filter(voice => voice.language.trim().startsWith('es-MX'))
+        const spanishVoices = availableVoices.filter(voice => voice.language.trim() === 'es-MX')
 
         if(spanishVoices.length > 0) {
             return spanishVoices
