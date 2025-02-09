@@ -22,7 +22,7 @@ const HomeScreen = () => {
     const user = selectAuthenticatedUser(state.auth)
     
     const {
-        isListening, promptRef, elberVoice, scaleImage,
+        isListening, promptRef, elberVoice, scaleImage, spinImage,
         prompt, setPrompt,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
@@ -55,6 +55,11 @@ const HomeScreen = () => {
         }
     ]
 
+    const spin = spinImage.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    })
+
     useEffect(() => {  
         prepareSpeech()
        
@@ -86,7 +91,8 @@ const HomeScreen = () => {
                 <Pressable onPress={handleBtnTouch}>
                     <Animated.Image 
                         source={logo} 
-                        style={{height: 250, width: 250, resizeMode: 'contain', transform: [{scale: scaleImage}]}}
+                        style={{height: 250, width: 250, resizeMode: 'contain', 
+                            transform: [{scale: scaleImage}, {rotate: spin}]}}
                         resizeMode='contain'
                     />
                 </Pressable>

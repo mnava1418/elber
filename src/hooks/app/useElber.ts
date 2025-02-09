@@ -9,6 +9,7 @@ import ElberModel from '../../models/ElberModel';
 import * as elberService from '../../services/elber.service'
 import { GlobalContext } from '../../store/GlobalState';
 import { setNewMessage } from '../../store/actions/chat.actions';
+import useSpinImage from '../animations/useRotateImage';
 
 const useElber = (state: ElberState) => {
     const [prompt, setPrompt] = useState('')
@@ -18,6 +19,7 @@ const useElber = (state: ElberState) => {
     const promptRef = useRef('')
     const elberVoice = selectElberVoice(state)
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
+    const {spinImage, spinAnimation} = useSpinImage()
     const isSpeaking = useRef(false)
     const {dispatch} = useContext(GlobalContext)
 
@@ -43,6 +45,8 @@ const useElber = (state: ElberState) => {
     const sendMessage = async () => {
         if (promptRef.current.trim() === '') return;
 
+        spinAnimation.start()
+
         const userMessage = elberService.generateChatMessage(promptRef.current, 'user')
         dispatch(setNewMessage(userMessage))
         
@@ -52,6 +56,9 @@ const useElber = (state: ElberState) => {
         })
         .catch(error => {
             return elberService.generateChatMessage('Perdón mi hermano, está cosa tronó. Intenta nuevamente', 'bot')
+        })
+        .finally(() => {
+            spinAnimation.reset()
         })
 
         dispatch(setNewMessage(botMessage))
@@ -139,7 +146,7 @@ const useElber = (state: ElberState) => {
     }
     
     return {
-        isListening, promptRef, elberVoice, scaleImage,
+        isListening, promptRef, elberVoice, scaleImage, spinImage,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
         prompt, setPrompt,
