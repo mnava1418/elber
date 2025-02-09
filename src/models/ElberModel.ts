@@ -16,10 +16,10 @@ class ElberModel {
         return ElberModel.instance
     }
 
-    public setVoice(voice: ElberVoice) {
+    public async setVoice(voice: ElberVoice) {
         if(voice.id.trim() !== '' && voice.language.trim() !== '') {
-            Tts.setDefaultLanguage(voice.language)
-            Tts.setDefaultVoice(voice.id)
+            await Tts.setDefaultLanguage(voice.language)
+            await Tts.setDefaultVoice(voice.id)
         }        
     }
 
