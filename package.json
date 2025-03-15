@@ -31,7 +31,8 @@
     "react-native-screens": "^3.34.0",
     "react-native-share": "^11.0.4",
     "react-native-tts": "^4.1.1",
-    "react-native-vector-icons": "^10.1.0"
+    "react-native-vector-icons": "^10.1.0",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
