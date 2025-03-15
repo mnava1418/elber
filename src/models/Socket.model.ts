@@ -1,5 +1,6 @@
 import { BACK_URL } from "@env"
 import { io, Socket } from "socket.io-client"
+import auth  from '@react-native-firebase/auth'
 
 const SOCKET_SERVER_URL = `${BACK_URL}:4042`
 
@@ -19,13 +20,22 @@ class SocketModel {
         return SocketModel.instance
     }
 
-    connect() {
+    async connect() {
         if (!this.socket || !this.socket.connected) {
+            const currentUser = auth().currentUser
+
+            if(currentUser === null) {
+                throw new Error('User not authenticated.');
+            }    
+            
+            const token = await currentUser.getIdToken(true)
+
             this.socket = io(SOCKET_SERVER_URL, {
                 transports: ["websocket"],
                 forceNew: true,
                 reconnectionAttempts: 5,
                 reconnectionDelay: 2000,
+                query: {token}
             });
 
             this.socket.on("connect", () => {
