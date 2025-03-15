@@ -13,6 +13,7 @@ import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
 import SignUpScreen from './screens/auth/signUp/SignUpScreen';
 import WelcomeScreen from './screens/auth/signUp/WelcomeScreen';
 import MainScreen from './screens/app/MainScreen';
+import SocketModel from '../models/Socket.model';
 
 export type StackNavigationProps = {
     /*1. AUTHENTICATION */
@@ -39,6 +40,7 @@ const Elber = () => {
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged((user) => {
             if(user && user.emailVerified) {
+                SocketModel.getInstance().connect()
                 dispatch(setIsAuthenticated(true))
                 dispatch(setAuthenticatedUser({email: user.email || '', name: user.displayName || ''}))
             } else {
