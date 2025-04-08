@@ -20,6 +20,7 @@ import useChatHistory from '../../../../hooks/app/useChatHistory'
 import CustomAlert from '../../../components/ui/CustomAlert'
 import ChatActions from './ChatActions'
 import Subtitle from '../../../components/ui/Subtitle'
+import SocketModel from '../../../../models/Socket.model'
 
 const logo = require('../../../../assets/images/dot.png')
 
@@ -121,25 +122,21 @@ const ChatScreen = () => {
         }        
     }, []);
 
+    useEffect(() => {
+        elberService.setListeners(setLoading, dispatch)
+    }, [])
+    
+
     const sendMessage = async() => {
         if (message.trim() === '') return;
 
         setLoading(true)
-
+        
         const userMessage = elberService.generateChatMessage(message, 'user')
         dispatch(chatActions.setNewMessage(userMessage))
         setMessage('')
-        
-        const botMessage = await elberService.sendElberMessage(userMessage)
-        .then(result => {
-            return elberService.generateChatMessage(result.responseText, 'bot', false, result.id)
-        })
-        .catch(error => {
-            return elberService.generateChatMessage(`Perdón mi hermano, está cosa tronó: ${(error as Error).message}`, 'bot')
-        })
 
-        dispatch(chatActions.setNewMessage(botMessage))
-        setLoading(false)
+        SocketModel.getInstance().sendMessage(message)
     };
 
     const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {

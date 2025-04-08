@@ -20,6 +20,10 @@ class SocketModel {
         return SocketModel.instance
     }
 
+    getSocket(): Socket | null {
+        return this.socket
+    }
+
     async connect() {
         if (!this.socket || !this.socket.connected) {
             const currentUser = auth().currentUser
@@ -49,8 +53,15 @@ class SocketModel {
             this.socket.on("connect_error", (err) => {
                 console.error('Error connecting to socket:', err.message);
             });
-        } else {
-            console.info('Already coonected to socket:', this.socket!.id)
+        }
+    }
+
+    async sendMessage(message: string) {
+        await this.connect()
+        const currentUser = auth().currentUser
+
+        if(this.socket && currentUser) {
+            this.socket.emit('message-to-elber', currentUser.uid, message)
         }
     }
 }

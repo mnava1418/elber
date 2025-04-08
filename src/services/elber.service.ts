@@ -3,6 +3,8 @@ import { getAxiosFetcher } from '../adapters/http/axios.fetcher'
 import auth  from '@react-native-firebase/auth'
 import { ChatMessageType } from '../interfaces/app.interface'
 import { ElberResponse, ChatHistoryResponse } from '../interfaces/http.interface'
+import SocketModel from '../models/Socket.model'
+import * as chatActions from '../store/actions/chat.actions'
 
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4042`)
 
@@ -73,4 +75,12 @@ export const setIsFavorite = async (messageId:string, isFavorite: boolean) => {
     } catch (error) {
         throw new Error((error as Error).message);
     }
+}
+
+export const setListeners = (setLoading: (value: React.SetStateAction<boolean>) => void, dispatch: (value: any) => void) => {
+    SocketModel.getInstance().getSocket()!.on('response-from-elber', (responseText) => {
+        const botMessage = generateChatMessage(responseText, 'bot', false)
+        dispatch(chatActions.setNewMessage(botMessage))
+        setLoading(false)
+    })
 }
