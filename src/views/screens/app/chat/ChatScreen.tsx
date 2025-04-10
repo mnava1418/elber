@@ -14,6 +14,7 @@ import * as elberService from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
 import { selectChatHistory } from '../../../../store/selectors/chat.selector'
 import * as chatActions from '../../../../store/actions/chat.actions'
+import * as elberActions from '../../../../store/actions/elber.actions'
 import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
@@ -29,8 +30,7 @@ const ChatScreen = () => {
     const {top, bottom} = useSafeAreaInsets()
     const {state, dispatch} = useContext(GlobalContext)
     const {chatMessages, lastKey, showFavorites} = selectChatHistory(state.chat)
-    const [modalVisible, setModalVisible] = useState(false)
-    
+    const [modalVisible, setModalVisible] = useState(false)    
     const [actionVisible, setActionVisible] = useState(false)
     const flatListRef = useRef<FlatList>(null)
     const [isNewMessage, setIsNewMessage] = useState(false)
@@ -64,11 +64,11 @@ const ChatScreen = () => {
     } = useChatHistory()
     
     const {
+        isElberProcessing,
         message, setMessage,
         inputState, setInputState,
-        btnType, setBtnType,
-        loading, setLoading,
-    } = useChat()
+        btnType, setBtnType,        
+    } = useChat(state.elber)
 
     const alertBtns: AlertBtnProps[] = [
         {
@@ -122,21 +122,16 @@ const ChatScreen = () => {
         }        
     }, []);
 
-    useEffect(() => {
-        elberService.setListeners(setLoading, dispatch)
-    }, [])
-    
-
     const sendMessage = async() => {
         if (message.trim() === '') return;
 
-        setLoading(true)
+        dispatch(elberActions.setElberIsProcessing(true))
         
         const userMessage = elberService.generateChatMessage(message, 'user')
         dispatch(chatActions.setNewMessage(userMessage))
         setMessage('')
 
-        SocketModel.getInstance().sendMessage(message)
+        SocketModel.getInstance().sendMessage(dispatch, message, 'text')
     };
 
     const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -216,7 +211,7 @@ const ChatScreen = () => {
                     autoCapitalize='sentences'
                     editable= {!showFavorites}
                 />
-                {loading ? (
+                {isElberProcessing ? (
                     <ChatBtn type='primary' icon='ellipse' onPress={() => {}} />
                 ) : (
                     <ChatBtn type={btnType} icon={btnType === 'primary' ? 'send' : 'camera-outline'} onPress={() => {
