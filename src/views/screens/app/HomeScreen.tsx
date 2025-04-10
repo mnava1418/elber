@@ -10,19 +10,16 @@ import { openSettings } from 'react-native-permissions'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import useElber from '../../../hooks/app/useElber'
-import { getElberVoice } from '../../../services/voice.service'
-import { setElberVoice } from '../../../store/actions/elber.actions'
-import ElberModel from '../../../models/ElberModel'
 
 const logo = require('../../../assets/images/dot.png')
 
 const HomeScreen = () => {
     const {top} = useSafeAreaInsets()
-    const {state, dispatch} = useContext(GlobalContext)
+    const {state} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
     
     const {
-        isListening, promptRef, elberVoice, scaleImage, spinImage,
+        isListening, promptRef, scaleImage, spinImage,
         prompt, setPrompt,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
@@ -62,11 +59,6 @@ const HomeScreen = () => {
 
     useEffect(() => {  
         prepareSpeech()
-       
-        getElberVoice().then(result => {
-            dispatch(setElberVoice(result))
-        })
-
         return () => {
             removeSpeechListener()
         }
@@ -80,10 +72,6 @@ const HomeScreen = () => {
         setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
     }, [user])
 
-    useEffect(() => {
-        ElberModel.getInstance().setVoice(elberVoice)
-    }, [elberVoice])
-    
     return (
         <MainView style={{paddingTop: top}}>
             <CustomNavBar title='Elber'/>
