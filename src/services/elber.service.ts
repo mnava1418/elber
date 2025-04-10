@@ -1,12 +1,17 @@
+import Sound from 'react-native-sound'
+import RNFetchBlob from 'react-native-blob-util'
 import {BACK_URL} from '@env'
+import { Buffer } from 'buffer'
 import { getAxiosFetcher } from '../adapters/http/axios.fetcher'
 import auth  from '@react-native-firebase/auth'
 import { ChatMessageType } from '../interfaces/app.interface'
 import { ElberResponse, ChatHistoryResponse } from '../interfaces/http.interface'
 import SocketModel from '../models/Socket.model'
 import * as chatActions from '../store/actions/chat.actions'
+import * as elberActions from '../store/actions/elber.actions'
 
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4042`)
+Sound.setCategory('Playback')
 
 export const sendElberMessage = async(chatMessage: ChatMessageType): Promise<ElberResponse> => {
     try {
@@ -77,10 +82,23 @@ export const setIsFavorite = async (messageId:string, isFavorite: boolean) => {
     }
 }
 
-export const setListeners = (setLoading: (value: React.SetStateAction<boolean>) => void, dispatch: (value: any) => void) => {
-    SocketModel.getInstance().getSocket()!.on('response-from-elber', (responseText) => {
-        const botMessage = generateChatMessage(responseText, 'bot', false)
-        dispatch(chatActions.setNewMessage(botMessage))
-        setLoading(false)
+export const processTextResponse = (dispatch: (value: any) => void, responseText: string) => {
+    const botMessage = generateChatMessage(responseText, 'bot', false)
+    dispatch(chatActions.setNewMessage(botMessage))
+    dispatch(elberActions.setElberIsProcessing(false))
+}
+
+export const processAudioResponse = async (audioChunks: Uint8Array[]) => {
+    const fullBuffer = Buffer.concat(audioChunks.map((chunk) => Buffer.from(chunk)))
+    const path = `${RNFetchBlob.fs.dirs.CacheDir}/elber-voice-${Date.now()}.mp3`
+    
+    await RNFetchBlob.fs.writeFile(path, fullBuffer.toString("base64"), "base64");
+    
+    const sound = new Sound(path, '', (error) => {
+        if(!error) {
+            sound.play(() => {              
+                sound.release()                
+            })
+        } 
     })
 }
