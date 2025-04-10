@@ -8,3 +8,8 @@ export const setElberVoice = (elberVoice: ElberVoice): ElberAction => ({
 export const resetElberState = (): ElberAction => ({
     type: 'RESET_ELBER_STATE'
 })
+
+export const setElberIsProcessing = (isProcessing: boolean): ElberAction => ({
+    type: 'SET_ELBER_PROCESSING',
+    payload: isProcessing
+})
