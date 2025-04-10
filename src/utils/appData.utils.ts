@@ -14,12 +14,7 @@ export const settingsAccount: SectionItemProps[] = [
     }
 ]
 
-export const settingsElber: SectionItemProps[] = [
-    {
-        icon: 'volume-medium',
-        title: 'Voz',
-        screenName: 'SettingsVoice'
-    }
+export const settingsElber: SectionItemProps[] = [    
 ]
 
 export const chatActions: ChatActionType[] = [
