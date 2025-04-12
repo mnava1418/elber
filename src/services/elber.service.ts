@@ -6,7 +6,6 @@ import { getAxiosFetcher } from '../adapters/http/axios.fetcher'
 import auth  from '@react-native-firebase/auth'
 import { ChatMessageType } from '../interfaces/app.interface'
 import { ElberResponse, ChatHistoryResponse } from '../interfaces/http.interface'
-import SocketModel from '../models/Socket.model'
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
 
@@ -88,7 +87,12 @@ export const processTextResponse = (dispatch: (value: any) => void, responseText
     dispatch(elberActions.setElberIsProcessing(false))
 }
 
-export const processAudioResponse = async (audioChunks: Uint8Array[]) => {
+export const processAudioResponse = async (dispatch: (value: any) => void, audioChunks: Uint8Array[], responseText: string) => {
+    const botMessage = generateChatMessage(responseText, 'bot', false)
+    dispatch(chatActions.setNewMessage(botMessage))
+    dispatch(elberActions.setElberIsProcessing(false))
+    dispatch(elberActions.setElberIsSpeaking(true))
+
     const fullBuffer = Buffer.concat(audioChunks.map((chunk) => Buffer.from(chunk)))
     const path = `${RNFetchBlob.fs.dirs.CacheDir}/elber-voice-${Date.now()}.mp3`
     
@@ -96,9 +100,12 @@ export const processAudioResponse = async (audioChunks: Uint8Array[]) => {
     
     const sound = new Sound(path, '', (error) => {
         if(!error) {
-            sound.play(() => {              
+            sound.play(() => {           
+                dispatch(elberActions.setElberIsSpeaking(false))
                 sound.release()                
             })
+        } else {
+            dispatch(elberActions.setElberIsSpeaking(false))
         } 
     })
 }

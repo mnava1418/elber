@@ -19,11 +19,12 @@ const HomeScreen = () => {
     const user = selectAuthenticatedUser(state.auth)
     
     const {
-        isListening, promptRef, scaleImage, spinImage,
+        isListening, promptRef, scaleImage, isElberProcessing,
         prompt, setPrompt,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
-        alertVisible, setAlertVisible
+        alertVisible, setAlertVisible,
+        spinImage, spinAnimation
     } = useElber(state.elber)
 
     const handleBtnTouch = async () => {     
@@ -71,6 +72,14 @@ const HomeScreen = () => {
     useEffect(() => {
         setPrompt(`Hola ${user.name}, ¿cómo te puedo ayudar?`)
     }, [user])
+
+    useEffect(() => {
+        if(isElberProcessing) {
+            spinAnimation.start()
+        } else {
+            spinAnimation.reset()
+        }
+    },[isElberProcessing])
 
     return (
         <MainView style={{paddingTop: top}}>

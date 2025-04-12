@@ -13,3 +13,8 @@ export const setElberIsProcessing = (isProcessing: boolean): ElberAction => ({
     type: 'SET_ELBER_PROCESSING',
     payload: isProcessing
 })
+
+export const setElberIsSpeaking = (isSpeaking: boolean): ElberAction => ({
+    type: 'SET_ELBER_SPEAKING',
+    payload: isSpeaking
+})

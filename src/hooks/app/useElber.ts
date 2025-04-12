@@ -1,26 +1,24 @@
 import { useContext, useRef, useState } from 'react'
 import Voice from '@react-native-voice/voice'
 import { ElberState } from '../../store/reducers/elber.reducer';
-import { selectElberVoice } from '../../store/selectors/elber.selector';
 import usePulseImage from '../animations/usePulseImage';
 import { checkVoicePermissions } from '../../services/entitlements.service';
 import { Platform } from 'react-native';
-import ElberModel from '../../models/ElberModel';
-import * as elberService from '../../services/elber.service'
 import { GlobalContext } from '../../store/GlobalState';
-import { setNewMessage } from '../../store/actions/chat.actions';
 import useSpinImage from '../animations/useRotateImage';
+import SocketModel from '../../models/Socket.model';
+import { selectElberIsProcessing, selectElberIsSpeaking } from '../../store/selectors/elber.selector';
 
 const useElber = (state: ElberState) => {
+    const isElberProcessing = selectElberIsProcessing(state)
+    const isElberSpeaking = selectElberIsSpeaking(state)
     const [prompt, setPrompt] = useState('')
     const [alertVisible, setAlertVisible] = useState(false)
     const silenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isListening = useRef(false)
-    const promptRef = useRef('')
-    const elberVoice = selectElberVoice(state)
+    const promptRef = useRef('')    
     const {pulseImage, scaleImage} = usePulseImage(400, 1.1)
     const {spinImage, spinAnimation} = useSpinImage()
-    const isSpeaking = useRef(false)
     const {dispatch} = useContext(GlobalContext)
 
     const clearSilenceTimeout = () => {
@@ -44,29 +42,12 @@ const useElber = (state: ElberState) => {
 
     const sendMessage = async () => {
         if (promptRef.current.trim() === '') return;
-
-        spinAnimation.start()
-
-        const userMessage = elberService.generateChatMessage(promptRef.current, 'user')
-        dispatch(setNewMessage(userMessage))
         
-        const botMessage = await elberService.sendElberMessage(userMessage)
-        .then(result => {
-            return elberService.generateChatMessage(result.responseText, 'bot', false, result.id)
-        })
-        .catch(error => {
-            return elberService.generateChatMessage('Perdón mi hermano, está cosa tronó. Intenta nuevamente', 'bot')
-        })
-        .finally(() => {
-            spinAnimation.reset()
-        })
-
-        dispatch(setNewMessage(botMessage))
-        ElberModel.getInstance().speak(botMessage.text)
+        SocketModel.getInstance().sendMessage(dispatch, promptRef.current, 'voice')
     }
 
     const startListening = async () => {
-        if(isSpeaking.current) {
+        if(isElberProcessing || isElberSpeaking) {            
             return
         }
 
@@ -80,7 +61,8 @@ const useElber = (state: ElberState) => {
                 pulseImage.start()
                 await Voice.start('es-MX')
             } catch (error) {
-                ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
+                console.log('Error 1')
+                //ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
             }
         } else {
             setAlertVisible(true)
@@ -94,7 +76,8 @@ const useElber = (state: ElberState) => {
             clearSilenceTimeout()
             await Voice.stop()            
         } catch (error) {
-            ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
+            console.log('Error 2')
+            //ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
         }
     }
 
@@ -124,33 +107,22 @@ const useElber = (state: ElberState) => {
 
         Voice.onSpeechError = (error) => {            
             isListening.current = false
-            ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
+            console.log('Error 3')
+            //ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
         };
-
-        ElberModel.getInstance().addListeners(onStartSpeaking, onSpeaking, onFinishSpeaking)
-    }
-
-    const onStartSpeaking = () => {
-        isSpeaking.current = true
-    }
-
-    const onSpeaking = () => {}
-
-    const onFinishSpeaking = () => {
-        isSpeaking.current = false
     }
 
     const removeSpeechListener = () => {
-        Voice.destroy().then(Voice.removeAllListeners)
-        ElberModel.getInstance().removeListeners()
+        Voice.destroy().then(Voice.removeAllListeners)        
     }
     
     return {
-        isListening, promptRef, elberVoice, scaleImage, spinImage,
+        isListening, promptRef, scaleImage, isElberProcessing,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
         prompt, setPrompt,
-        alertVisible, setAlertVisible
+        alertVisible, setAlertVisible,
+        spinImage, spinAnimation
     }
 }
 

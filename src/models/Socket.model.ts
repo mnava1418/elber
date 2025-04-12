@@ -2,6 +2,8 @@ import { BACK_URL } from "@env"
 import { io, Socket } from "socket.io-client"
 import auth  from '@react-native-firebase/auth'
 import * as elberService from "../services/elber.service"
+import * as chatActions from '../store/actions/chat.actions'
+import * as elberActions from '../store/actions/elber.actions'
 
 const SOCKET_SERVER_URL = `${BACK_URL}:4042`
 
@@ -64,14 +66,17 @@ class SocketModel {
         await this.connect(dispatch)
         const currentUser = auth().currentUser
 
-        if(this.socket && currentUser) {
+        if(this.socket && currentUser) {            
+            const userMessage = elberService.generateChatMessage(message, 'user')
+            dispatch(chatActions.setNewMessage(userMessage))
+            dispatch(elberActions.setElberIsProcessing(true))
             this.socket.emit('message-to-elber', currentUser.uid, message, type)
         }
     }
 
     setListeners(dispatch: (value: any) => void) {
         this.setTextListeners(dispatch)
-        this.setAudioListeners()
+        this.setAudioListeners(dispatch)
     }
 
     setTextListeners(dispatch: (value: any) => void) {
@@ -83,7 +88,7 @@ class SocketModel {
         }
     }
 
-    setAudioListeners() {
+    setAudioListeners(dispatch: (value: any) => void) {
         if(this.socket) {
             console.info('Setting audio listeners...')
             let audioChunks: Uint8Array[] = []    
@@ -92,9 +97,9 @@ class SocketModel {
                 audioChunks.push(chunk)
             })
 
-            this.socket.on('audio-end-elber', async () => {
+            this.socket.on('audio-end-elber', async (responseText) => {
                 try {
-                    await elberService.processAudioResponse(audioChunks)
+                    await elberService.processAudioResponse(dispatch, audioChunks, responseText)
                 } catch (error) {
                     console.error(error)
                 } finally {
