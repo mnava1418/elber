@@ -8,6 +8,7 @@ import { GlobalContext } from '../../store/GlobalState';
 import useSpinImage from '../animations/useRotateImage';
 import SocketModel from '../../models/Socket.model';
 import { selectElberIsProcessing, selectElberIsSpeaking } from '../../store/selectors/elber.selector';
+import { processAudioError } from '../../services/elber.service';
 
 const useElber = (state: ElberState) => {
     const isElberProcessing = selectElberIsProcessing(state)
@@ -27,6 +28,8 @@ const useElber = (state: ElberState) => {
           silenceTimeout.current = null
         }
     };
+
+    const ERROR_MSG = 'Perdón, me distraje viendo unos memes... ¿puedes repetir lo que dijiste?'
 
     const resetSilenceTimeout = () => {
         if (silenceTimeout.current) {
@@ -60,9 +63,8 @@ const useElber = (state: ElberState) => {
                 promptRef.current = ''
                 pulseImage.start()
                 await Voice.start('es-MX')
-            } catch (error) {
-                console.log('Error 1')
-                //ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
+            } catch (error) {                
+                processAudioError(dispatch, 'voiceError', ERROR_MSG)
             }
         } else {
             setAlertVisible(true)
@@ -76,8 +78,7 @@ const useElber = (state: ElberState) => {
             clearSilenceTimeout()
             await Voice.stop()            
         } catch (error) {
-            console.log('Error 2')
-            //ElberModel.getInstance().speak('Lo siento, no puedo escucharte. Intenta de nuevo')
+            processAudioError(dispatch, 'voiceError', ERROR_MSG)
         }
     }
 
@@ -107,8 +108,7 @@ const useElber = (state: ElberState) => {
 
         Voice.onSpeechError = (error) => {            
             isListening.current = false
-            console.log('Error 3')
-            //ElberModel.getInstance().speak('No te escuché! ¿Me lo repites, porfa?')
+            processAudioError(dispatch, 'voiceError', ERROR_MSG)
         };
     }
 

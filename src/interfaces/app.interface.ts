@@ -17,3 +17,5 @@ export type ChatActionType =  {
 }
 
 export type LocalStorageKey = 'elberVoice'
+
+export type AudioErrorKey = 'responseError' | 'voiceError' | 'connectionError'
