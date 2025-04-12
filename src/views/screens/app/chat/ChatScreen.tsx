@@ -14,7 +14,6 @@ import * as elberService from '../../../../services/elber.service'
 import { GlobalContext } from '../../../../store/GlobalState'
 import { selectChatHistory } from '../../../../store/selectors/chat.selector'
 import * as chatActions from '../../../../store/actions/chat.actions'
-import * as elberActions from '../../../../store/actions/elber.actions'
 import { ChatHistoryResponse } from '../../../../interfaces/http.interface'
 import { globalColors } from '../../../../styles/mainStyles'
 import useChatHistory from '../../../../hooks/app/useChatHistory'
@@ -123,14 +122,9 @@ const ChatScreen = () => {
     }, []);
 
     const sendMessage = async() => {
-        if (message.trim() === '') return;
-
-        dispatch(elberActions.setElberIsProcessing(true))
-        
-        const userMessage = elberService.generateChatMessage(message, 'user')
-        dispatch(chatActions.setNewMessage(userMessage))
+        if (message.trim() === '') return;        
+                
         setMessage('')
-
         SocketModel.getInstance().sendMessage(dispatch, message, 'text')
     };
 
