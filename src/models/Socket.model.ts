@@ -10,6 +10,7 @@ const SOCKET_SERVER_URL = `${BACK_URL}:4042`
 class SocketModel {
     private static instance: SocketModel
     private socket: Socket | null
+    private error_msg = 'Houston, tenemos un problema: no me puedo conectar al servidor.'    
 
     constructor() {
         this.socket = null
@@ -46,15 +47,15 @@ class SocketModel {
             });
 
             this.socket.on("connect", () => {
-                console.info('Connected to socket:', this.socket!.id)
+                console.info('Connected to socket:', this.socket!.id)                
                 this.setListeners(dispatch)
             });
 
-            this.socket.on("disconnect", () => {
+            this.socket.on("disconnect", () => {                
                 console.info('Disconnected from socket...')
             });
 
-            this.socket.on("connect_error", (err) => {
+            this.socket.on("connect_error", (err) => {                
                 console.error('Error connecting to socket:', err.message);
             });
         } else {
@@ -62,15 +63,20 @@ class SocketModel {
         }
     }
 
-    async sendMessage(dispatch: (value: any) => void, message: string, type: 'voice' | 'text') {
-        await this.connect(dispatch)
+    async sendMessage(dispatch: (value: any) => void, message: string, type: 'voice' | 'text') {        
         const currentUser = auth().currentUser
+        const userMessage = elberService.generateChatMessage(message, 'user')
+        dispatch(chatActions.setNewMessage(userMessage))
+        dispatch(elberActions.setElberIsProcessing(true))
 
-        if(this.socket && currentUser) {            
-            const userMessage = elberService.generateChatMessage(message, 'user')
-            dispatch(chatActions.setNewMessage(userMessage))
-            dispatch(elberActions.setElberIsProcessing(true))
+        if(this.socket && this.socket.connected && currentUser) {                        
             this.socket.emit('message-to-elber', currentUser.uid, message, type)
+        } else {
+            if(type == 'text') {
+                elberService.processTextResponse(dispatch, this.error_msg)
+            } else {
+                elberService.processAudioError(dispatch, 'connectionError', this.error_msg)
+            }
         }
     }
 
@@ -80,7 +86,7 @@ class SocketModel {
     }
 
     setTextListeners(dispatch: (value: any) => void) {
-        if(this.socket) {
+        if(this.socket && this.socket.connected) {
             console.info('Setting text listeners...')
             this.socket.on('text-response-elber', (responseText) => {
                 elberService.processTextResponse(dispatch, responseText)
@@ -89,7 +95,7 @@ class SocketModel {
     }
 
     setAudioListeners(dispatch: (value: any) => void) {
-        if(this.socket) {
+        if(this.socket && this.socket.connected) {
             console.info('Setting audio listeners...')
             let audioChunks: Uint8Array[] = []    
     
@@ -108,7 +114,7 @@ class SocketModel {
             })
 
             this.socket.on('audio-error-elber', async () => {
-                console.log('recibiendo error de audio')
+                elberService.processAudioError(dispatch, 'responseError', '¡Changos! Algo no jaló… fue culpa del becario imaginario, lo juro.')
             })
         }
     }

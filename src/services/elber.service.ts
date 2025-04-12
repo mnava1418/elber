@@ -4,13 +4,19 @@ import {BACK_URL} from '@env'
 import { Buffer } from 'buffer'
 import { getAxiosFetcher } from '../adapters/http/axios.fetcher'
 import auth  from '@react-native-firebase/auth'
-import { ChatMessageType } from '../interfaces/app.interface'
+import { AudioErrorKey, ChatMessageType } from '../interfaces/app.interface'
 import { ElberResponse, ChatHistoryResponse } from '../interfaces/http.interface'
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
 
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4042`)
 Sound.setCategory('Playback')
+
+const audios: Record<AudioErrorKey, any> = {
+    'responseError': require('../assets/audios/responseError.mp3'),
+    'voiceError': require('../assets/audios/voiceError.mp3'),
+    'connectionError': require('../assets/audios/connectionError.mp3'),
+}
 
 export const sendElberMessage = async(chatMessage: ChatMessageType): Promise<ElberResponse> => {
     try {
@@ -99,6 +105,24 @@ export const processAudioResponse = async (dispatch: (value: any) => void, audio
     await RNFetchBlob.fs.writeFile(path, fullBuffer.toString("base64"), "base64");
     
     const sound = new Sound(path, '', (error) => {
+        if(!error) {
+            sound.play(() => {           
+                dispatch(elberActions.setElberIsSpeaking(false))
+                sound.release()                
+            })
+        } else {
+            dispatch(elberActions.setElberIsSpeaking(false))
+        } 
+    })
+}
+
+export const processAudioError = (dispatch: (value: any) => void, errorType: AudioErrorKey, error: string) => {
+    const botMessage = generateChatMessage(error, 'bot', false)
+    dispatch(chatActions.setNewMessage(botMessage))
+    dispatch(elberActions.setElberIsProcessing(false))
+    dispatch(elberActions.setElberIsSpeaking(true))
+
+    const sound = new Sound(audios[errorType], (error) => {
         if(!error) {
             sound.play(() => {           
                 dispatch(elberActions.setElberIsSpeaking(false))
