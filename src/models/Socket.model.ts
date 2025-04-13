@@ -65,16 +65,12 @@ class SocketModel {
     }
 
     async sendMessage(dispatch: (value: any) => void, message: string, type: 'voice' | 'text') {        
-        if(this.socket && this.socket.id === undefined) {
-            return
-        }
-
         const currentUser = auth().currentUser
         const userMessage = elberService.generateChatMessage(message, 'user')
         dispatch(chatActions.setNewMessage(userMessage))
         dispatch(elberActions.setElberIsProcessing(true))
 
-        if(this.socket && this.socket.connected && currentUser) {               
+        if(this.socket && this.socket.connected && this.socket.id && currentUser) {               
             this.socket.emit('message-to-elber', currentUser.uid, message, type)
         } else {
             if(type == 'text') {
