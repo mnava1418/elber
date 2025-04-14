@@ -7,6 +7,7 @@ import { SimpleHttpResponse, SigUpResponse } from "../interfaces/http.interface"
 import { resetAuthState } from "../store/actions/auth.actions";
 import { resetChatState } from "../store/actions/chat.actions";
 import { resetElberState } from "../store/actions/elber.actions";
+import SocketModel from "../models/Socket.model";
 
 const authFetcher = fbAuthFetcher
 const httpFetcher = getAxiosFetcher(`${BACK_URL}:4041`) 
@@ -42,10 +43,11 @@ const validateLoginFields = (email: string, password: string) => {
 
 export const signOut = async (dispatch: React.Dispatch<any>) => {
   try {
+    SocketModel.getInstance().disconnect()
     dispatch(resetAuthState())
     dispatch(resetChatState())
     dispatch(resetElberState())
-    await authFetcher.signOut()    
+    await authFetcher.signOut()  
   } catch (error) {
     throw new Error('Unable to sign out.');
     

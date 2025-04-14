@@ -29,6 +29,12 @@ class SocketModel {
         return this.socket
     }
 
+    disconnect() {
+        if(this.socket && this.socket.connected) {
+            this.socket.disconnect()
+        }
+    }
+
     async connect(dispatch: (value: any) => void) {        
         if (!this.socket || !this.socket.connected) {
             const currentUser = auth().currentUser
