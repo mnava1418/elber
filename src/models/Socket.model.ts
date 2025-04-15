@@ -1,11 +1,9 @@
-import { BACK_URL } from "@env"
+import { SOCKET_URL } from "@env"
 import { io, Socket } from "socket.io-client"
 import auth  from '@react-native-firebase/auth'
 import * as elberService from "../services/elber.service"
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
-
-const SOCKET_SERVER_URL = `${BACK_URL}:4042`
 
 class SocketModel {
     private static instance: SocketModel
@@ -45,7 +43,7 @@ class SocketModel {
             
             const token = await currentUser.getIdToken(true)
 
-            this.socket = io(SOCKET_SERVER_URL, {
+            this.socket = io(SOCKET_URL, {
                 transports: ["websocket"],
                 forceNew: true,
                 reconnectionAttempts: 5,
