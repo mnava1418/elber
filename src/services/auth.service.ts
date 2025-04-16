@@ -10,7 +10,7 @@ import { resetElberState } from "../store/actions/elber.actions";
 import SocketModel from "../models/Socket.model";
 
 const authFetcher = fbAuthFetcher
-const httpFetcher = getAxiosFetcher(`${BACK_URL}:4041`) 
+const httpFetcher = getAxiosFetcher(BACK_URL) 
 
 export const signIn = async (email: string, password: string) => {
   try {
