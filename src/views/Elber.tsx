@@ -40,7 +40,6 @@ const Elber = () => {
     useEffect(() => {
         const unsubscribe = auth().onAuthStateChanged((user) => {
             if(user && user.emailVerified) {
-                SocketModel.getInstance().connect(dispatch)
                 dispatch(setIsAuthenticated(true))
                 dispatch(setAuthenticatedUser({email: user.email || '', name: user.displayName || ''}))
             } else {

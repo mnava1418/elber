@@ -10,12 +10,13 @@ import { openSettings } from 'react-native-permissions'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import useElber from '../../../hooks/app/useElber'
+import SocketModel from '../../../models/Socket.model'
 
 const logo = require('../../../assets/images/dot.png')
 
 const HomeScreen = () => {
     const {top} = useSafeAreaInsets()
-    const {state} = useContext(GlobalContext)
+    const {state, dispatch} = useContext(GlobalContext)
     const user = selectAuthenticatedUser(state.auth)
     
     const {
@@ -59,6 +60,7 @@ const HomeScreen = () => {
     })
 
     useEffect(() => {  
+        SocketModel.getInstance().connect(dispatch)
         prepareSpeech()
         return () => {
             removeSpeechListener()
