@@ -78,8 +78,7 @@ export const processTextResponse = (dispatch: (value: any) => void, responseText
 
 export const processAudioResponse = async (dispatch: (value: any) => void, audioChunks: Uint8Array[], responseText: string) => {
     const botMessage = generateChatMessage(responseText, 'bot', false)
-    dispatch(chatActions.setNewMessage(botMessage))
-    dispatch(elberActions.setElberIsProcessing(false))
+    dispatch(chatActions.setNewMessage(botMessage))    
     dispatch(elberActions.setElberIsSpeaking(true))
 
     const fullBuffer = Buffer.concat(audioChunks.map((chunk) => Buffer.from(chunk)))
@@ -88,8 +87,9 @@ export const processAudioResponse = async (dispatch: (value: any) => void, audio
     await RNFetchBlob.fs.writeFile(path, fullBuffer.toString("base64"), "base64");
     
     const sound = new Sound(path, '', (error) => {
-        if(!error) {
-            sound.play(() => {           
+        dispatch(elberActions.setElberIsProcessing(false))
+        if(!error) {            
+            sound.play(() => {                        
                 dispatch(elberActions.setElberIsSpeaking(false))
                 sound.release()                
             })
@@ -101,11 +101,11 @@ export const processAudioResponse = async (dispatch: (value: any) => void, audio
 
 export const processAudioError = (dispatch: (value: any) => void, errorType: AudioErrorKey, error: string) => {
     const botMessage = generateChatMessage(error, 'bot', false)
-    dispatch(chatActions.setNewMessage(botMessage))
-    dispatch(elberActions.setElberIsProcessing(false))
+    dispatch(chatActions.setNewMessage(botMessage))    
     dispatch(elberActions.setElberIsSpeaking(true))
 
     const sound = new Sound(audios[errorType], (error) => {
+        dispatch(elberActions.setElberIsProcessing(false))
         if(!error) {
             sound.play(() => {           
                 dispatch(elberActions.setElberIsSpeaking(false))
