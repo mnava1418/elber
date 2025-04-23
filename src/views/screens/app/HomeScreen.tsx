@@ -1,8 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import MainView from '../../components/ui/MainView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { View, Animated, Pressable, TextInput } from 'react-native'
-import { globalColors, globalStyles } from '../../../styles/mainStyles'
+import { View, Animated, Pressable } from 'react-native'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
 import CustomAlert from '../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../interfaces/ui.interface'
@@ -11,6 +10,8 @@ import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import useElber from '../../../hooks/app/useElber'
 import SocketModel from '../../../models/Socket.model'
+import VoiceWave from '../../components/ui/VoiceWave'
+import CustomText from '../../components/ui/CustomText'
 
 const logo = require('../../../assets/images/dot.png')
 
@@ -32,6 +33,7 @@ const HomeScreen = () => {
         if(isListening.current) {
             stopListening()                
         } else {
+            setPrompt('')
             startListening()
         }
     }
@@ -95,25 +97,10 @@ const HomeScreen = () => {
                         resizeMode='contain'
                     />
                 </Pressable>
-                <TextInput
-                    style={[
-                        globalStyles.textArea, 
-                        {
-                            marginTop: 40,
-                            height: 150, 
-                            backgroundColor: 'rgba(0, 0, 0, 0.2)', 
-                            color: globalColors.text,
-                        }
-                    ]}
-                    value={prompt}
-                    onChangeText={setPrompt}
-                    keyboardType='default'
-                    autoCapitalize='none'
-                    multiline={true}
-                    numberOfLines={30}
-                    textAlignVertical="top"
-                    editable = {false}
-                />
+                <VoiceWave />
+                <CustomText style={{textAlign: 'center', fontSize: 20, marginTop: 8}}>
+                    {prompt}
+                </CustomText>
             </View>
             <CustomAlert 
                 visible={alertVisible}
