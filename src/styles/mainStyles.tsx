@@ -86,5 +86,17 @@ export const globalStyles = StyleSheet.create({
         alignItems: 'center',
         borderBottomColor: globalColors.background,
         borderBottomWidth: 1
+    },
+
+    barContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 100,      
+    },
+
+    bar: {
+        width: 10,
+        height: 40,
+        borderRadius: 15,
     }
 })
