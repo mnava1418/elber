@@ -48,7 +48,6 @@ export const globalStyles = StyleSheet.create({
         paddingVertical: 8,
         backgroundColor: globalColors.text,
         borderRadius: 15,
-        width: '100%',
         color: '#000',
         fontSize: 18
     },
