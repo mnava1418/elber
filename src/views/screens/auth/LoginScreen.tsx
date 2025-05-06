@@ -5,7 +5,7 @@ import { StackNavigationProps } from '../../Elber'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
 import Subtitle from '../../components/ui/Subtitle'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, TextInput, View } from 'react-native'
 import CustomText from '../../components/ui/CustomText'
 import { globalColors, globalStyles } from '../../../styles/mainStyles'
 import CustomButton from '../../components/ui/CustomButton'
@@ -18,7 +18,7 @@ import { setIsAuthenticated } from '../../../store/actions/auth.actions'
 import NavBarBackBtn from '../../components/navBar/NavBarBackBtn'
 import CustomAlert from '../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../interfaces/ui.interface'
-import AppIcon from '../../components/ui/AppIcon'
+import Password from '../../components/ui/Password'
 
 const LoginScreen = () => {
     const props = useRoute<RouteProp<StackNavigationProps, 'Login'>>().params
@@ -83,25 +83,7 @@ const LoginScreen = () => {
                         autoCapitalize='none'
                     />
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
-                    <View style={[globalStyles.input, { marginTop: 10, flexDirection: 'row', alignItems: 'center'}]}>
-                        <TextInput
-                            style={{height: 48, fontSize: 18, color: '#000', flex: 1, marginRight: 10}}
-                            value={password}
-                            onChangeText={setPassword}
-                            keyboardType='default'
-                            autoCapitalize='none'
-                            secureTextEntry= {!showPassword}
-                        />
-                        <Pressable
-                            style={({pressed}) => ([
-                                {opacity: pressed ? 0.8 : 1.0}
-                                ]
-                            )}
-                            onPress={() => {setShowPassword(prev => !prev)}}
-                        >
-                            <AppIcon name={ showPassword ? 'eye' : 'eye-off'} size={32} color={globalColors.primary} />
-                        </Pressable>
-                    </View>
+                    <Password password={password} setPassword={(arg0: string) => {setPassword(arg0)}}/>
                     {!isProcessing ? (
                         <View style={{ width: '100%' }}>
                             <CustomButton label='Login' type='primary' style={{ marginTop: 56 }} onPress={handleSignIn} />
