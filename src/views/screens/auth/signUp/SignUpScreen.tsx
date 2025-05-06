@@ -1,6 +1,6 @@
 import { useRoute, RouteProp, NavigationProp, useNavigation } from '@react-navigation/native'
 import React, { useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native'
 import { StackNavigationProps } from '../../../Elber'
 import { globalColors, globalStyles } from '../../../../styles/mainStyles'
 import CustomNavBar from '../../../components/navBar/CustomNavBar'
@@ -15,7 +15,7 @@ import { signUp } from '../../../../services/auth.service'
 import NavBarBackBtn from '../../../components/navBar/NavBarBackBtn'
 import CustomAlert from '../../../components/ui/CustomAlert'
 import { AlertBtnProps } from '../../../../interfaces/ui.interface'
-import AppIcon from '../../../components/ui/AppIcon'
+import Password from '../../../components/ui/Password'
 
 const SignUpScreen = () => {
     const {code} = useRoute<RouteProp<StackNavigationProps, 'SignUp'>>().params
@@ -81,45 +81,9 @@ const SignUpScreen = () => {
                         autoCapitalize='none'
                     />
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Password</CustomText>
-                    <View style={[globalStyles.input, { marginTop: 10, flexDirection: 'row', alignItems: 'center'}]}>
-                        <TextInput
-                            style={{height: 48, fontSize: 18, color: '#000', flex: 1, marginRight: 10}}
-                            value={passwords.newPwd}
-                            onChangeText={(e) => {setPasswords({...passwords, newPwd: e})}}
-                            keyboardType='default'
-                            autoCapitalize='none'
-                            secureTextEntry= {!showPassword}
-                        />
-                        <Pressable
-                            style={({pressed}) => ([
-                                {opacity: pressed ? 0.8 : 1.0}
-                                ]
-                            )}
-                            onPress={() => {setShowPassword(prev => !prev)}}
-                        >
-                            <AppIcon name={ showPassword ? 'eye' : 'eye-off'} size={32} color={globalColors.primary} />
-                        </Pressable>
-                    </View>
+                    <Password password={passwords.newPwd} setPassword={(arg0: string) => {setPasswords({...passwords, newPwd: arg0})}} />
                     <CustomText style={{ fontSize: 22, marginTop: 24 }}>Confirma tu password</CustomText>
-                   <View style={[globalStyles.input, { marginTop: 10, flexDirection: 'row', alignItems: 'center'}]}>
-                        <TextInput
-                            style={{height: 48, fontSize: 18, color: '#000', flex: 1, marginRight: 10}}
-                            value={passwords.confirmPwd}
-                            onChangeText={(e) => {setPasswords({...passwords, confirmPwd: e})}}
-                            keyboardType='default'
-                            autoCapitalize='none'
-                            secureTextEntry= {!showConfirmPassword}
-                        />
-                        <Pressable
-                            style={({pressed}) => ([
-                                {opacity: pressed ? 0.8 : 1.0}
-                                ]
-                            )}
-                            onPress={() => {setShowConfirmPassword(prev => !prev)}}
-                        >
-                            <AppIcon name={ showConfirmPassword ? 'eye' : 'eye-off'} size={32} color={globalColors.primary} />
-                        </Pressable>
-                    </View>
+                    <Password password={passwords.confirmPwd} setPassword={(arg0: string) => {setPasswords({...passwords, confirmPwd: arg0})}} />
                     {!isProcessing ? (
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <CustomButton label='Registrar' type='primary' style={{ marginTop: 56 }} onPress={handleRequest} />
