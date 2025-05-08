@@ -13,7 +13,7 @@ import SendCodeScreen from './screens/auth/signUp/SendCodeScreen';
 import SignUpScreen from './screens/auth/signUp/SignUpScreen';
 import WelcomeScreen from './screens/auth/signUp/WelcomeScreen';
 import MainScreen from './screens/app/MainScreen';
-import SocketModel from '../models/Socket.model';
+import { signOut } from '../services/auth.service';
 
 export type StackNavigationProps = {
     /*1. AUTHENTICATION */
@@ -43,6 +43,9 @@ const Elber = () => {
                 dispatch(setIsAuthenticated(true))
                 dispatch(setAuthenticatedUser({email: user.email || '', name: user.displayName || ''}))
             } else {
+                if(user) {
+                    signOut(dispatch)
+                }
                 dispatch(setIsAuthenticated(false))
             }
         })

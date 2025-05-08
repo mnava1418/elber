@@ -28,7 +28,7 @@ const Password = ({password, setPassword}: PasswordFields) => {
                 )}
                 onPress={() => {setShowPassword(prev => !prev)}}
             >
-                <AppIcon name={ showPassword ? 'eye' : 'eye-off'} size={32} color={globalColors.primary} />
+                <AppIcon name={ showPassword ? 'eye' : 'eye-off'} size={28} color={globalColors.primary} />
             </Pressable>
         </View>
     )
