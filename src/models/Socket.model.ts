@@ -4,6 +4,7 @@ import auth  from '@react-native-firebase/auth'
 import * as elberService from "../services/elber.service"
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
+import { NLPActions, NLPResponse } from "../interfaces/nlp.interface"
 
 class SocketModel {
     private static instance: SocketModel
@@ -33,7 +34,7 @@ class SocketModel {
         }
     }
 
-    async connect(dispatch: (value: any) => void) {        
+    async connect(dispatch: (value: any) => void) {  
         if (!this.socket || !this.socket.connected) {
             const currentUser = auth().currentUser
 
@@ -77,49 +78,32 @@ class SocketModel {
         if(this.socket && this.socket.connected && this.socket.id && currentUser) {               
             this.socket.emit('message-to-elber', currentUser.uid, message, type)
         } else {
-            if(type == 'text') {
-                elberService.processTextResponse(dispatch, this.connection_error_msg)
-            } else {
-                elberService.processAudioError(dispatch, 'connectionError', this.connection_error_msg)
+            const elberResponse: NLPResponse = {
+                action: type == 'text' ? NLPActions.SHOW_TEXT : NLPActions.PLAY_AUDIO,
+                payload: {text: this.connection_error_msg, errorKey: 'connectionError'}
             }
+            elberService.processElberResponse(dispatch, elberResponse, [])
         }
     }
 
     setListeners(dispatch: (value: any) => void) {
-        this.setTextListeners(dispatch)
-        this.setAudioListeners(dispatch)
+        this.setElberListeners(dispatch)
     }
 
-    setTextListeners(dispatch: (value: any) => void) {
+    setElberListeners(dispatch: (value: any) => void) {
         if(this.socket && this.socket.connected && this.socket.id) {
-            console.info('Setting text listeners...')
-            this.socket.on('text-response-elber', (responseText) => {
-                elberService.processTextResponse(dispatch, responseText)
-            })
-        }
-    }
+            console.info('Setting Elber listeners...')
 
-    setAudioListeners(dispatch: (value: any) => void) {
-        if(this.socket && this.socket.connected && this.socket.id) {
-            console.info('Setting audio listeners...')
             let audioChunks: Uint8Array[] = []    
-    
+
+            this.socket.on('response-from-elber', (responseText: string) => {
+                const elberResponse: NLPResponse = JSON.parse(responseText)
+                elberService.processElberResponse(dispatch, elberResponse, audioChunks)
+                audioChunks = []
+            })
+
             this.socket.on('audio-chunk-elber', (chunk: Uint8Array) => {                
                 audioChunks.push(chunk)
-            })
-
-            this.socket.on('audio-end-elber', async (responseText) => {
-                try {
-                    await elberService.processAudioResponse(dispatch, audioChunks, responseText)
-                } catch (error) {
-                    console.error(error)
-                } finally {
-                    audioChunks = []
-                }
-            })
-
-            this.socket.on('audio-error-elber', async () => {
-                elberService.processAudioError(dispatch, 'responseError', this.response_error_msg )
             })
         }
     }

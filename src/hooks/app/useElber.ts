@@ -8,7 +8,8 @@ import { GlobalContext } from '../../store/GlobalState';
 import useSpinImage from '../animations/useRotateImage';
 import SocketModel from '../../models/Socket.model';
 import { selectElberIsProcessing, selectElberIsSpeaking } from '../../store/selectors/elber.selector';
-import { processAudioError } from '../../services/elber.service';
+import { processElberResponse } from '../../services/elber.service'
+import { NLPActions, NLPResponse } from '../../interfaces/nlp.interface';
 
 const useElber = (state: ElberState) => {
     const isElberProcessing = selectElberIsProcessing(state)
@@ -30,6 +31,13 @@ const useElber = (state: ElberState) => {
     };
 
     const ERROR_MSG = 'Perdón, me distraje viendo unos memes... ¿puedes repetir lo que dijiste?'
+    const ERROR_RESPONSE: NLPResponse = {
+        action: NLPActions.PLAY_AUDIO,
+        payload: {
+            text: ERROR_MSG,
+            errorKey: 'voiceError'
+        }
+    }
 
     const resetSilenceTimeout = () => {
         if (silenceTimeout.current) {
@@ -63,8 +71,8 @@ const useElber = (state: ElberState) => {
                 promptRef.current = ''
                 pulseImage.start()
                 await Voice.start('es-MX')
-            } catch (error) {                
-                processAudioError(dispatch, 'voiceError', ERROR_MSG)
+            } catch (error) { 
+                processElberResponse(dispatch, ERROR_RESPONSE, [])               
             }
         } else {
             setAlertVisible(true)
@@ -78,7 +86,7 @@ const useElber = (state: ElberState) => {
             clearSilenceTimeout()
             await Voice.stop()            
         } catch (error) {
-            processAudioError(dispatch, 'voiceError', ERROR_MSG)
+            processElberResponse(dispatch, ERROR_RESPONSE, [])               
         }
     }
 
@@ -108,7 +116,7 @@ const useElber = (state: ElberState) => {
 
         Voice.onSpeechError = (error) => {            
             isListening.current = false
-            processAudioError(dispatch, 'voiceError', ERROR_MSG)
+            processElberResponse(dispatch, ERROR_RESPONSE, [])               
         };
     }
 

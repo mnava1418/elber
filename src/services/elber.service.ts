@@ -8,6 +8,7 @@ import { AudioErrorKey, ChatMessageType } from '../interfaces/app.interface'
 import { ChatHistoryResponse } from '../interfaces/http.interface'
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
+import { GeneralPayload, NLPActions, NLPResponse } from '../interfaces/nlp.interface'
 
 const httpFetcher = getAxiosFetcher(BACK_URL)
 Sound.setCategory('Playback')
@@ -70,49 +71,53 @@ export const setIsFavorite = async (messageId:string, isFavorite: boolean) => {
     }
 }
 
-export const processTextResponse = (dispatch: (value: any) => void, responseText: string) => {
-    const botMessage = generateChatMessage(responseText, 'bot', false)
+export const processElberResponse = (dispatch: (value: any) => void, elberResponse: NLPResponse, audioChunks: Uint8Array[]) => {
+    switch (elberResponse.action) {
+        case NLPActions.SHOW_TEXT:
+            processTextResponse(dispatch, elberResponse.payload)
+            break;
+        case NLPActions.PLAY_AUDIO:
+            processAudioResponse(dispatch, elberResponse.payload, audioChunks)
+            break
+        default:
+            break;
+    }
+}
+
+const processTextResponse = (dispatch: (value: any) => void, payload: GeneralPayload) => {
+    const botMessage = generateChatMessage(payload.text, 'bot', false)
     dispatch(chatActions.setNewMessage(botMessage))
     dispatch(elberActions.setElberIsProcessing(false))
 }
 
-export const processAudioResponse = async (dispatch: (value: any) => void, audioChunks: Uint8Array[], responseText: string) => {
-    const botMessage = generateChatMessage(responseText, 'bot', false)
+const processAudioResponse = async (dispatch: (value: any) => void, payload: GeneralPayload, audioChunks: Uint8Array[]) => {
+    const botMessage = generateChatMessage(payload.text, 'bot', false)
     dispatch(chatActions.setNewMessage(botMessage))    
     dispatch(elberActions.setElberIsSpeaking(true))
 
-    const fullBuffer = Buffer.concat(audioChunks.map((chunk) => Buffer.from(chunk)))
-    const path = `${RNFetchBlob.fs.dirs.CacheDir}/elber-voice-${Date.now()}.mp3`
-    
-    await RNFetchBlob.fs.writeFile(path, fullBuffer.toString("base64"), "base64");
-    
-    const sound = new Sound(path, '', (error) => {
-        dispatch(elberActions.setElberIsProcessing(false))
-        if(!error) {            
-            sound.play(() => {                        
-                dispatch(elberActions.setElberIsSpeaking(false))
-                sound.release()                
-            })
-        } else {
-            dispatch(elberActions.setElberIsSpeaking(false))
-        } 
-    })
+    if(payload.errorKey) {
+        const sound = new Sound(audios[payload.errorKey], (error) => {
+            handleSound(dispatch, sound, error)
+        })
+    } else {
+        const fullBuffer = Buffer.concat(audioChunks.map((chunk) => Buffer.from(chunk)))
+        const path = `${RNFetchBlob.fs.dirs.CacheDir}/elber-voice-${Date.now()}.mp3`
+        await RNFetchBlob.fs.writeFile(path, fullBuffer.toString("base64"), "base64");
+
+        const sound = new Sound(path, '', (error) => {
+            handleSound(dispatch, sound, error)
+        })
+    }
 }
 
-export const processAudioError = (dispatch: (value: any) => void, errorType: AudioErrorKey, error: string) => {
-    const botMessage = generateChatMessage(error, 'bot', false)
-    dispatch(chatActions.setNewMessage(botMessage))    
-    dispatch(elberActions.setElberIsSpeaking(true))
-
-    const sound = new Sound(audios[errorType], (error) => {
-        dispatch(elberActions.setElberIsProcessing(false))
-        if(!error) {
-            sound.play(() => {           
-                dispatch(elberActions.setElberIsSpeaking(false))
-                sound.release()                
-            })
-        } else {
+const handleSound = (dispatch: (value: any) => void, sound: Sound, error: any) => {
+    dispatch(elberActions.setElberIsProcessing(false))
+    if(!error) {
+        sound.play(() => {           
             dispatch(elberActions.setElberIsSpeaking(false))
-        } 
-    })
+            sound.release()                
+        })
+    } else {
+        dispatch(elberActions.setElberIsSpeaking(false))
+    } 
 }
