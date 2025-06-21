@@ -1,4 +1,4 @@
-import { SOCKET_URL } from "@env"
+import { BACK_URL } from "@env"
 import { io, Socket } from "socket.io-client"
 import auth  from '@react-native-firebase/auth'
 import * as elberService from "../services/elber.service"
@@ -35,38 +35,49 @@ class SocketModel {
     }
 
     async connect(dispatch: (value: any) => void) {  
-        if (!this.socket || !this.socket.connected) {
-            const currentUser = auth().currentUser
-
-            if(currentUser === null) {
-                throw new Error('User not authenticated.');
-            }                
-            
-            const token = await currentUser.getIdToken(true)
-
-            this.socket = io(SOCKET_URL, {
-                transports: ["websocket"],
-                forceNew: true,
-                reconnectionAttempts: 5,
-                reconnectionDelay: 2000,
-                query: {token}
-            });
-
-            this.socket.on("connect", () => {
-                console.info('Connected to socket:', this.socket!.id)                
-                this.setListeners(dispatch)
-            });
-
-            this.socket.on("disconnect", () => {                
-                console.info('Disconnected from socket...')
-            });
-
-            this.socket.on("connect_error", (err) => {                
-                console.error('Error connecting to socket:', err.message);
-            });
-        } else {
+        if(this.socket && this.socket.connected) {
             console.info('Socket already connected...')
+            return
         }
+        
+        const currentUser = auth().currentUser
+
+        if(currentUser === null) {
+            throw new Error('User not authenticated.');
+        }                
+        
+        const token = await currentUser.getIdToken(true)
+
+        if (this.socket) {
+            this.socket.removeAllListeners();
+            this.socket.disconnect();
+            this.socket = null;
+        }
+
+        this.socket = io(BACK_URL, {
+            path: '/socket.io',
+            transports: ["websocket"],
+            forceNew: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            extraHeaders: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        this.socket.on("connect", () => {
+            console.info('Connected to socket:', this.socket!.id)                
+            this.setListeners(dispatch)
+        });
+
+        this.socket.on("disconnect", () => {                
+            console.info('Disconnected from socket...')
+            
+        });
+
+        this.socket.on("connect_error", (err) => {                
+            console.error('Error connecting to socket:', err.message);
+        });
     }
 
     async sendMessage(dispatch: (value: any) => void, message: string, type: 'voice' | 'text') {        
@@ -95,6 +106,9 @@ class SocketModel {
             console.info('Setting Elber listeners...')
 
             let audioChunks: Uint8Array[] = []    
+
+            this.socket.off('response-from-elber');
+            this.socket.off('audio-chunk-elber');
 
             this.socket.on('response-from-elber', (responseText: string) => {
                 const elberResponse: NLPResponse = JSON.parse(responseText)
