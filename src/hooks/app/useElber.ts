@@ -10,12 +10,12 @@ import SocketModel from '../../models/Socket.model';
 import { selectElberIsProcessing, selectElberIsSpeaking } from '../../store/selectors/elber.selector';
 import { processElberResponse } from '../../services/elber.service'
 import { NLPActions, NLPResponse } from '../../interfaces/nlp.interface';
+import { setEntitlementsAlert } from '../../store/actions/elber.actions';
 
 const useElber = (state: ElberState) => {
     const isElberProcessing = selectElberIsProcessing(state)
     const isElberSpeaking = selectElberIsSpeaking(state)
     const [prompt, setPrompt] = useState('')
-    const [alertVisible, setAlertVisible] = useState(false)
     const silenceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isListening = useRef(false)
     const promptRef = useRef('')    
@@ -75,7 +75,11 @@ const useElber = (state: ElberState) => {
                 processElberResponse(dispatch, ERROR_RESPONSE, [])               
             }
         } else {
-            setAlertVisible(true)
+            dispatch(setEntitlementsAlert({
+                isVisible: true,
+                title: 'Micrófono',
+                text: 'Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos'
+            }))
         }
     }
 
@@ -129,7 +133,6 @@ const useElber = (state: ElberState) => {
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
         prompt, setPrompt,
-        alertVisible, setAlertVisible,
         spinImage, spinAnimation
     }
 }

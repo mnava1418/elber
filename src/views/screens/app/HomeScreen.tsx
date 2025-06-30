@@ -3,9 +3,6 @@ import MainView from '../../components/ui/MainView'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { View, Animated, Pressable } from 'react-native'
 import CustomNavBar from '../../components/navBar/CustomNavBar'
-import CustomAlert from '../../components/ui/CustomAlert'
-import { AlertBtnProps } from '../../../interfaces/ui.interface'
-import { openSettings } from 'react-native-permissions'
 import { selectAuthenticatedUser } from '../../../store/selectors/auth.selector'
 import { GlobalContext } from '../../../store/GlobalState'
 import useElber from '../../../hooks/app/useElber'
@@ -25,7 +22,6 @@ const HomeScreen = () => {
         prompt, setPrompt,
         prepareSpeech, removeSpeechListener,
         stopListening, startListening,
-        alertVisible, setAlertVisible,
         spinImage, spinAnimation
     } = useElber(state.elber)
 
@@ -37,24 +33,6 @@ const HomeScreen = () => {
             startListening()
         }
     }
-
-    const alertBtns: AlertBtnProps[] = [
-        {
-            label: 'Ok',
-            type: 'default',
-            action: () => {
-                openSettings('application')
-                setAlertVisible(false)
-            }
-        },
-        {
-            label: 'Cancelar',
-            type: 'cancel',
-            action: () => {
-                setAlertVisible(false)
-            }
-        }
-    ]
 
     const spin = spinImage.interpolate({
         inputRange: [0, 1],
@@ -102,12 +80,6 @@ const HomeScreen = () => {
                     {prompt}
                 </CustomText>
             </View>
-            <CustomAlert 
-                visible={alertVisible}
-                title='Activa el Micrófono'
-                message='Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos'
-                alertBtns={alertBtns}
-            />
         </MainView>
     )
 }
