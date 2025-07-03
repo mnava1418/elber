@@ -37,6 +37,10 @@
 	<string>Elber necesita acceso al micrófono para comunicarse contigo.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Elber necesita usar el reconocimiento de voz para comunicarse contigo.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Elber necesita acceso a tu cámara para saber que estás viendo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Elber necesita acceso a tus fotos para que pueda analizar imágenes.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>

@@ -1289,6 +1289,27 @@ PODS:
     - Yoga
   - react-native-blob-util (0.21.2):
     - React-Core
+  - react-native-image-picker (8.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-safe-area-context (4.14.1):
     - React-Core
   - react-native-voice (3.2.4):
@@ -1830,6 +1851,7 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-voice (from `../node_modules/@react-native-voice/voice`)"
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -1963,6 +1985,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-blob-util:
     :path: "../node_modules/react-native-blob-util"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-voice:
@@ -2096,6 +2120,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 858e7be7b51da78fd6a12b2461d92ea44e88c0f2
   React-microtasksnativemodule: e3914a04127bb7b56cf69f744c3ea7477ced5ebb
   react-native-blob-util: 64a732c0b8bb7f4928905e16ea8dc5cde6fb4832
+  react-native-image-picker: b88f74951fdd1a24bbb42064d5db1d133db87a67
   react-native-safe-area-context: 141eca0fd4e4191288dfc8b96a7c7e1c2983447a
   react-native-voice: f5e8eec2278451d0017eb6a30a6ccc726aca34e0
   React-nativeconfig: e0b63af9169593319fb5ca10d051c9a803549a5d
@@ -2132,7 +2157,7 @@ SPEC CHECKSUMS:
   RNFBApp: 017499cd7ea340963bfac43b4fcb28d2b0b21a09
   RNFBAuth: 97633be48cc4e539d954270a218785d2e3f9fde7
   RNGestureHandler: 7ab9fdedeb9070279284772c29b18de444948b06
-  RNPermissions: f43e10a734670a151b88d3dfa9fa25ba8e8df04e
+  RNPermissions: 80d1ba1cd6993e5e007c54eee94207dde1e6cb15
   RNReanimated: 68a5204cb46f7502f1b118baa72a95763b000158
   RNScreens: a77d531f86f2f76dc8a02f7a938d560f2a94540f
   RNShare: 717f2193a7ddabd1505b3a607118314329641a35
@@ -2142,6 +2167,6 @@ SPEC CHECKSUMS:
   TextToSpeech: 2b930ec3756afde499061f4f01ea895e1f75dccb
   Yoga: 83048fe4b4ce15018a5e9ccbf0b06bd76fc643d4
 
-PODFILE CHECKSUM: 977d921e6b7ef77e6e22c8ae884a0595f36f832d
+PODFILE CHECKSUM: 8343dfc05a655ba1924a5f195f6074fbf34086b4
 
 COCOAPODS: 1.16.2

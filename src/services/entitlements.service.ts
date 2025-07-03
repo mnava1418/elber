@@ -3,13 +3,7 @@ import DevicePermissions from "../adapters/devicePermissions/devicePermissions.a
 import IosPermissions from "../adapters/devicePermissions/iosPermissions.adapter";
 
 export const checkVoicePermissions = async (os: 'ios' | 'android') => {
-    let devicePermissions: DevicePermissions;
-
-    if(os === 'ios') {
-        devicePermissions = new IosPermissions()
-    } else {
-        devicePermissions = new AndroidPermissions()
-    }
+    const devicePermissions = getDevicePermissions(os)
 
     const microphonePermission:boolean = await devicePermissions.checkMicrophonePermission()
     .catch(() => false)    
@@ -18,4 +12,25 @@ export const checkVoicePermissions = async (os: 'ios' | 'android') => {
     .catch(() => false)    
 
     return microphonePermission && speechRecognitionPermission
+}
+
+export const checkCamaraPermissions = async (os: 'ios' | 'android') => {
+    const devicePermissions = getDevicePermissions(os)
+
+    const cameraPermission:boolean = await devicePermissions.checkCameraPermission()
+    .catch(() => false)
+
+    return cameraPermission
+}
+
+const getDevicePermissions = (os: 'ios' | 'android'): DevicePermissions => {
+    let devicePermissions: DevicePermissions;
+
+    if(os === 'ios') {
+        devicePermissions = new IosPermissions()
+    } else {
+        devicePermissions = new AndroidPermissions()
+    }
+
+    return devicePermissions
 }
