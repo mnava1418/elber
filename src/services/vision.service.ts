@@ -13,7 +13,9 @@ export const openCamera = async(dispatch: (value: any) => void) => {
         launchCamera({
             mediaType: 'photo',
             saveToPhotos: false,
-            cameraType: 'back'
+            cameraType: 'back',
+            presentationStyle: 'fullScreen'
+
         }, (response) => {
             if (response.didCancel) {
                 return
