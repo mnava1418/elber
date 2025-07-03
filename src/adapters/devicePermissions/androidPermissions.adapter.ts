@@ -12,6 +12,13 @@ class AndroidPermissions extends DevicePermissions {
     async checkSpeechRecognitionPermission(): Promise<boolean> {
         return true
     }
+
+    async checkCameraPermission(): Promise<boolean> {
+        const cameraPermission = await this.requestPermission(PERMISSIONS.ANDROID.CAMERA)
+        .catch(() => false)
+        
+        return cameraPermission
+    }
 }
 
 export default AndroidPermissions

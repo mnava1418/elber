@@ -15,6 +15,13 @@ class IosPermissions extends DevicePermissions {
 
         return speechRecognitionPermission
     }
+
+    async checkCameraPermission(): Promise<boolean> {
+        const cameraPermission = await this.requestPermission(PERMISSIONS.IOS.CAMERA)
+        .catch(() => false)
+
+        return cameraPermission
+    }
 }
 
 export default IosPermissions
