@@ -81,9 +81,8 @@ export const processElberResponse = (dispatch: (value: any) => void, elberRespon
         case NLPActions.PLAY_AUDIO:
             processAudioResponse(dispatch, elberResponse.payload, audioChunks)
             break;
-        case NLPActions.OPEN_CAMERA:
-            dispatch(elberActions.setElberIsProcessing(false))
-            openCamera()
+        case NLPActions.OPEN_CAMERA:            
+            openCamera(dispatch)
             break;
         default:
             break;
