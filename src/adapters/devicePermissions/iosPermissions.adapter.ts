@@ -22,6 +22,13 @@ class IosPermissions extends DevicePermissions {
 
         return cameraPermission
     }
+
+    async checkPhotoLibraryPermission(): Promise<boolean> {
+        const photoLibraryPermission = await this.requestPermission(PERMISSIONS.IOS.PHOTO_LIBRARY)
+        .catch(() => false)
+
+        return photoLibraryPermission
+    }
 }
 
 export default IosPermissions

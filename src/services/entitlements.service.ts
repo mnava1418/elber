@@ -23,6 +23,15 @@ export const checkCamaraPermissions = async (os: 'ios' | 'android') => {
     return cameraPermission
 }
 
+export const checkPhotoLibraryPermissions = async (os: 'ios' | 'android') => {
+    const devicePermissions = getDevicePermissions(os)
+
+    const photoLibraryPermission = await devicePermissions.checkPhotoLibraryPermission()
+    .catch(() => false)
+
+    return photoLibraryPermission
+}
+
 const getDevicePermissions = (os: 'ios' | 'android'): DevicePermissions => {
     let devicePermissions: DevicePermissions;
 

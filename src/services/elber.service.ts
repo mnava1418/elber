@@ -9,7 +9,7 @@ import { ChatHistoryResponse } from '../interfaces/http.interface'
 import * as chatActions from '../store/actions/chat.actions'
 import * as elberActions from '../store/actions/elber.actions'
 import { GeneralPayload, NLPActions, NLPResponse } from '../interfaces/nlp.interface'
-import { openCamera } from './vision.service'
+import { openCamera } from './media.service'
 
 
 const httpFetcher = getAxiosFetcher(BACK_URL)

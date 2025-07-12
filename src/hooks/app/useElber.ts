@@ -78,7 +78,7 @@ const useElber = (state: ElberState) => {
             dispatch(setEntitlementsAlert({
                 isVisible: true,
                 title: 'Micrófono',
-                text: 'Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos'
+                text: 'Elber necesita acceso al micrófono y al reconocimiento de voz para interactuar contigo. Ve a Configuración y habilítalos.'
             }))
         }
     }
