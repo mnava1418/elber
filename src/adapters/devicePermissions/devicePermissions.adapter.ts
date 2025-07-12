@@ -33,6 +33,10 @@ class DevicePermissions implements ElberPermissions{
     checkCameraPermission(): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
+
+    checkPhotoLibraryPermission(): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
 }
 
 export default DevicePermissions

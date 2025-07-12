@@ -5,6 +5,7 @@ abstract class ElberPermissions {
     abstract checkMicrophonePermission(): Promise<boolean>
     abstract checkSpeechRecognitionPermission(): Promise<boolean>
     abstract checkCameraPermission(): Promise<boolean>
+    abstract checkPhotoLibraryPermission(): Promise<boolean>
 }
 
 export default ElberPermissions
