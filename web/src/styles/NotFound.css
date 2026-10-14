@@ -1,0 +1,34 @@
+.not-found {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.not-found-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.not-found-card .brand-link {
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.not-found-code {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+
+.not-found-sub {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
