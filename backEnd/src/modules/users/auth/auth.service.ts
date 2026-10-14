@@ -1,4 +1,4 @@
-class UserAuthServices {
+class AuthService {
     constructor() {}
 
     resetPassword = (email: string) => {
@@ -6,4 +6,4 @@ class UserAuthServices {
     }
 }
 
-export default UserAuthServices
+export default AuthService

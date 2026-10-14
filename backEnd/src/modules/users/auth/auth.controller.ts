@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
-import UserAuthServices from '../services/auth.service.js'
+import AuthService from './auth.service.js'
 
-class UserAuthController {
-    constructor(private readonly service: UserAuthServices) {}
+class AuthController {
+    constructor(private readonly service: AuthService) {}
 
     resetPassword = (req: Request, res: Response) => {
         try {
@@ -16,4 +16,4 @@ class UserAuthController {
     }
 }
 
-export default UserAuthController
+export default AuthController

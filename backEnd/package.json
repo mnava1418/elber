@@ -8,14 +8,17 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
     "start": "node dist/main.js",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "lint:arch": "depcruise src"
   },
   "dependencies": {
     "express": "^5.3.0"
   },
   "devDependencies": {
+    "@swc/core": "^1.16.12",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
+    "dependency-cruiser": "^17.4.3",
     "oxlint": "^1.88.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"

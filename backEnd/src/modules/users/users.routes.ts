@@ -1,18 +1,17 @@
 import { Router } from 'express'
-import getAuthRouter from './auth.routes.js'
-import UserAuthController from '../controllers/auth.controller.js'
+import AuthController from './auth/auth.controller.js'
+import buildAuthRoutes from './auth/auth.routes.js'
 
-interface UserControllers {
-    auth: UserAuthController
+interface UsersControllers {
+    auth: AuthController
 }
 
-const buildRoutes = ({auth}: UserControllers) => {
+const buildUsersRoutes = ({auth}: UsersControllers) => {
     const router = Router()
-    const authRouter = getAuthRouter(auth)
 
-    router.use('/auth', authRouter)
+    router.use('/auth', buildAuthRoutes(auth))
 
     return router
 }
 
-export default buildRoutes
+export default buildUsersRoutes
