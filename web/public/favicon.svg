@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1230" height="1278" viewBox="0 0 1230 1278" role="img" aria-label="Logo de Elber, llamas cian y naranja">
 <defs>
-<linearGradient id="cyan" x1="0" y1="0" x2="40%" y2="100%"><stop offset="0" stop-color="#00F5F4"/><stop offset="0.55" stop-color="#00D9E7"/><stop offset="1" stop-color="#0097C0"/></linearGradient>
+<linearGradient id="cyan" x1="0" y1="0" x2="40%" y2="100%"><stop offset="0" stop-color="#D5FFF8"/><stop offset="0.55" stop-color="#37D6D0"/><stop offset="1" stop-color="#087F8C"/></linearGradient>
 <linearGradient id="orange" x1="0" y1="0" x2="30%" y2="100%"><stop offset="0" stop-color="#FFB71A"/><stop offset="0.55" stop-color="#FF8B24"/><stop offset="1" stop-color="#FF5815"/></linearGradient>
 </defs>
 <path d="M 623 43 L 621 43 L 643 86 L 657 124 L 663 147 L 668 182 L 668 218 L 662 258 L 647 304 L 632 335 L 603 379 L 556 430 L 514 465 L 406 542 L 353 586 L 308 633 L 274 680 L 246 735 L 231 784 L 225 832 L 226 865 L 231 897 L 242 934 L 262 978 L 287 1018 L 330 1071 L 359 1100 L 389 1126 L 450 1169 L 519 1206 L 565 1225 L 601 1237 L 604 1236 L 562 1193 L 535 1159 L 507 1113 L 493 1080 L 483 1046 L 478 1009 L 481 956 L 492 913 L 500 893 L 519 858 L 540 830 L 569 801 L 618 762 L 710 702 L 753 671 L 771 656 L 807 620 L 837 578 L 855 541 L 868 499 L 875 447 L 873 390 L 864 343 L 848 296 L 822 244 L 787 193 L 752 151 L 686 88 Z" fill="url(#cyan)"/>

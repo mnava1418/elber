@@ -1,0 +1,130 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-ghost {
+  color: var(--text-h);
+  border-color: var(--border);
+  background: transparent;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+}
+
+.btn-primary {
+  color: var(--on-brand);
+  background: var(--brand-gradient);
+  box-shadow: var(--shadow);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: 48px 20px 96px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero-mark {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  line-height: 1.12;
+  letter-spacing: -1px;
+}
+
+.gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: 18px;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+.hero-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.hero-actions .btn {
+  padding: 13px 28px;
+  font-size: 16px;
+}
+
+.footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 13px;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .hero h1 {
+    font-size: 34px;
+  }
+
+  .nav {
+    padding: 16px 20px;
+  }
+}

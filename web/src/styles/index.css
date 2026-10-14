@@ -1,0 +1,81 @@
+:root {
+  /* Elber brand palette */
+  --elber-primary: #103b4a;
+  --elber-secondary: #087f8c;
+  --elber-cyan: #37d6d0;
+  --elber-mint: #d5fff8;
+  --elber-orange: #ff8b24;
+
+  /* Semantic tokens (light) */
+  --text: #4c6b74;
+  --text-h: var(--elber-primary);
+  --bg: #fbfffe;
+  --surface: #ffffff;
+  --border: rgba(8, 127, 140, 0.16);
+  --accent: var(--elber-secondary);
+  --accent-bg: rgba(55, 214, 208, 0.14);
+  --on-brand: var(--elber-primary);
+  --brand-gradient: linear-gradient(120deg, var(--elber-cyan), var(--elber-orange));
+  --shadow:
+    rgba(16, 59, 74, 0.1) 0 10px 30px -10px, rgba(16, 59, 74, 0.05) 0 4px 6px -2px;
+
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 16px/1.5 var(--sans);
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9fd3ce;
+    --text-h: var(--elber-mint);
+    --bg: var(--elber-primary);
+    --surface: #1a4352;
+    --border: rgba(55, 214, 208, 0.22);
+    --accent: var(--elber-cyan);
+    --accent-bg: rgba(55, 214, 208, 0.18);
+    --shadow:
+      rgba(0, 0, 0, 0.45) 0 10px 30px -10px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}

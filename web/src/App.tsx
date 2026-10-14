@@ -1,17 +1,15 @@
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Login from './pages/Login'
 
 function App() {
   return (
-    <>
-      <section id="center">        
-        <div>
-          <h1>Elber</h1>
-          <p>
-            Mi asistente personal
-          </p>
-        </div>        
-      </section>      
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
