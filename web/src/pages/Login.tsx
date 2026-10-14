@@ -1,18 +1,13 @@
 import { useEffect, useRef, useState, type SubmitEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Logo } from '../components'
+import { signIn } from '../services/auth.service'
 import elber from '../assets/elber.png'
 import '../styles/Login.css'
 
 type Phase = 'idle' | 'loading' | 'error' | 'success'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-// Sustituye por tu llamada real de autenticación
-async function signIn(email: string, password: string): Promise<boolean> {
-  await new Promise((r) => setTimeout(r, 1200))
-  return Boolean(email && password.length >= 8)
-}
 
 function Login() {
   const navigate = useNavigate()
@@ -41,13 +36,13 @@ function Login() {
     if (!EMAIL_RE.test(email) || !password) return
 
     setPhase('loading')
-    const ok = await signIn(email, password)
-    if (!ok) {
+    try {
+      await signIn(email, password)
+      setPhase('success')
+      timer.current = window.setTimeout(() => navigate('/dashboard'), 2000)
+    } catch {
       setPhase('error')
-      return
     }
-    setPhase('success')
-    timer.current = window.setTimeout(() => navigate('/'), 2000)
   }
 
   return (
@@ -83,7 +78,7 @@ function Login() {
               {credentialsError && (
                 <div className="login-alert" role="alert">
                   <span className="login-alert-icon" aria-hidden="true">!</span>
-                  <span>Ese correo y esa contraseña no coinciden. Revisa e inténtalo otra vez.</span>
+                  <span>Correo y/o contraseña incorrectos.</span>
                 </div>
               )}
 
