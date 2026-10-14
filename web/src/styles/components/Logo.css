@@ -1,0 +1,32 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.logo-mark {
+  display: block;
+}
+
+.logo--sm {
+  font-size: 20px;
+}
+.logo--sm .logo-mark {
+  width: 28px;
+  height: 28px;
+}
+
+.logo--md {
+  font-size: 18px;
+}
+.logo--md .logo-mark {
+  width: 24px;
+  height: 24px;
+}
+
+.logo--lg .logo-mark {
+  width: 72px;
+  height: 72px;
+}

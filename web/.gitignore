@@ -9,7 +9,13 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-ds
 dist-ssr
+ds-bundle
+.ds-sync
+.design-sync/.cache
+.design-sync/learnings
+.design-sync/node_modules
 *.local
 
 # Editor directories and files

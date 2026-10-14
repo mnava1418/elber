@@ -1,5 +1,6 @@
 import { useState, type SubmitEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { Button, Card, Logo, TextField } from '../components'
 import '../styles/Login.css'
 
 function Login() {
@@ -12,18 +13,17 @@ function Login() {
 
   return (
     <main className="login">
-      <div className="login-card">
-        <Link to="/" className="brand">
-          <img src="/favicon.svg" alt="" className="brand-mark" />
-          <span>Elber</span>
+      <Card className="login-card">
+        <Link to="/" className="brand-link">
+          <Logo size="md" />
         </Link>
 
         <h1>Iniciar sesión</h1>
         <p className="login-sub">Accede a tu asistente personal</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <label htmlFor="email">Correo electrónico</label>
-          <input
+          <TextField
+            label="Correo electrónico"
             id="email"
             name="email"
             type="email"
@@ -34,8 +34,8 @@ function Login() {
             placeholder="tu@correo.com"
           />
 
-          <label htmlFor="password">Contraseña</label>
-          <input
+          <TextField
+            label="Contraseña"
             id="password"
             name="password"
             type="password"
@@ -46,15 +46,15 @@ function Login() {
             placeholder="••••••••"
           />
 
-          <button type="submit" className="btn btn-primary">
+          <Button type="submit" variant="primary" className="login-submit">
             Iniciar sesión
-          </button>
+          </Button>
         </form>
 
         <Link to="/" className="back-link">
           &larr; Volver al inicio
         </Link>
-      </div>
+      </Card>
     </main>
   )
 }

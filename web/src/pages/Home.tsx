@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Button, GradientText, Logo } from '../components'
 import '../styles/Home.css'
 
 const currentYear = new Date().getFullYear()
@@ -7,30 +8,29 @@ function Home() {
   return (
     <>
       <header className="nav">
-        <Link to="/" className="brand">
-          <img src="/favicon.svg" alt="" className="brand-mark" />
-          <span>Elber</span>
+        <Link to="/" className="brand-link">
+          <Logo size="sm" />
         </Link>
-        <Link to="/login" className="btn btn-ghost">
+        <Button as={Link} to="/login" variant="ghost">
           Iniciar sesión
-        </Link>
+        </Button>
       </header>
 
       <main className="hero">
-        <img src="/favicon.svg" alt="Logo de Elber" className="hero-mark" />
+        <Logo size="lg" withWordmark={false} className="hero-mark" />
         <h1>
           Tu asistente personal
           <br />
-          <span className="gradient-text">siempre a mano</span>
+          <GradientText>siempre a mano</GradientText>
         </h1>
         <p className="hero-sub">
           Elber te ayuda a organizar tu día, recordar lo importante y resolver
           tareas sin esfuerzo.
         </p>
         <div className="hero-actions">
-          <Link to="/login" className="btn btn-primary">
+          <Button as={Link} to="/login" variant="primary" size="lg">
             Iniciar sesión
-          </Link>
+          </Button>
         </div>
       </main>
 

@@ -1,0 +1,9 @@
+{
+  "projectId": "ef8e4c54-7e6d-4b09-89ca-bd8e4044acc7",
+  "shape": "package",
+  "pkg": "web",
+  "globalName": "ElberDS",
+  "buildCmd": "npm run build:ds",
+  "cssEntry": "dist-ds/index.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}
