@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:ds": "tsup",
+    "build:ds": "tsup && node scripts/patch-ds-css.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },
