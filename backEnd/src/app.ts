@@ -7,11 +7,15 @@ const createApp = () => {
     const app = express()
     const users = createUsersModule()
 
+    app.use(express.json())
+
     app.get('/health', (_req: Request, res: Response) => {
         res.status(200).json({status: 'OK'})
     })
 
-    app.use('/user', users.router)
+    const api = express.Router()
+    api.use('/users', users.router)
+    app.use('/api/v1', api)
 
     // Order matters: these must be registered after every route.
     app.use(notFound)

@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
@@ -12,7 +11,8 @@
     "lint:arch": "depcruise src"
   },
   "dependencies": {
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@swc/core": "^1.16.12",
