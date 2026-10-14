@@ -3,15 +3,11 @@ import AuthController from './auth/auth.controller.js'
 import AuthService from './auth/auth.service.js'
 import buildUsersRoutes from './users.routes.js'
 
-// Public contract of the users module. Other modules must depend on this,
-// never on files inside the module.
-export interface UsersApi {
-    resetPassword(email: string): Promise<void>
-}
-
+// Public entry point of the users module: the only file other code may import.
+// When another module needs something from users, expose it here as an `api`
+// contract and inject it from app.ts.
 export interface UsersModule {
     router: Router
-    api: UsersApi
 }
 
 const createUsersModule = (): UsersModule => {
@@ -20,9 +16,6 @@ const createUsersModule = (): UsersModule => {
 
     return {
         router: buildUsersRoutes({auth: authController}),
-        api: {
-            resetPassword: authService.resetPassword,
-        },
     }
 }
 
