@@ -6,7 +6,7 @@ import buildUsersRoutes from './users.routes.js'
 // Public contract of the users module. Other modules must depend on this,
 // never on files inside the module.
 export interface UsersApi {
-    resetPassword(email: string): void
+    resetPassword(email: string): Promise<void>
 }
 
 export interface UsersModule {

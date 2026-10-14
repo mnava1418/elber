@@ -1,7 +1,7 @@
 class AuthService {
     constructor() {}
 
-    resetPassword = (email: string) => {
+    resetPassword = async (email: string) => {
         console.log('Vamos a cambiar el password... ', email)
     }
 }
