@@ -27,8 +27,8 @@
 }
 
 .btn-primary {
-  color: var(--on-brand);
-  background: var(--brand-gradient);
+  color: var(--elber-mint);
+  background: var(--elber-secondary);
   box-shadow: var(--shadow);
 }
 
