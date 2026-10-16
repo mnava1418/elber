@@ -10,15 +10,28 @@ module.exports = {
       to: { path: '^src/modules/[^/]+/', pathNot: '^src/modules/[^/]+/index\\.ts$' },
     },
     {
-      name: 'module-private-from-other-module',
+      name: 'no-cross-module-imports',
       comment:
-        'A module may only use another module through its index.ts (public API).',
+        'Modules never import each other, not even their index.ts: they communicate through events (src/shared/events).',
       severity: 'error',
       from: { path: '^src/modules/([^/]+)/' },
-      to: {
-        path: '^src/modules/[^/]+/',
-        pathNot: ['^src/modules/$1/', '^src/modules/[^/]+/index\\.ts$'],
-      },
+      to: { path: '^src/modules/', pathNot: '^src/modules/$1/' },
+    },
+    {
+      name: 'clean-arch-domain-is-innermost',
+      comment:
+        'In modules with clean architecture, domain/ depends on nothing from the outer layers.',
+      severity: 'error',
+      from: { path: '^src/modules/([^/]+)/domain/' },
+      to: { path: '^src/modules/$1/(application|infrastructure|presentation)/' },
+    },
+    {
+      name: 'clean-arch-application-not-to-outer-layers',
+      comment:
+        'application/ talks to the outside only through ports defined in domain/, never to adapters.',
+      severity: 'error',
+      from: { path: '^src/modules/([^/]+)/application/' },
+      to: { path: '^src/modules/$1/(infrastructure|presentation)/' },
     },
     {
       name: 'shared-not-to-modules',
