@@ -4,6 +4,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
+import { apiPost } from '../lib/api'
 import { auth } from '../lib/firebase'
 
 export type { User }
@@ -28,4 +29,10 @@ export function subscribeToAuthChanges(callback: (user: User | null) => void): (
     return () => {}
   }
   return onAuthStateChanged(auth, callback)
+}
+
+// The backend answers the same whether or not the email is registered,
+// so success only means the request was accepted.
+export async function requestPasswordReset(email: string): Promise<void> {
+  await apiPost('/users/auth/password-reset', { email })
 }
