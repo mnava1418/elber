@@ -3,7 +3,7 @@ import AuthController from './auth.controller.js'
 
 const buildAuthRoutes = (controller: AuthController) => {
     const router = Router()
-    router.get('/:email', controller.resetPassword)
+    router.post('/password-reset', controller.requestPasswordReset)
 
     return router
 }
