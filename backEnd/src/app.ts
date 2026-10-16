@@ -1,4 +1,6 @@
 import express, { Request, Response } from 'express'
+import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
@@ -13,6 +15,7 @@ const createApp = () => {
     const users = createUsersModule({bus})
     createNotificationsModule({bus})
 
+    app.use(helmet())
     app.use(express.json())
 
     app.get('/health', (_req: Request, res: Response) => {
@@ -20,6 +23,14 @@ const createApp = () => {
     })
 
     const api = express.Router()
+    // Only the API is limited: /health must stay reachable for health checks.
+    api.use(rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutos
+        limit: 100, // por IP
+        standardHeaders: 'draft-8',
+        legacyHeaders: false,
+        message: {error: {code: 'TOO_MANY_REQUESTS', message: 'Too many requests, try again later'}},
+    }))
     api.use('/users', users.router)
     app.use('/api/v1', api)
 
