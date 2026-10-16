@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express'
+import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import env from './config/env.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
@@ -16,6 +18,9 @@ const createApp = () => {
     createNotificationsModule({bus})
 
     app.use(helmet())
+    // The frontend lives on another domain. Before the rate limiter so
+    // preflight (OPTIONS) requests don't use up the client's quota.
+    app.use(cors({origin: env.CORS_ORIGINS}))
     app.use(express.json())
 
     app.get('/health', (_req: Request, res: Response) => {

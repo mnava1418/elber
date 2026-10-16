@@ -24,6 +24,20 @@ const envSchema = z.object({
 
     // Where Firebase sends the user after they change their password.
     PASSWORD_RESET_CONTINUE_URL: z.url(),
+
+    // Frontend origins allowed to call the API (CORS), comma separated, e.g.
+    // "http://localhost:5173,https://app.example.com". Browsers compare the
+    // exact origin: scheme + host + port, no path and no trailing slash.
+    CORS_ORIGINS: z
+        .string()
+        .transform((value) => value.split(',').map((origin) => origin.trim()).filter(Boolean))
+        .pipe(
+            z.array(
+                z.url().refine((origin) => new URL(origin).origin === origin, {
+                    error: 'Must be an origin like https://app.example.com (no path, no trailing slash)',
+                }),
+            ).min(1),
+        ),
 })
 
 // Only the fields the app uses; the key file has more.
