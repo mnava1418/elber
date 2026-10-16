@@ -49,8 +49,9 @@ module.exports = {
   ],
   options: {
     // TypeScript 7 (Go) no longer ships the JS API dependency-cruiser uses to parse .ts
+    // and to read tsconfig.json, so there is no `tsConfig` option either: without
+    // TS path aliases it changes nothing, and with TS 7 it only triggers a warning.
     parser: 'swc',
     doNotFollow: { path: 'node_modules' },
-    tsConfig: { fileName: 'tsconfig.json' },
   },
 };
