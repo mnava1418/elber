@@ -1,5 +1,6 @@
 import env from './config/env.js';
 import createApp from './app.js';
+import createSocketServer from './socket.js';
 import http from 'http';
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
@@ -7,6 +8,7 @@ const SHUTDOWN_TIMEOUT_MS = 10_000;
 const startServer = () => {
   const app = createApp();
   const server = http.createServer(app);
+  const io = createSocketServer(server);
 
   server.listen(env.PORT, () => {
     console.info('Elber listening on port: ', env.PORT);
@@ -14,10 +16,12 @@ const startServer = () => {
 
   // Stop accepting new connections and let in-flight requests finish
   // before exiting (e.g. when a container is stopped or redeployed).
+  // io.close() disconnects every socket and then closes the HTTP server;
+  // open sockets would otherwise keep it alive until the forced timeout.
   const shutdown = (signal: NodeJS.Signals) => {
     console.info(`${signal} received, shutting down...`);
 
-    server.close((error) => {
+    io.close((error) => {
       if (error) {
         console.error(error);
         process.exit(1);
