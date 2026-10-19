@@ -21,6 +21,9 @@ export function createChatSocket(): ChatSocket {
   if (!SOCKET_URL) throw new Error('VITE_API_URL no está configurada (ver web/.env.example)')
 
   return io(`${SOCKET_URL}/chat`, {
+    transports: ['websocket'],
+    reconnectionDelayMax: 3000,
+    timeout: 10000,
     autoConnect: false,
     // A function, not an object: it runs on every (re)connection, so the
     // backend always gets a fresh ID token (they expire after one hour).
