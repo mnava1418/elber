@@ -5,7 +5,7 @@ import GuestRoute from './routes/GuestRoute'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import RecoverPassword from './pages/RecoverPassword'
-import Dashboard from './pages/Dashboard'
+import Chat from './pages/Chat'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -38,10 +38,10 @@ function App() {
             }
           />
           <Route
-            path="/dashboard"
+            path="/chat"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Chat />
               </ProtectedRoute>
             }
           />

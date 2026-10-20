@@ -1,4 +1,4 @@
-import { io, type Socket } from 'socket.io-client'
+import { io, type ManagerOptions, type Socket, type SocketOptions } from 'socket.io-client'
 import { auth } from './firebase'
 
 // Socket.IO lives on the same server as the API, at its root (no /api/v1).
@@ -26,7 +26,8 @@ export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'INTERNAL_ERROR'
 export type ChatSocket = Socket<ChatServerEvents, ChatClientEvents>
 
 // Created disconnected: call connect() when the page needs it.
-export function createChatSocket(): ChatSocket {
+// `options` overrides the defaults below.
+export function createChatSocket(options: Partial<ManagerOptions & SocketOptions> = {}): ChatSocket {
   if (!SOCKET_URL) throw new Error('VITE_API_URL no está configurada (ver web/.env.example)')
 
   return io(`${SOCKET_URL}/chat`, {
@@ -44,5 +45,6 @@ export function createChatSocket(): ChatSocket {
         .then((token) => cb({ token }))
         .catch(() => cb({}))
     },
+    ...options,
   })
 }
