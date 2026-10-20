@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Card, Logo } from '../components'
 import { useAuth } from '../context/useAuth'
-import { useChatSocket, type ChatStatus } from '../hooks/useChatSocket'
+import { useChatSocket, type Activity, type ChatStatus } from '../hooks/useChatSocket'
 import { signOutUser } from '../services/auth.service'
 import '../styles/Dashboard.css'
 
@@ -13,10 +13,21 @@ const STATUS_LABEL: Record<ChatStatus, string> = {
   error: 'Sin conexión',
 }
 
+const TOOL_LABEL: Record<string, string> = {
+  WebSearch: 'Buscando en la web',
+  WebFetch: 'Leyendo una página',
+}
+
+function activityLabel(activity: NonNullable<Activity>): string {
+  if (activity.kind === 'thinking') return 'Elber está pensando…'
+  const label = TOOL_LABEL[activity.name] ?? `Usando ${activity.name}`
+  return activity.detail ? `${label}: ${activity.detail}` : `${label}…`
+}
+
 function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { status, error, messages, sendHello } = useChatSocket()
+  const { status, error, messages, activity, answering, sendMessage, cancel } = useChatSocket()
   const [text, setText] = useState('')
 
   async function handleSignOut() {
@@ -27,8 +38,8 @@ function Dashboard() {
   function handleSubmit(e: SubmitEvent) {
     e.preventDefault()
     const trimmed = text.trim()
-    if (!trimmed) return
-    sendHello(trimmed)
+    if (!trimmed || answering) return
+    sendMessage(trimmed)
     setText('')
   }
 
@@ -38,7 +49,6 @@ function Dashboard() {
         <Logo size="md" />
         <h1>Bienvenido{user?.email ? `, ${user.email}` : ''}</h1>
 
-        {/* Temporary: tests the /chat socket until the real chat exists. */}
         <p className={`chat-status chat-status--${status}`} role="status">
           <span className="chat-status-dot" aria-hidden="true" />
           {STATUS_LABEL[status]}
@@ -51,18 +61,25 @@ function Dashboard() {
               {message.text}
             </li>
           ))}
+          {activity && <li className="chat-activity">{activityLabel(activity)}</li>}
         </ul>
 
         <form className="chat-form" onSubmit={handleSubmit}>
           <input
             aria-label="Mensaje para Elber"
-            placeholder="Escribe algo…"
+            placeholder="Pregúntale algo a Elber…"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <Button type="submit" disabled={status !== 'connected' || !text.trim()}>
-            Enviar
-          </Button>
+          {answering ? (
+            <Button type="button" variant="ghost" onClick={cancel}>
+              Detener
+            </Button>
+          ) : (
+            <Button type="submit" disabled={status !== 'connected' || !text.trim()}>
+              Enviar
+            </Button>
+          )}
         </form>
 
         <Button variant="ghost" onClick={handleSignOut}>

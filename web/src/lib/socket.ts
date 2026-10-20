@@ -6,13 +6,22 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 
 // Contract of the /chat namespace. Copy of
 // backEnd/src/modules/chat/presentation/chat.events.ts: change both together.
+//
+// One answer at a time: after chat:message the server sends any number of
+// chat:delta / chat:tool, then exactly one chat:done or chat:error.
 export interface ChatServerEvents {
-  'chat:hello': (payload: { text: string }) => void
+  'chat:delta': (payload: { text: string }) => void
+  'chat:tool': (payload: { name: string; detail?: string }) => void
+  'chat:done': (payload: { cancelled: boolean }) => void
+  'chat:error': (payload: { code: ChatErrorCode; message: string }) => void
 }
 
 export interface ChatClientEvents {
-  'chat:hello': (payload: { text: string }) => void
+  'chat:message': (payload: { text: string }) => void
+  'chat:cancel': () => void
 }
+
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'INTERNAL_ERROR'
 
 export type ChatSocket = Socket<ChatServerEvents, ChatClientEvents>
 
