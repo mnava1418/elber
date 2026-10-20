@@ -39,7 +39,7 @@ function Login() {
     try {
       await signIn(email, password)
       setPhase('success')
-      timer.current = window.setTimeout(() => navigate('/dashboard'), 2000)
+      timer.current = window.setTimeout(() => navigate('/chat'), 2000)
     } catch {
       setPhase('error')
     }
