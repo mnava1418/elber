@@ -8,6 +8,9 @@ export type AssistantEvent =
     // The sources the answer can cite as [n], complete so far: each one
     // replaces the previous list.
     | {type: 'sources', sources: Source[]}
+    // Opaque id of the conversation this answer belongs to: pass it as
+    // `sessionId` in the next reply to continue it.
+    | {type: 'session', id: string}
 
 // A page the answer cites as [n].
 export interface Source {
@@ -20,6 +23,9 @@ export interface ReplyInput {
     text: string
     // Aborting it stops the answer (and its cost) as soon as possible.
     signal: AbortSignal
+    // Continues that conversation (its earlier messages are the context);
+    // without it, the answer starts a new one.
+    sessionId?: string
 }
 
 // Port: the chat depends on this, not on a specific agent framework.

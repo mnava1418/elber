@@ -64,8 +64,14 @@ describe('toEvents', () => {
         expect(() => events(message)).toThrow('error_max_turns')
     })
 
-    it('ignores other messages (system init, user tool results...)', () => {
-        expect(events(sdkMessage({type: 'system', subtype: 'init'}))).toEqual([])
+    it('turns the init message into a session event', () => {
+        const message = sdkMessage({type: 'system', subtype: 'init', session_id: 'session-1'})
+
+        expect(events(message)).toEqual([{type: 'session', id: 'session-1'}])
+    })
+
+    it('ignores other messages (other system messages, user tool results...)', () => {
+        expect(events(sdkMessage({type: 'system', subtype: 'status', session_id: 'session-1'}))).toEqual([])
         expect(events(sdkMessage({type: 'user', message: {content: []}}))).toEqual([])
     })
 })
