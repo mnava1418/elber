@@ -5,6 +5,16 @@ export type AssistantEvent =
     // The assistant is using a tool, e.g. searching the web. `detail` is a
     // short human-readable hint (the search query, the URL...).
     | {type: 'tool', name: string, detail?: string}
+    // The sources the answer can cite as [n], complete so far: each one
+    // replaces the previous list.
+    | {type: 'sources', sources: Source[]}
+
+// A page the answer cites as [n].
+export interface Source {
+    n: number
+    url: string
+    title: string
+}
 
 export interface ReplyInput {
     text: string

@@ -27,10 +27,16 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
         // unhandled rejection.
         try {
             for await (const event of assistant.reply({text, signal: controller.signal})) {
-                if (event.type === 'delta') {
-                    socket.emit('chat:delta', {text: event.text})
-                } else {
-                    socket.emit('chat:tool', {name: event.name, detail: event.detail})
+                switch (event.type) {
+                    case 'delta':
+                        socket.emit('chat:delta', {text: event.text})
+                        break
+                    case 'tool':
+                        socket.emit('chat:tool', {name: event.name, detail: event.detail})
+                        break
+                    case 'sources':
+                        socket.emit('chat:sources', {sources: event.sources})
+                        break
                 }
             }
             socket.emit('chat:done', {cancelled: controller.signal.aborted})

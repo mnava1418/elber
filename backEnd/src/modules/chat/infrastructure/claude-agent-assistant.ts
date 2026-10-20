@@ -1,6 +1,7 @@
-import { query, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
+import { query, type HookCallbackMatcher, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
 import { ELBER_SYSTEM_PROMPT } from './elber-system-prompt.js'
+import { citationContext, SourceList, sourcesIn } from './web-sources.js'
 
 // The only tools the agent has. The SDK ships Claude Code's tools (Bash,
 // Read, Write...): on a server reachable from the internet they must not exist.
@@ -54,23 +55,45 @@ class ClaudeAgentAssistant implements Assistant {
         const abort = () => abortController.abort()
         signal.addEventListener('abort', abort, {once: true})
 
-        // A new text block after earlier text (e.g. after a search) would be
-        // glued to it: separate them.
-        let hasText = false
+        const sources = new SourceList()
+        let sentSources = 0
+        // The whole answer, to know which sources it cites.
+        let answer = ''
 
         try {
-            const messages = query({prompt: text, options: {...this.options, abortController}})
-            for await (const message of messages) {
-                for (const event of toEvents(message, hasText)) {
-                    if (event.type === 'delta') hasText = true
+            const options = {...this.options, abortController, hooks: {PostToolUse: [citeSources(sources)]}}
+            for await (const message of query({prompt: text, options})) {
+                // A new text block after earlier text (e.g. after a search)
+                // would be glued to it: toEvents separates them.
+                for (const event of toEvents(message, answer !== '')) {
+                    if (event.type === 'delta') answer += event.text
                     yield event
                 }
+                // New sources (added by the hook): send them before the text that cites them.
+                if (sources.size > sentSources) {
+                    sentSources = sources.size
+                    yield {type: 'sources', sources: sources.all()}
+                }
             }
+            // The final list: only what the answer cites (a search returns many pages).
+            if (sentSources > 0) yield {type: 'sources', sources: sources.citedIn(answer)}
         } finally {
             signal.removeEventListener('abort', abort)
         }
     }
 }
+
+// After each search or page read, numbers its sources and tells the model
+// which number to cite each one with.
+const citeSources = (sources: SourceList): HookCallbackMatcher => ({
+    matcher: 'WebSearch|WebFetch',
+    hooks: [async (input) => {
+        if (input.hook_event_name !== 'PostToolUse') return {}
+        const found = sources.add(sourcesIn(input.tool_name, input.tool_response))
+        if (found.length === 0) return {}
+        return {hookSpecificOutput: {hookEventName: 'PostToolUse', additionalContext: citationContext(found)}}
+    }],
+})
 
 // Translates one SDK message into assistant events. Exported for tests.
 export function* toEvents(message: SDKMessage, hasText: boolean): Generator<AssistantEvent> {

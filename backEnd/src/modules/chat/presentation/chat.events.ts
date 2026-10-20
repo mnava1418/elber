@@ -1,11 +1,12 @@
 import type { Namespace, Socket } from 'socket.io'
 import type { AuthUser } from '../../../shared/auth/token-verifier.js'
+import type { Source } from '../domain/assistant.port.js'
 
 // Contract of the /chat namespace: event name -> payload. The frontend keeps
 // a copy of these types (web/src/lib/socket.ts); change both together.
 //
 // One answer at a time per connection: after chat:message the server sends
-// any number of chat:delta / chat:tool, then exactly one chat:done or chat:error.
+// any number of chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
 
 // Events the client sends.
 export interface ChatClientEvents {
@@ -20,6 +21,9 @@ export interface ChatServerEvents {
     'chat:delta': (payload: {text: string}) => void
     // Elber is using a tool, e.g. {name: 'WebSearch', detail: 'clima en CDMX'}.
     'chat:tool': (payload: {name: string, detail?: string}) => void
+    // Sources the answer cites as [n]. Each one replaces the previous list;
+    // the last one, just before chat:done, has only those actually cited.
+    'chat:sources': (payload: {sources: Source[]}) => void
     'chat:done': (payload: {cancelled: boolean}) => void
     'chat:error': (payload: {code: ChatErrorCode, message: string}) => void
 }

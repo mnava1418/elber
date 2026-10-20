@@ -8,10 +8,12 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 // backEnd/src/modules/chat/presentation/chat.events.ts: change both together.
 //
 // One answer at a time: after chat:message the server sends any number of
-// chat:delta / chat:tool, then exactly one chat:done or chat:error.
+// chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
 export interface ChatServerEvents {
   'chat:delta': (payload: { text: string }) => void
   'chat:tool': (payload: { name: string; detail?: string }) => void
+  // Each one replaces the previous list; the last one has only the cited sources.
+  'chat:sources': (payload: { sources: { n: number; url: string; title: string }[] }) => void
   'chat:done': (payload: { cancelled: boolean }) => void
   'chat:error': (payload: { code: ChatErrorCode; message: string }) => void
 }

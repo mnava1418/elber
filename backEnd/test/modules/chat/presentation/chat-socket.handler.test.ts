@@ -51,6 +51,19 @@ describe('chat socket handler', () => {
         ])
     })
 
+    it('forwards sources as chat:sources', async () => {
+        const {socket, emit, receive} = fakeSocket()
+        const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
+        buildChatSocketHandler(assistantAnswering({type: 'sources', sources}))(socket)
+
+        await receive('chat:message', {text: 'hola'})
+
+        expect(emit.mock.calls).toEqual([
+            ['chat:sources', {sources}],
+            ['chat:done', {cancelled: false}],
+        ])
+    })
+
     it('sends the trimmed text to the assistant', async () => {
         const reply = vi.fn<Assistant['reply']>(async function* () {})
         const {socket, receive} = fakeSocket()

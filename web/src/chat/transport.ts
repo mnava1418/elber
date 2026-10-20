@@ -97,6 +97,10 @@ export const socketIoTransport: Transport = (h) => {
     endStep()
     h.onEvent({ type: 'delta', turnId, text })
   })
+  socket.on('chat:sources', ({ sources }) => {
+    if (draining || !turnId) return
+    h.onEvent({ type: 'sources', turnId, sources })
+  })
   socket.on('chat:done', () => {
     if (!draining && turnId) h.onEvent({ type: 'done', turnId })
     finishTurn()
