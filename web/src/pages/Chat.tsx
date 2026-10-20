@@ -53,6 +53,8 @@ function Chat() {
 
   const firstQuestion = turns.find((t) => t.role === 'user')?.text
   const canRetry = connection === 'open' && !responding
+  // Only the last answer can be retried (see useChat's retry).
+  const lastTurnId = turns.at(-1)?.id
 
   return (
     <div className={`chat${sidebarOpen ? ' chat--sidebar-open' : ''}`}>
@@ -157,7 +159,7 @@ function Chat() {
                     <div className="turn-user-bubble">{t.text}</div>
                   </div>
                 ) : (
-                  <ElberMessage key={t.id} turn={t} canRetry={canRetry} onRetry={retry} />
+                  <ElberMessage key={t.id} turn={t} canRetry={canRetry && t.id === lastTurnId} onRetry={retry} />
                 ),
               )}
             </div>

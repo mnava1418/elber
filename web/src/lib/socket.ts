@@ -7,6 +7,7 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 // Contract of the /chat namespace. Copy of
 // backEnd/src/modules/chat/presentation/chat.events.ts: change both together.
 //
+// Each message continues the conversation of the connection, until chat:reset.
 // One answer at a time: after chat:message the server sends any number of
 // chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
 export interface ChatServerEvents {
@@ -21,6 +22,8 @@ export interface ChatServerEvents {
 export interface ChatClientEvents {
   'chat:message': (payload: { text: string }) => void
   'chat:cancel': () => void
+  // New conversation: Elber forgets the earlier messages.
+  'chat:reset': () => void
 }
 
 export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'INTERNAL_ERROR'

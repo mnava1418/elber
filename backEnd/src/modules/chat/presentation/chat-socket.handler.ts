@@ -7,6 +7,11 @@ export const MAX_MESSAGE_LENGTH = 4000
 const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) => {
     // The answer in progress, if any.
     let current: AbortController | null = null
+    // The conversation: each message continues it, until chat:reset. It lives
+    // as long as the connection (a new connection starts a new one).
+    let sessionId: string | undefined
+    // Changes on chat:reset, so an answer still ending can't bring back the old conversation.
+    let conversation = 0
 
     socket.on('chat:message', async (payload) => {
         // Types don't reach the wire: a client can send anything.
@@ -22,11 +27,12 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
 
         const controller = new AbortController()
         current = controller
+        const startedIn = conversation
 
         // Everything stays inside try/catch: a rejected listener would be an
         // unhandled rejection.
         try {
-            for await (const event of assistant.reply({text, signal: controller.signal})) {
+            for await (const event of assistant.reply({text, signal: controller.signal, sessionId})) {
                 switch (event.type) {
                     case 'delta':
                         socket.emit('chat:delta', {text: event.text})
@@ -36,6 +42,9 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
                         break
                     case 'sources':
                         socket.emit('chat:sources', {sources: event.sources})
+                        break
+                    case 'session':
+                        if (conversation === startedIn) sessionId = event.id
                         break
                 }
             }
@@ -53,6 +62,12 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
     })
 
     socket.on('chat:cancel', () => current?.abort())
+
+    socket.on('chat:reset', () => {
+        current?.abort()
+        sessionId = undefined
+        conversation++
+    })
 
     // Nobody is listening anymore: stop paying for the answer.
     socket.on('disconnect', () => current?.abort())

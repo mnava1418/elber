@@ -11,6 +11,8 @@ export interface TransportHandlers {
 export interface Connection {
   send(turnId: string, text: string): void
   stop(turnId: string): void
+  /** Nueva conversación: el servidor olvida los mensajes anteriores. */
+  reset(): void
   close(): void
 }
 
@@ -125,6 +127,10 @@ export const socketIoTransport: Transport = (h) => {
       draining = true
       socket.emit('chat:cancel')
     },
+    reset() {
+      queued = null
+      socket.emit('chat:reset')
+    },
     close() {
       closedByClient = true
       socket.disconnect()
@@ -188,6 +194,7 @@ export const mockTransport: Transport = (h) => {
       schedule(turnId, (t += 100), () => h.onEvent({ type: 'done', turnId }))
     },
     stop: clear,
+    reset() {},
     close() {
       window.clearTimeout(open)
       for (const id of timers.keys()) clear(id)

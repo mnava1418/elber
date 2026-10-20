@@ -74,6 +74,58 @@ describe('chat socket handler', () => {
         expect(reply).toHaveBeenCalledExactlyOnceWith({text: 'hola', signal: expect.any(AbortSignal)})
     })
 
+    it('continues the conversation: each message resumes the session of the previous answer', async () => {
+        const reply = vi.fn<Assistant['reply']>(async function* () {
+            yield {type: 'session', id: 'session-1'}
+        })
+        const {socket, emit, receive} = fakeSocket()
+        buildChatSocketHandler({reply})(socket)
+
+        await receive('chat:message', {text: 'uno'})
+        await receive('chat:message', {text: 'dos'})
+
+        expect(reply.mock.calls.map(([input]) => input.sessionId)).toEqual([undefined, 'session-1'])
+        // The session id stays on the server.
+        expect(emit.mock.calls.map(([event]) => event)).toEqual(['chat:done', 'chat:done'])
+    })
+
+    it('starts a new conversation after chat:reset', async () => {
+        const reply = vi.fn<Assistant['reply']>(async function* () {
+            yield {type: 'session', id: 'session-1'}
+        })
+        const {socket, receive} = fakeSocket()
+        buildChatSocketHandler({reply})(socket)
+
+        await receive('chat:message', {text: 'uno'})
+        await receive('chat:reset')
+        await receive('chat:message', {text: 'dos'})
+
+        expect(reply.mock.calls.map(([input]) => input.sessionId)).toEqual([undefined, undefined])
+    })
+
+    it('on chat:reset during an answer, aborts it and forgets its session even if it arrives late', async () => {
+        let resetDone!: () => void
+        const reply = vi.fn<Assistant['reply']>()
+            .mockImplementationOnce(async function* () {
+                // The session arrives after the reset.
+                await new Promise<void>((resolve) => { resetDone = resolve })
+                yield {type: 'session', id: 'old-session'}
+            })
+            .mockImplementationOnce(async function* () {})
+        const {socket, emit, receive} = fakeSocket()
+        buildChatSocketHandler({reply})(socket)
+
+        const answering = receive('chat:message', {text: 'uno'})
+        await receive('chat:reset')
+        resetDone()
+        await answering
+        await receive('chat:message', {text: 'dos'})
+
+        expect(reply.mock.calls[0]![0].signal.aborted).toBe(true)
+        expect(reply.mock.calls[1]![0].sessionId).toBeUndefined()
+        expect(emit.mock.calls[0]).toEqual(['chat:done', {cancelled: true}])
+    })
+
     it.each([
         ['no payload', undefined],
         ['a text that is not a string', {text: 42}],

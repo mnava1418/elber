@@ -50,7 +50,7 @@ class ClaudeAgentAssistant implements Assistant {
         }
     }
 
-    async *reply({text, signal}: ReplyInput): AsyncGenerator<AssistantEvent> {
+    async *reply({text, signal, sessionId}: ReplyInput): AsyncGenerator<AssistantEvent> {
         const abortController = new AbortController()
         const abort = () => abortController.abort()
         signal.addEventListener('abort', abort, {once: true})
@@ -61,7 +61,13 @@ class ClaudeAgentAssistant implements Assistant {
         let answer = ''
 
         try {
-            const options = {...this.options, abortController, hooks: {PostToolUse: [citeSources(sources)]}}
+            const options: Options = {
+                ...this.options,
+                abortController,
+                // The SDK reloads the conversation's history and sends it with the new message.
+                resume: sessionId,
+                hooks: {PostToolUse: [citeSources(sources)]},
+            }
             for await (const message of query({prompt: text, options})) {
                 // A new text block after earlier text (e.g. after a search)
                 // would be glued to it: toEvents separates them.
@@ -98,6 +104,11 @@ const citeSources = (sources: SourceList): HookCallbackMatcher => ({
 // Translates one SDK message into assistant events. Exported for tests.
 export function* toEvents(message: SDKMessage, hasText: boolean): Generator<AssistantEvent> {
     switch (message.type) {
+        case 'system': {
+            // The first message: says which session (conversation) this is.
+            if (message.subtype === 'init') yield {type: 'session', id: message.session_id}
+            return
+        }
         case 'stream_event': {
             const {event} = message
             if (event.type === 'content_block_start' && event.content_block.type === 'text' && hasText) {

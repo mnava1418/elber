@@ -100,10 +100,13 @@ export function useChat(transport: Transport) {
     patch(liveTurn.id, (t) => finishSteps({ ...t, status: 'stopped' }))
   }, [liveTurn, patch])
 
-  /** Reintenta un turno con error o regenera uno terminado/detenido. */
+  /**
+   * Reintenta un turno con error o regenera uno terminado/detenido. Solo el
+   * último: el servidor recuerda la conversación y reenvía la pregunta al final.
+   */
   const retry = useCallback(
     (elberId: string) => {
-      if (connection !== 'open' || responding) return
+      if (connection !== 'open' || responding || turns.at(-1)?.id !== elberId) return
       const turn = turns.find((t): t is ElberTurn => t.id === elberId && t.role === 'elber')
       const question = turns.find((t) => t.id === turn?.replyTo)
       if (!turn || !question) return
@@ -116,6 +119,7 @@ export function useChat(transport: Transport) {
   const reconnectNow = useCallback(() => setAttemptKey((k) => k + 1), [])
   const reset = useCallback(() => {
     if (liveTurn) conn.current?.stop(liveTurn.id)
+    conn.current?.reset()
     setTurns([])
   }, [liveTurn])
 
