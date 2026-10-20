@@ -16,6 +16,7 @@
     "lint:arch": "depcruise src"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.304",
     "cors": "^2.8.6",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",

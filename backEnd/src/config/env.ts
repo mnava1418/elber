@@ -25,6 +25,9 @@ const envSchema = z.object({
     // Where Firebase sends the user after they change their password.
     PASSWORD_RESET_CONTINUE_URL: z.url(),
 
+    // Claude API key used by the chat agent (Claude Agent SDK).
+    ANTHROPIC_API_KEY: z.string().min(1),
+
     // Frontend origins allowed to call the API (CORS), comma separated, e.g.
     // "http://localhost:5173,https://app.example.com". Browsers compare the
     // exact origin: scheme + host + port, no path and no trailing slash.

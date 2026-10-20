@@ -1,0 +1,19 @@
+// What the assistant emits while it answers, in order.
+export type AssistantEvent =
+    // A piece of the answer text, to append to what came before.
+    | {type: 'delta', text: string}
+    // The assistant is using a tool, e.g. searching the web. `detail` is a
+    // short human-readable hint (the search query, the URL...).
+    | {type: 'tool', name: string, detail?: string}
+
+export interface ReplyInput {
+    text: string
+    // Aborting it stops the answer (and its cost) as soon as possible.
+    signal: AbortSignal
+}
+
+// Port: the chat depends on this, not on a specific agent framework.
+// The iteration ends when the answer is complete; it throws if it fails.
+export interface Assistant {
+    reply(input: ReplyInput): AsyncIterable<AssistantEvent>
+}

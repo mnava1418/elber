@@ -1,19 +1,30 @@
-import type { Namespace } from 'socket.io'
+import type { Namespace, Socket } from 'socket.io'
 import type { AuthUser } from '../../../shared/auth/token-verifier.js'
 
 // Contract of the /chat namespace: event name -> payload. The frontend keeps
 // a copy of these types (web/src/lib/socket.ts); change both together.
+//
+// One answer at a time per connection: after chat:message the server sends
+// any number of chat:delta / chat:tool, then exactly one chat:done or chat:error.
 
 // Events the client sends.
 export interface ChatClientEvents {
-    // Temporary: connection test until the agent is wired in.
-    'chat:hello': (payload: {text: string}) => void
+    'chat:message': (payload: {text: string}) => void
+    // Stops the answer in progress. It still ends with chat:done.
+    'chat:cancel': () => void
 }
 
 // Events the server sends.
 export interface ChatServerEvents {
-    'chat:hello': (payload: {text: string}) => void
+    // Next piece of the answer text.
+    'chat:delta': (payload: {text: string}) => void
+    // Elber is using a tool, e.g. {name: 'WebSearch', detail: 'clima en CDMX'}.
+    'chat:tool': (payload: {name: string, detail?: string}) => void
+    'chat:done': (payload: {cancelled: boolean}) => void
+    'chat:error': (payload: {code: ChatErrorCode, message: string}) => void
 }
+
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'INTERNAL_ERROR'
 
 // What the auth middleware stores on each socket.
 export interface ChatSocketData {
@@ -21,3 +32,4 @@ export interface ChatSocketData {
 }
 
 export type ChatNamespace = Namespace<ChatClientEvents, ChatServerEvents, Record<string, never>, ChatSocketData>
+export type ChatSocket = Socket<ChatClientEvents, ChatServerEvents, Record<string, never>, ChatSocketData>
