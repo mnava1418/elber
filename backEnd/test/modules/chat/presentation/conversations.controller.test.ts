@@ -33,7 +33,7 @@ describe('chat conversations routes', () => {
         const controller = new ConversationsController(
             new ListConversationsUseCase(repository),
             new GetConversationUseCase(repository),
-            new DeleteConversationUseCase(repository),
+            new DeleteConversationUseCase(repository, {forget: async () => {}, reply: () => { throw new Error('unused') }}),
         )
         const app = express()
         app.use('/chat', buildChatRoutes(buildRequireAuth(verify), controller))
