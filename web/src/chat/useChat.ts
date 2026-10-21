@@ -27,6 +27,11 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
   // The turn that started a new conversation, waiting for its id. A late id
   // from before a reset must not bring the old conversation back.
   const newConversationTurn = useRef<string | null>(null)
+  // The turn whose question is on its way as a new message (not a retry), and
+  // the turns whose question never got stored because of the rate limit:
+  // retrying those sends the question again.
+  const sentAsMessage = useRef<string | null>(null)
+  const unsent = useRef(new Set<string>())
   // Latest callback, without re-subscribing to the transport when it changes.
   const onConversationRef = useRef(onConversation)
   useEffect(() => {
@@ -62,7 +67,8 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
           case 'done':
             return finishSteps({ ...t, status: 'done' })
           case 'error':
-            return finishSteps({ ...t, status: 'error' })
+            if (e.rateLimited && e.turnId === sentAsMessage.current) unsent.current.add(e.turnId)
+            return finishSteps({ ...t, status: 'error', retryAfter: e.rateLimited?.retryAfter })
         }
       })
     },
@@ -122,6 +128,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
         { id: elberId, role: 'elber', replyTo: userId, status: 'thinking', text: '', steps: [], sources: [] },
       ])
       if (!conversationId.current) newConversationTurn.current = elberId
+      sentAsMessage.current = elberId
       conn.current?.send(elberId, text, conversationId.current ?? undefined)
       return 'sent'
     },
@@ -137,7 +144,8 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
   /**
    * Reintenta un turno con error o detenido. Solo el último: el servidor
    * reemplaza esa respuesta sin guardar la pregunta otra vez. Si la
-   * conversación aún no existe (falló al crearla), la pregunta va como nueva.
+   * conversación aún no existe (falló al crearla) o la pregunta no se guardó
+   * (límite de mensajes), la pregunta va como nueva.
    */
   const retry = useCallback(
     (elberId: string) => {
@@ -145,12 +153,15 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       const turn = turns.find((t): t is ElberTurn => t.id === elberId && t.role === 'elber')
       const question = turns.find((t) => t.id === turn?.replyTo)
       if (!turn || !question) return
-      patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [] }))
-      if (conversationId.current) {
+      patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [], retryAfter: undefined }))
+      if (conversationId.current && !unsent.current.has(elberId)) {
+        sentAsMessage.current = null
         conn.current?.retry(elberId, conversationId.current)
       } else {
-        newConversationTurn.current = elberId
-        conn.current?.send(elberId, question.text)
+        unsent.current.delete(elberId)
+        if (!conversationId.current) newConversationTurn.current = elberId
+        sentAsMessage.current = elberId
+        conn.current?.send(elberId, question.text, conversationId.current ?? undefined)
       }
     },
     [connection, responding, turns, patch],
@@ -161,6 +172,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
     if (liveTurnId.current) conn.current?.stop(liveTurnId.current)
     conversationId.current = null
     newConversationTurn.current = null
+    unsent.current.clear()
     setConversation(null)
     setTurns([])
   }, [])
@@ -169,6 +181,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
   const show = useCallback((id: string, saved: Turn[]) => {
     conversationId.current = id
     newConversationTurn.current = null
+    unsent.current.clear()
     setConversation(id)
     setTurns(saved)
   }, [])

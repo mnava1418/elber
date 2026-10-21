@@ -35,6 +35,8 @@ export interface ElberTurn {
   text: string
   steps: ToolStep[]
   sources: Source[]
+  /** Con status 'error': el servidor no respondió por el límite de mensajes; segundos a esperar. */
+  retryAfter?: number
 }
 
 export type Turn = UserTurn | ElberTurn
@@ -47,6 +49,6 @@ export type ServerEvent =
   | { type: 'delta'; turnId: string; text: string }
   | { type: 'sources'; turnId: string; sources: Source[] }
   | { type: 'done'; turnId: string }
-  | { type: 'error'; turnId: string; message?: string }
+  | { type: 'error'; turnId: string; message?: string; rateLimited?: { retryAfter: number } }
 
 export type SendResult = 'sent' | 'offline' | 'busy' | 'too_long' | 'empty'

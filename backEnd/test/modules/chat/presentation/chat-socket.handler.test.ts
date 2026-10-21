@@ -4,6 +4,7 @@ import SendMessageUseCase, { NothingToRetryError, type SendMessageEvent, type Se
 import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
 import type { ChatSocket } from '../../../../src/modules/chat/presentation/chat.events.js'
 import buildChatSocketHandler, { MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
+import { createMessageRateLimit, type MessageRateLimit } from '../../../../src/modules/chat/presentation/message-rate-limit.js'
 
 // A socket whose incoming events we trigger by hand and whose outgoing
 // events (emit) we record.
@@ -26,6 +27,10 @@ const fakeSocket = () => {
 const fakeUseCase = (execute: SendMessageUseCase['execute'], retry: SendMessageUseCase['retry'] = execute as never) =>
     ({execute, retry}) as unknown as SendMessageUseCase
 
+// Lets every answer through, unless a test passes its own limit.
+const unlimited: MessageRateLimit = {take: () => 0}
+const handle = (useCase: SendMessageUseCase, rateLimit = unlimited) => buildChatSocketHandler(useCase, rateLimit)
+
 // A use case that answers with the given events.
 const answering = (...events: SendMessageEvent[]) => fakeUseCase(async function* () {
     yield* events
@@ -39,7 +44,7 @@ describe('chat socket handler', () => {
     it('streams the answer as chat:conversation / delta / tool / sources and ends with chat:done', async () => {
         const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(answering(
+        handle(answering(
             {type: 'conversation', id: 'conv1', title: '¿Qué clima hace?'},
             {type: 'delta', text: 'Déjame buscar.'},
             {type: 'tool', name: 'WebSearch', detail: 'clima CDMX'},
@@ -62,7 +67,7 @@ describe('chat socket handler', () => {
     it('runs the use case with the user, the trimmed text and the conversation', async () => {
         const execute = vi.fn<SendMessageUseCase['execute']>(async function* () {})
         const {socket, receive} = fakeSocket()
-        buildChatSocketHandler(fakeUseCase(execute))(socket)
+        handle(fakeUseCase(execute))(socket)
 
         await receive('chat:message', {text: '  hola  ', conversationId: 'conv1'})
 
@@ -79,7 +84,7 @@ describe('chat socket handler', () => {
     ])('answers INVALID_MESSAGE to %s without running the use case', async (_case, payload) => {
         const execute = vi.fn<SendMessageUseCase['execute']>()
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(fakeUseCase(execute))(socket)
+        handle(fakeUseCase(execute))(socket)
 
         await receive('chat:message', payload)
 
@@ -93,7 +98,7 @@ describe('chat socket handler', () => {
             throw new ConversationNotFoundError(input.conversationId!)
         })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(fakeUseCase(execute))(socket)
+        handle(fakeUseCase(execute))(socket)
 
         await receive('chat:message', {text: 'hola', conversationId: 'ajena'})
 
@@ -108,7 +113,7 @@ describe('chat socket handler', () => {
             await new Promise<void>((resolve) => { finish = resolve })
         })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(useCase)(socket)
+        handle(useCase)(socket)
 
         const first = receive('chat:message', {text: 'uno'})
         await receive('chat:message', {text: 'dos'})
@@ -132,7 +137,7 @@ describe('chat socket handler', () => {
             })
         })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(useCase)(socket)
+        handle(useCase)(socket)
 
         const answering = receive('chat:message', {text: 'hola'})
         await receive(event)
@@ -154,7 +159,7 @@ describe('chat socket handler', () => {
                 yield {type: 'delta', text: 'ok'}
             })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(fakeUseCase(execute))(socket)
+        handle(fakeUseCase(execute))(socket)
 
         await receive('chat:message', {text: 'uno'})
         await receive('chat:message', {text: 'dos'})
@@ -172,7 +177,7 @@ describe('chat socket handler', () => {
                 yield {type: 'delta', text: 'Otra vez'}
             })
             const {socket, emit, receive} = fakeSocket()
-            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+            handle(fakeUseCase(vi.fn(), retry))(socket)
 
             await receive('chat:retry', {conversationId: 'conv1'})
 
@@ -187,7 +192,7 @@ describe('chat socket handler', () => {
         ])('answers INVALID_MESSAGE to %s without retrying', async (_case, payload) => {
             const retry = vi.fn<SendMessageUseCase['retry']>()
             const {socket, emit, receive} = fakeSocket()
-            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+            handle(fakeUseCase(vi.fn(), retry))(socket)
 
             await receive('chat:retry', payload)
 
@@ -201,11 +206,61 @@ describe('chat socket handler', () => {
                 throw new NothingToRetryError(input.conversationId)
             })
             const {socket, emit, receive} = fakeSocket()
-            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+            handle(fakeUseCase(vi.fn(), retry))(socket)
 
             await receive('chat:retry', {conversationId: 'conv1'})
 
             expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'NOTHING_TO_RETRY'}))
         })
+    })
+
+    describe('rate limit', () => {
+        it('answers RATE_LIMITED with the seconds to wait, without answering', async () => {
+            const execute = vi.fn<SendMessageUseCase['execute']>()
+            const {socket, emit, receive} = fakeSocket()
+            handle(fakeUseCase(execute), {take: () => 42})(socket)
+
+            await receive('chat:message', {text: 'hola'})
+
+            expect(execute).not.toHaveBeenCalled()
+            expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'RATE_LIMITED', retryAfter: 42}))
+        })
+
+        it('counts retries too', async () => {
+            const retry = vi.fn<SendMessageUseCase['retry']>()
+            const {socket, emit, receive} = fakeSocket()
+            handle(fakeUseCase(vi.fn(), retry), {take: () => 42})(socket)
+
+            await receive('chat:retry', {conversationId: 'conv1'})
+
+            expect(retry).not.toHaveBeenCalled()
+            expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'RATE_LIMITED'}))
+        })
+
+        it('does not use up the quota on invalid messages', async () => {
+            const take = vi.fn(() => 0)
+            const {socket, receive} = fakeSocket()
+            handle(answering(), {take})(socket)
+
+            await receive('chat:message', {text: ''})
+
+            expect(take).not.toHaveBeenCalled()
+        })
+    })
+})
+
+describe('createMessageRateLimit', () => {
+    it('allows `limit` answers per user per window, then says how long to wait', () => {
+        let time = 0
+        const limit = createMessageRateLimit({limit: 2, windowMs: 60_000, now: () => time})
+
+        expect([limit.take('uid-1'), limit.take('uid-1')]).toEqual([0, 0])
+        time = 15_000
+        expect(limit.take('uid-1')).toBe(45)
+        // Each user has their own quota.
+        expect(limit.take('uid-2')).toBe(0)
+        // A new window starts once the old one ends.
+        time = 60_000
+        expect(limit.take('uid-1')).toBe(0)
     })
 })

@@ -124,7 +124,9 @@ export function ElberMessage({ turn, canRetry, onRetry }: Props) {
         <div className="turn-error" role="alert">
           <span className="turn-error-text">
             <AlertIcon />
-            Elber no pudo responder, inténtalo de nuevo.
+            {turn.retryAfter
+              ? `Llegaste al límite de mensajes. Inténtalo de nuevo en ${Math.ceil(turn.retryAfter / 60)} min.`
+              : 'Elber no pudo responder, inténtalo de nuevo.'}
           </span>
           <button type="button" className="turn-error-retry" disabled={!canRetry} onClick={() => onRetry(turn.id)}>
             <RefreshIcon />

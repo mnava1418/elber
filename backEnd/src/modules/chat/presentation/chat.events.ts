@@ -33,10 +33,11 @@ export interface ChatServerEvents {
     // the last one, just before chat:done, has only those actually cited.
     'chat:sources': (payload: {sources: Source[]}) => void
     'chat:done': (payload: {cancelled: boolean}) => void
-    'chat:error': (payload: {code: ChatErrorCode, message: string}) => void
+    // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
+    'chat:error': (payload: {code: ChatErrorCode, message: string, retryAfter?: number}) => void
 }
 
-export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'INTERNAL_ERROR'
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'RATE_LIMITED' | 'INTERNAL_ERROR'
 
 // What the auth middleware stores on each socket.
 export interface ChatSocketData {

@@ -18,7 +18,8 @@ export interface ChatServerEvents {
   // Each one replaces the previous list; the last one has only the cited sources.
   'chat:sources': (payload: { sources: { n: number; url: string; title: string }[] }) => void
   'chat:done': (payload: { cancelled: boolean }) => void
-  'chat:error': (payload: { code: ChatErrorCode; message: string }) => void
+  // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
+  'chat:error': (payload: { code: ChatErrorCode; message: string; retryAfter?: number }) => void
 }
 
 export interface ChatClientEvents {
@@ -29,7 +30,7 @@ export interface ChatClientEvents {
   'chat:cancel': () => void
 }
 
-export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'INTERNAL_ERROR'
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'RATE_LIMITED' | 'INTERNAL_ERROR'
 
 export type ChatSocket = Socket<ChatServerEvents, ChatClientEvents>
 
