@@ -14,13 +14,26 @@ export function useChat(transport: Transport) {
   const [attemptKey, setAttemptKey] = useState(0)
   const conn = useRef<Connection | null>(null)
   const attempt = useRef(0)
+  // The conversation on screen, once the server has created it. In a ref, not
+  // in the transport: it must outlive reconnections.
+  const conversationId = useRef<string | null>(null)
+  // The turn that started a new conversation, waiting for its id. A late id
+  // from before a reset must not bring the old conversation back.
+  const newConversationTurn = useRef<string | null>(null)
 
   const patch = useCallback((id: string, fn: (t: ElberTurn) => ElberTurn) => {
     setTurns((ts) => ts.map((t) => (t.id === id && t.role === 'elber' ? fn(t) : t)))
   }, [])
 
   const onEvent = useCallback(
-    (e: ServerEvent) =>
+    (e: ServerEvent) => {
+      if (e.type === 'conversation') {
+        if (e.turnId === newConversationTurn.current) {
+          conversationId.current = e.id
+          newConversationTurn.current = null
+        }
+        return
+      }
       patch(e.turnId, (t) => {
         if (!isLive(t)) return t // ignora eventos tardíos de turnos detenidos o fallidos
         switch (e.type) {
@@ -37,7 +50,8 @@ export function useChat(transport: Transport) {
           case 'error':
             return finishSteps({ ...t, status: 'error' })
         }
-      }),
+      })
+    },
     [patch],
   )
 
@@ -88,7 +102,8 @@ export function useChat(transport: Transport) {
         { id: userId, role: 'user', text },
         { id: elberId, role: 'elber', replyTo: userId, status: 'thinking', text: '', steps: [], sources: [] },
       ])
-      conn.current?.send(elberId, text)
+      if (!conversationId.current) newConversationTurn.current = elberId
+      conn.current?.send(elberId, text, conversationId.current ?? undefined)
       return 'sent'
     },
     [connection, responding],
@@ -101,8 +116,8 @@ export function useChat(transport: Transport) {
   }, [liveTurn, patch])
 
   /**
-   * Reintenta un turno con error o regenera uno terminado/detenido. Solo el
-   * último: el servidor recuerda la conversación y reenvía la pregunta al final.
+   * Reintenta un turno con error o detenido. Solo el último: el servidor
+   * recuerda la conversación y reenvía la pregunta al final.
    */
   const retry = useCallback(
     (elberId: string) => {
@@ -111,7 +126,8 @@ export function useChat(transport: Transport) {
       const question = turns.find((t) => t.id === turn?.replyTo)
       if (!turn || !question) return
       patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [] }))
-      conn.current?.send(elberId, question.text)
+      if (!conversationId.current) newConversationTurn.current = elberId
+      conn.current?.send(elberId, question.text, conversationId.current ?? undefined)
     },
     [connection, responding, turns, patch],
   )
@@ -119,7 +135,8 @@ export function useChat(transport: Transport) {
   const reconnectNow = useCallback(() => setAttemptKey((k) => k + 1), [])
   const reset = useCallback(() => {
     if (liveTurn) conn.current?.stop(liveTurn.id)
-    conn.current?.reset()
+    conversationId.current = null
+    newConversationTurn.current = null
     setTurns([])
   }, [liveTurn])
 

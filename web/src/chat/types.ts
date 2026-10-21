@@ -41,6 +41,7 @@ export type Turn = UserTurn | ElberTurn
 
 /** Eventos que el servidor envía durante un turno de Elber */
 export type ServerEvent =
+  | { type: 'conversation'; turnId: string; id: string; title: string }
   | { type: 'tool_start'; turnId: string; step: { id: string; kind: ToolKind; detail: string } }
   | { type: 'tool_end'; turnId: string; stepId: string }
   | { type: 'delta'; turnId: string; text: string }

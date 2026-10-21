@@ -4,8 +4,10 @@ import path from 'node:path'
 import type { Server } from 'socket.io'
 import env from '../../config/env.js'
 import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
-import { firebaseAuth } from '../../shared/firebase/firebase-admin.js'
+import { firebaseAuth, firestore } from '../../shared/firebase/firebase-admin.js'
+import SendMessageUseCase from './application/send-message.use-case.js'
 import ClaudeAgentAssistant from './infrastructure/claude-agent-assistant.js'
+import FirestoreConversationRepository from './infrastructure/firestore-conversation.repository.js'
 import type { ChatNamespace } from './presentation/chat.events.js'
 import buildChatSocketHandler from './presentation/chat-socket.handler.js'
 import buildSocketAuth from './presentation/socket-auth.middleware.js'
@@ -24,13 +26,15 @@ const createChatModule = ({io}: ChatModuleDeps) => {
 
     // To switch agent framework, swap this adapter for another Assistant.
     const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir})
+    const conversations = new FirestoreConversationRepository(firestore)
+    const sendMessage = new SendMessageUseCase(assistant, conversations)
 
     // The Server is shared by every namespace, so its event types are generic:
     // this cast gives /chat its own typed events.
     const chat = io.of('/chat') as unknown as ChatNamespace
 
     chat.use(buildSocketAuth(createFirebaseTokenVerifier(firebaseAuth)))
-    chat.on('connection', buildChatSocketHandler(assistant))
+    chat.on('connection', buildChatSocketHandler(sendMessage))
 }
 
 export default createChatModule

@@ -1,23 +1,26 @@
-import type { Assistant } from '../domain/assistant.port.js'
+import { ConversationNotFoundError, type default as SendMessageUseCase } from '../application/send-message.use-case.js'
 import type { ChatSocket } from './chat.events.js'
 
 export const MAX_MESSAGE_LENGTH = 4000
 
-// Inbound adapter: wires one connection's events to the assistant.
-const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) => {
+// Firestore auto ids are 20 alphanumeric characters; anything else can't exist.
+const CONVERSATION_ID = /^[A-Za-z0-9]{1,64}$/
+
+// Inbound adapter: wires one connection's events to the use case.
+const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: ChatSocket) => {
     // The answer in progress, if any.
     let current: AbortController | null = null
-    // The conversation: each message continues it, until chat:reset. It lives
-    // as long as the connection (a new connection starts a new one).
-    let sessionId: string | undefined
-    // Changes on chat:reset, so an answer still ending can't bring back the old conversation.
-    let conversation = 0
 
     socket.on('chat:message', async (payload) => {
         // Types don't reach the wire: a client can send anything.
         const text = typeof payload?.text === 'string' ? payload.text.trim() : ''
         if (text === '' || text.length > MAX_MESSAGE_LENGTH) {
             socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: `Message must be 1-${MAX_MESSAGE_LENGTH} characters`})
+            return
+        }
+        const conversationId = payload.conversationId
+        if (conversationId !== undefined && (typeof conversationId !== 'string' || !CONVERSATION_ID.test(conversationId))) {
+            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: 'Invalid conversation id'})
             return
         }
         if (current) {
@@ -27,13 +30,16 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
 
         const controller = new AbortController()
         current = controller
-        const startedIn = conversation
 
         // Everything stays inside try/catch: a rejected listener would be an
         // unhandled rejection.
         try {
-            for await (const event of assistant.reply({text, signal: controller.signal, sessionId})) {
+            const events = sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal: controller.signal})
+            for await (const event of events) {
                 switch (event.type) {
+                    case 'conversation':
+                        socket.emit('chat:conversation', {id: event.id, title: event.title})
+                        break
                     case 'delta':
                         socket.emit('chat:delta', {text: event.text})
                         break
@@ -43,14 +49,13 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
                     case 'sources':
                         socket.emit('chat:sources', {sources: event.sources})
                         break
-                    case 'session':
-                        if (conversation === startedIn) sessionId = event.id
-                        break
                 }
             }
             socket.emit('chat:done', {cancelled: controller.signal.aborted})
         } catch (error) {
-            if (controller.signal.aborted) {
+            if (error instanceof ConversationNotFoundError) {
+                socket.emit('chat:error', {code: 'CONVERSATION_NOT_FOUND', message: 'This conversation does not exist'})
+            } else if (controller.signal.aborted) {
                 socket.emit('chat:done', {cancelled: true})
             } else {
                 console.error(`Chat answer failed for ${socket.data.user.uid}:`, error)
@@ -62,12 +67,6 @@ const buildChatSocketHandler = (assistant: Assistant) => (socket: ChatSocket) =>
     })
 
     socket.on('chat:cancel', () => current?.abort())
-
-    socket.on('chat:reset', () => {
-        current?.abort()
-        sessionId = undefined
-        conversation++
-    })
 
     // Nobody is listening anymore: stop paying for the answer.
     socket.on('disconnect', () => current?.abort())

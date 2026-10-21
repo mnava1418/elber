@@ -5,22 +5,22 @@ import type { Source } from '../domain/assistant.port.js'
 // Contract of the /chat namespace: event name -> payload. The frontend keeps
 // a copy of these types (web/src/lib/socket.ts); change both together.
 //
-// Each message continues the conversation of the connection, until chat:reset.
 // One answer at a time per connection: after chat:message the server sends
-// any number of chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
+// chat:conversation if it started a new conversation, any number of
+// chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
 
 // Events the client sends.
 export interface ChatClientEvents {
-    'chat:message': (payload: {text: string}) => void
+    // Without conversationId, starts a new conversation.
+    'chat:message': (payload: {text: string, conversationId?: string}) => void
     // Stops the answer in progress. It still ends with chat:done.
     'chat:cancel': () => void
-    // Starts a new conversation: Elber forgets the earlier messages. Stops the
-    // answer in progress, if any (it still ends with chat:done).
-    'chat:reset': () => void
 }
 
 // Events the server sends.
 export interface ChatServerEvents {
+    // The conversation the message started: send its id with the next messages.
+    'chat:conversation': (payload: {id: string, title: string}) => void
     // Next piece of the answer text.
     'chat:delta': (payload: {text: string}) => void
     // Elber is using a tool, e.g. {name: 'WebSearch', detail: 'clima en CDMX'}.
@@ -32,7 +32,7 @@ export interface ChatServerEvents {
     'chat:error': (payload: {code: ChatErrorCode, message: string}) => void
 }
 
-export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'INTERNAL_ERROR'
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'INTERNAL_ERROR'
 
 // What the auth middleware stores on each socket.
 export interface ChatSocketData {
