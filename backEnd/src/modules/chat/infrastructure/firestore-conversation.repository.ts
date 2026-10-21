@@ -1,4 +1,4 @@
-import { FieldPath, FieldValue, Timestamp, type Firestore } from 'firebase-admin/firestore'
+import { FieldPath, FieldValue, Timestamp, type Firestore, type QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import type { Conversation, ConversationSummary, Message, StoredMessage } from '../domain/conversation.js'
 import { InvalidCursorError, type ConversationPage, type ConversationRepository } from '../domain/conversation.repository.js'
 
@@ -47,30 +47,29 @@ class FirestoreConversationRepository implements ConversationRepository {
     }
 
     async listMessages(uid: string, conversationId: string): Promise<StoredMessage[]> {
-        const snapshot = await this.conversations(uid).doc(conversationId)
-            .collection('messages')
-            .orderBy('createdAt', 'asc')
-            .get()
-        return snapshot.docs.map((doc): StoredMessage => {
-            // Picked field by field: whatever else the document has stays here.
-            const data = doc.data()
-            const base = {id: doc.id, text: data.text as string, createdAt: (data.createdAt as Timestamp).toDate()}
-            return data.role === 'user'
-                ? {...base, role: 'user'}
-                : {...base, role: 'elber', status: data.status, sources: data.sources ?? [], tools: data.tools ?? []}
-        })
+        const snapshot = await this.messages(uid, conversationId).orderBy('createdAt', 'asc').get()
+        return snapshot.docs.map(toStoredMessage)
+    }
+
+    async lastMessages(uid: string, conversationId: string, limit: number): Promise<StoredMessage[]> {
+        const snapshot = await this.messages(uid, conversationId).orderBy('createdAt', 'desc').limit(limit).get()
+        return snapshot.docs.map(toStoredMessage).reverse()
     }
 
     async addMessage(uid: string, conversationId: string, message: Message): Promise<void> {
         const conversation = this.conversations(uid).doc(conversationId)
         const batch = this.db.batch()
-        batch.create(conversation.collection('messages').doc(), {...message, createdAt: FieldValue.serverTimestamp()})
+        batch.create(this.messages(uid, conversationId).doc(), {...message, createdAt: FieldValue.serverTimestamp()})
         batch.update(conversation, {updatedAt: FieldValue.serverTimestamp()})
         await batch.commit()
     }
 
     async setAssistantSession(uid: string, conversationId: string, assistantSessionId: string): Promise<void> {
         await this.conversations(uid).doc(conversationId).update({assistantSessionId})
+    }
+
+    async deleteMessage(uid: string, conversationId: string, messageId: string): Promise<void> {
+        await this.messages(uid, conversationId).doc(messageId).delete()
     }
 
     async delete(uid: string, conversationId: string): Promise<boolean> {
@@ -85,6 +84,19 @@ class FirestoreConversationRepository implements ConversationRepository {
     private conversations(uid: string) {
         return this.db.collection('users').doc(uid).collection('conversations')
     }
+
+    private messages(uid: string, conversationId: string) {
+        return this.conversations(uid).doc(conversationId).collection('messages')
+    }
+}
+
+// Picked field by field: whatever else the document has stays here.
+const toStoredMessage = (doc: QueryDocumentSnapshot): StoredMessage => {
+    const data = doc.data()
+    const base = {id: doc.id, text: data.text as string, createdAt: (data.createdAt as Timestamp).toDate()}
+    return data.role === 'user'
+        ? {...base, role: 'user'}
+        : {...base, role: 'elber', status: data.status, sources: data.sources ?? [], tools: data.tools ?? []}
 }
 
 // The cursor is the position of the last conversation of the page:

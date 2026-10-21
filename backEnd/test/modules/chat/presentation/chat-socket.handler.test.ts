@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import SendMessageUseCase, { type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
+import SendMessageUseCase, { NothingToRetryError, type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
 import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
 import type { ChatSocket } from '../../../../src/modules/chat/presentation/chat.events.js'
 import buildChatSocketHandler, { MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
@@ -22,9 +22,9 @@ const fakeSocket = () => {
     return {socket, emit, receive}
 }
 
-// Only execute() is used by the handler; no assistant or storage behind it.
-const fakeUseCase = (execute: SendMessageUseCase['execute']) =>
-    ({execute}) as unknown as SendMessageUseCase
+// Only execute() and retry() are used by the handler; no assistant or storage behind it.
+const fakeUseCase = (execute: SendMessageUseCase['execute'], retry: SendMessageUseCase['retry'] = execute as never) =>
+    ({execute, retry}) as unknown as SendMessageUseCase
 
 // A use case that answers with the given events.
 const answering = (...events: SendMessageEvent[]) => fakeUseCase(async function* () {
@@ -164,5 +164,48 @@ describe('chat socket handler', () => {
             ['chat:delta', {text: 'ok'}],
             ['chat:done', {cancelled: false}],
         ])
+    })
+
+    describe('chat:retry', () => {
+        it('retries the conversation for the user and streams the answer like a message', async () => {
+            const retry = vi.fn<SendMessageUseCase['retry']>(async function* () {
+                yield {type: 'delta', text: 'Otra vez'}
+            })
+            const {socket, emit, receive} = fakeSocket()
+            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+
+            await receive('chat:retry', {conversationId: 'conv1'})
+
+            expect(retry).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', conversationId: 'conv1', signal: expect.any(AbortSignal)})
+            expect(emit.mock.calls).toEqual([['chat:delta', {text: 'Otra vez'}], ['chat:done', {cancelled: false}]])
+        })
+
+        it.each([
+            ['no payload', undefined],
+            ['no conversation id', {}],
+            ['a conversation id that could be a path', {conversationId: '../otro/conv1'}],
+        ])('answers INVALID_MESSAGE to %s without retrying', async (_case, payload) => {
+            const retry = vi.fn<SendMessageUseCase['retry']>()
+            const {socket, emit, receive} = fakeSocket()
+            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+
+            await receive('chat:retry', payload)
+
+            expect(retry).not.toHaveBeenCalled()
+            expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'INVALID_MESSAGE'}))
+        })
+
+        it('answers NOTHING_TO_RETRY when the last answer is fine', async () => {
+            // oxlint-disable-next-line require-yield
+            const retry = vi.fn<SendMessageUseCase['retry']>(async function* (input) {
+                throw new NothingToRetryError(input.conversationId)
+            })
+            const {socket, emit, receive} = fakeSocket()
+            buildChatSocketHandler(fakeUseCase(vi.fn(), retry))(socket)
+
+            await receive('chat:retry', {conversationId: 'conv1'})
+
+            expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'NOTHING_TO_RETRY'}))
+        })
     })
 })

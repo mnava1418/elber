@@ -7,9 +7,9 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 // Contract of the /chat namespace. Copy of
 // backEnd/src/modules/chat/presentation/chat.events.ts: change both together.
 //
-// One answer at a time: after chat:message the server sends chat:conversation
-// if it started a new conversation, any number of chat:delta / chat:tool /
-// chat:sources, then exactly one chat:done or chat:error.
+// One answer at a time: after chat:message (or chat:retry) the server sends
+// chat:conversation if it started a new conversation, any number of
+// chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
 export interface ChatServerEvents {
   // The conversation the message started: send its id with the next messages.
   'chat:conversation': (payload: { id: string; title: string }) => void
@@ -24,10 +24,12 @@ export interface ChatServerEvents {
 export interface ChatClientEvents {
   // Without conversationId, starts a new conversation.
   'chat:message': (payload: { text: string; conversationId?: string }) => void
+  // Answers the last question again, replacing its failed or stopped answer.
+  'chat:retry': (payload: { conversationId: string }) => void
   'chat:cancel': () => void
 }
 
-export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'INTERNAL_ERROR'
+export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'INTERNAL_ERROR'
 
 export type ChatSocket = Socket<ChatServerEvents, ChatClientEvents>
 

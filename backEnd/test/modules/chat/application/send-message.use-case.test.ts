@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import SendMessageUseCase, { type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
+import SendMessageUseCase, { NothingToRetryError, type RetryInput, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../../../../src/modules/chat/domain/assistant.port.js'
-import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
+import { ConversationNotFoundError, type Message } from '../../../../src/modules/chat/domain/conversation.js'
 import InMemoryConversations from '../in-memory-conversations.js'
 
 // An assistant that answers with the given events and records what it got.
@@ -108,5 +108,71 @@ describe('SendMessageUseCase', () => {
 
         await expect(run(useCase, {uid: 'uid-1', text: 'hola'})).rejects.toThrow('API down')
         expect(repository.conversations.get('conv1')!.messages.at(-1)).toMatchObject({role: 'elber', status: 'error'})
+    })
+
+    describe('retry', () => {
+        const retry = async (useCase: SendMessageUseCase, input: Omit<RetryInput, 'signal'>) => {
+            const events = []
+            for await (const event of useCase.retry({...input, signal: new AbortController().signal})) events.push(event)
+            return events
+        }
+
+        // conv1 of uid-1: one question and the given answer (if any).
+        const conversationWith = async (answer?: Message) => {
+            const repository = new InMemoryConversations()
+            const {id} = await repository.create('uid-1', {title: 'hola'})
+            await repository.setAssistantSession('uid-1', id, 'session-1')
+            await repository.addMessage('uid-1', id, {role: 'user', text: 'hola'})
+            if (answer) await repository.addMessage('uid-1', id, answer)
+            return repository
+        }
+
+        it.each([
+            ['failed', 'error'],
+            ['stopped', 'stopped'],
+        ] as const)('replaces a %s answer, asking the same question without storing it again', async (_case, status) => {
+            const repository = await conversationWith({role: 'elber', text: 'Empie', status, sources: [], tools: []})
+            const {assistant, inputs} = assistantAnswering({type: 'delta', text: 'Hola de nuevo'})
+
+            const events = await retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-1', conversationId: 'conv1'})
+
+            expect(events).toEqual([{type: 'delta', text: 'Hola de nuevo'}])
+            expect(inputs).toEqual([expect.objectContaining({text: 'hola', sessionId: 'session-1'})])
+            expect(repository.conversations.get('conv1')!.messages).toEqual([
+                {role: 'user', text: 'hola'},
+                {role: 'elber', text: 'Hola de nuevo', status: 'done', sources: [], tools: []},
+            ])
+        })
+
+        it('answers a question that was left without an answer', async () => {
+            const repository = await conversationWith()
+            const {assistant} = assistantAnswering({type: 'delta', text: 'Hola'})
+
+            await retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-1', conversationId: 'conv1'})
+
+            expect(repository.conversations.get('conv1')!.messages).toEqual([
+                {role: 'user', text: 'hola'},
+                {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: []},
+            ])
+        })
+
+        it('throws NothingToRetryError when the last answer is fine, touching nothing', async () => {
+            const answer: Message = {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: []}
+            const repository = await conversationWith(answer)
+            const {assistant, inputs} = assistantAnswering()
+
+            await expect(retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-1', conversationId: 'conv1'})).rejects.toThrow(NothingToRetryError)
+            expect(inputs).toEqual([])
+            expect(repository.conversations.get('conv1')!.messages).toEqual([{role: 'user', text: 'hola'}, answer])
+        })
+
+        it('throws ConversationNotFoundError for someone else\'s conversation', async () => {
+            const repository = await conversationWith({role: 'elber', text: '', status: 'error', sources: [], tools: []})
+            const {assistant, inputs} = assistantAnswering()
+
+            await expect(retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-2', conversationId: 'conv1'})).rejects.toThrow(ConversationNotFoundError)
+            expect(inputs).toEqual([])
+            expect(repository.conversations.get('conv1')!.messages).toHaveLength(2)
+        })
     })
 })

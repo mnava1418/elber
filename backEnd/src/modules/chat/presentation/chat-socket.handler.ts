@@ -1,4 +1,4 @@
-import type SendMessageUseCase from '../application/send-message.use-case.js'
+import { NothingToRetryError, type default as SendMessageUseCase, type SendMessageEvent } from '../application/send-message.use-case.js'
 import { ConversationNotFoundError } from '../domain/conversation.js'
 import type { ChatSocket } from './chat.events.js'
 import { isConversationId } from './conversation-id.js'
@@ -10,18 +10,9 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
     // The answer in progress, if any.
     let current: AbortController | null = null
 
-    socket.on('chat:message', async (payload) => {
-        // Types don't reach the wire: a client can send anything.
-        const text = typeof payload?.text === 'string' ? payload.text.trim() : ''
-        if (text === '' || text.length > MAX_MESSAGE_LENGTH) {
-            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: `Message must be 1-${MAX_MESSAGE_LENGTH} characters`})
-            return
-        }
-        const conversationId = payload.conversationId
-        if (conversationId !== undefined && !isConversationId(conversationId)) {
-            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: 'Invalid conversation id'})
-            return
-        }
+    // Streams one answer to the client and ends it with chat:done or
+    // chat:error. One at a time per connection.
+    const stream = async (start: (signal: AbortSignal) => AsyncIterable<SendMessageEvent>) => {
         if (current) {
             socket.emit('chat:error', {code: 'BUSY', message: 'Wait for the current answer to finish'})
             return
@@ -33,8 +24,7 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
         // Everything stays inside try/catch: a rejected listener would be an
         // unhandled rejection.
         try {
-            const events = sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal: controller.signal})
-            for await (const event of events) {
+            for await (const event of start(controller.signal)) {
                 switch (event.type) {
                     case 'conversation':
                         socket.emit('chat:conversation', {id: event.id, title: event.title})
@@ -54,6 +44,8 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
         } catch (error) {
             if (error instanceof ConversationNotFoundError) {
                 socket.emit('chat:error', {code: 'CONVERSATION_NOT_FOUND', message: 'This conversation does not exist'})
+            } else if (error instanceof NothingToRetryError) {
+                socket.emit('chat:error', {code: 'NOTHING_TO_RETRY', message: 'The last answer has nothing to retry'})
             } else if (controller.signal.aborted) {
                 socket.emit('chat:done', {cancelled: true})
             } else {
@@ -63,6 +55,32 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
         } finally {
             current = null
         }
+    }
+
+    socket.on('chat:message', async (payload) => {
+        // Types don't reach the wire: a client can send anything.
+        const text = typeof payload?.text === 'string' ? payload.text.trim() : ''
+        if (text === '' || text.length > MAX_MESSAGE_LENGTH) {
+            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: `Message must be 1-${MAX_MESSAGE_LENGTH} characters`})
+            return
+        }
+        const conversationId = payload.conversationId
+        if (conversationId !== undefined && !isConversationId(conversationId)) {
+            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: 'Invalid conversation id'})
+            return
+        }
+
+        await stream((signal) => sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal}))
+    })
+
+    socket.on('chat:retry', async (payload) => {
+        const conversationId = payload?.conversationId
+        if (!isConversationId(conversationId)) {
+            socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: 'Invalid conversation id'})
+            return
+        }
+
+        await stream((signal) => sendMessage.retry({uid: socket.data.user.uid, conversationId, signal}))
     })
 
     socket.on('chat:cancel', () => current?.abort())

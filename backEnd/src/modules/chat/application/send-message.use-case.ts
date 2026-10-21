@@ -1,5 +1,5 @@
 import type { Assistant, Source } from '../domain/assistant.port.js'
-import { ConversationNotFoundError, titleFrom, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
+import { ConversationNotFoundError, titleFrom, type Conversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'
 
 export interface SendMessageInput {
@@ -17,6 +17,20 @@ export type SendMessageEvent =
     | {type: 'delta', text: string}
     | {type: 'tool', name: string, detail?: string}
     | {type: 'sources', sources: Source[]}
+
+export interface RetryInput {
+    uid: string
+    conversationId: string
+    signal: AbortSignal
+}
+
+// The conversation doesn't end in a question without a good answer.
+export class NothingToRetryError extends Error {
+    constructor(conversationId: string) {
+        super(`Conversation ${conversationId} has nothing to retry`)
+        this.name = 'NothingToRetryError'
+    }
+}
 
 // Sends a message in a conversation and streams Elber's answer, storing both.
 // Ends when the answer is complete; throws if it fails (the answer is still
@@ -38,7 +52,36 @@ class SendMessageUseCase {
         }
 
         await this.conversations.addMessage(uid, conversation.id, {role: 'user', text})
+        yield* this.answer(uid, conversation, text, signal)
+    }
 
+    // Answers the last question again, without storing it twice: a failed or
+    // stopped answer is replaced; a question left without one (the answer
+    // couldn't even be stored) gets one.
+    async *retry({uid, conversationId, signal}: RetryInput): AsyncGenerator<SendMessageEvent> {
+        const conversation = await this.conversations.find(uid, conversationId)
+        if (!conversation) throw new ConversationNotFoundError(conversationId)
+
+        const messages = await this.conversations.lastMessages(uid, conversationId, 2)
+        const last = messages.at(-1)
+        const before = messages.at(-2)
+        let question: string
+        if (last?.role === 'user') {
+            question = last.text
+        } else if (last?.role === 'elber' && last.status !== 'done' && before?.role === 'user') {
+            await this.conversations.deleteMessage(uid, conversationId, last.id)
+            question = before.text
+        } else {
+            throw new NothingToRetryError(conversationId)
+        }
+
+        // The assistant does get the question again: its memory of the
+        // conversation can't drop the failed attempt.
+        yield* this.answer(uid, conversation, question, signal)
+    }
+
+    // Streams Elber's answer to `text` and stores it when it ends.
+    private async *answer(uid: string, conversation: Conversation, text: string, signal: AbortSignal): AsyncGenerator<SendMessageEvent> {
         // Elber's answer, as it builds up.
         let answer = ''
         let sources: Source[] = []

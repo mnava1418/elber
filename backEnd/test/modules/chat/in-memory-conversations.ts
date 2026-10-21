@@ -38,9 +38,15 @@ class InMemoryConversations implements ConversationRepository {
         }
     }
 
+    // A message's id is its position: m1, m2... (deleting the last one keeps
+    // the others' ids).
     async listMessages(uid: string, conversationId: string): Promise<StoredMessage[]> {
         const messages = this.owned(uid, conversationId)?.messages ?? []
         return messages.map((message, i) => ({...message, id: `m${i + 1}`, createdAt: new Date(i)}))
+    }
+
+    async lastMessages(uid: string, conversationId: string, limit: number) {
+        return (await this.listMessages(uid, conversationId)).slice(-limit)
     }
 
     async addMessage(_uid: string, conversationId: string, message: Message) {
@@ -50,6 +56,10 @@ class InMemoryConversations implements ConversationRepository {
 
     async setAssistantSession(_uid: string, conversationId: string, assistantSessionId: string) {
         this.conversations.get(conversationId)!.assistantSessionId = assistantSessionId
+    }
+
+    async deleteMessage(_uid: string, conversationId: string, messageId: string) {
+        this.conversations.get(conversationId)!.messages.splice(Number(messageId.slice(1)) - 1, 1)
     }
 
     async delete(uid: string, conversationId: string) {

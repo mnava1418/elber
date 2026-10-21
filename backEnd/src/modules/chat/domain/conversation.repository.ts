@@ -25,9 +25,12 @@ export interface ConversationRepository {
     list(uid: string, options: {limit: number, cursor?: string}): Promise<ConversationPage>
     // Oldest first. Empty if the conversation doesn't exist.
     listMessages(uid: string, conversationId: string): Promise<StoredMessage[]>
+    // The newest `limit` messages, oldest first.
+    lastMessages(uid: string, conversationId: string, limit: number): Promise<StoredMessage[]>
     // Also marks the conversation as updated (the sidebar sorts by it).
     addMessage(uid: string, conversationId: string, message: Message): Promise<void>
     setAssistantSession(uid: string, conversationId: string, assistantSessionId: string): Promise<void>
+    deleteMessage(uid: string, conversationId: string, messageId: string): Promise<void>
     // Deletes it with its messages. false if it didn't exist.
     delete(uid: string, conversationId: string): Promise<boolean>
 }

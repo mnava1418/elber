@@ -12,6 +12,8 @@ export interface TransportHandlers {
 export interface Connection {
   /** Sin conversationId, el servidor empieza una conversación nueva. */
   send(turnId: string, text: string, conversationId?: string): void
+  /** Vuelve a responder la última pregunta de la conversación, reemplazando su respuesta fallida o detenida. */
+  retry(turnId: string, conversationId: string): void
   stop(turnId: string): void
   close(): void
 }
@@ -37,17 +39,22 @@ export const socketIoTransport: Transport = (h) => {
   // After a stop, the backend still ends the cancelled answer with chat:done.
   // Until then, its late events are dropped and a new message waits.
   let draining = false
-  let queued: { turnId: string; text: string; conversationId?: string } | null = null
+  let queued: { turnId: string; emit: () => void } | null = null
 
   const endStep = () => {
     if (turnId && runningStep) h.onEvent({ type: 'tool_end', turnId, stepId: runningStep })
     runningStep = null
   }
 
-  const emitMessage = (id: string, text: string, conversationId?: string) => {
+  // Starts a turn now, or after the cancelled answer ends.
+  const start = (id: string, emit: () => void) => {
+    if (draining) {
+      queued = { turnId: id, emit }
+      return
+    }
     turnId = id
     runningStep = null
-    socket.emit('chat:message', { text, conversationId })
+    emit()
   }
 
   // The answer ended (done, error or cancelled): flush a message sent meanwhile.
@@ -58,7 +65,7 @@ export const socketIoTransport: Transport = (h) => {
     if (queued) {
       const next = queued
       queued = null
-      emitMessage(next.turnId, next.text, next.conversationId)
+      start(next.turnId, next.emit)
     }
   }
 
@@ -108,11 +115,10 @@ export const socketIoTransport: Transport = (h) => {
 
   return {
     send(id, text, conversationId) {
-      if (draining) {
-        queued = { turnId: id, text, conversationId }
-        return
-      }
-      emitMessage(id, text, conversationId)
+      start(id, () => socket.emit('chat:message', { text, conversationId }))
+    },
+    retry(id, conversationId) {
+      start(id, () => socket.emit('chat:retry', { conversationId }))
     },
     stop(id) {
       if (id !== turnId || draining) return
@@ -168,19 +174,23 @@ export const mockTransport: Transport = (h) => {
     timers.delete(turnId)
   }
 
+  // Every message (and retry) gets the same demo answer.
+  const answer = (turnId: string) => {
+    let t = 700
+    schedule(turnId, t, () => h.onEvent({ type: 'tool_start', turnId, step: { id: 's1', kind: 'search', detail: 'clima en CDMX fin de semana' } }))
+    schedule(turnId, (t += 1100), () => h.onEvent({ type: 'tool_end', turnId, stepId: 's1' }))
+    schedule(turnId, t, () => h.onEvent({ type: 'tool_start', turnId, step: { id: 's2', kind: 'read', detail: 'smn.conagua.gob.mx' } }))
+    schedule(turnId, (t += 1200), () => h.onEvent({ type: 'tool_end', turnId, stepId: 's2' }))
+    schedule(turnId, t, () => h.onEvent({ type: 'sources', turnId, sources: DEMO_SOURCES }))
+    for (const chunk of DEMO_TEXT.match(/\S+\s*/g) ?? []) {
+      schedule(turnId, (t += 35), () => h.onEvent({ type: 'delta', turnId, text: chunk }))
+    }
+    schedule(turnId, (t += 100), () => h.onEvent({ type: 'done', turnId }))
+  }
+
   return {
-    send(turnId) {
-      let t = 700
-      schedule(turnId, t, () => h.onEvent({ type: 'tool_start', turnId, step: { id: 's1', kind: 'search', detail: 'clima en CDMX fin de semana' } }))
-      schedule(turnId, (t += 1100), () => h.onEvent({ type: 'tool_end', turnId, stepId: 's1' }))
-      schedule(turnId, t, () => h.onEvent({ type: 'tool_start', turnId, step: { id: 's2', kind: 'read', detail: 'smn.conagua.gob.mx' } }))
-      schedule(turnId, (t += 1200), () => h.onEvent({ type: 'tool_end', turnId, stepId: 's2' }))
-      schedule(turnId, t, () => h.onEvent({ type: 'sources', turnId, sources: DEMO_SOURCES }))
-      for (const chunk of DEMO_TEXT.match(/\S+\s*/g) ?? []) {
-        schedule(turnId, (t += 35), () => h.onEvent({ type: 'delta', turnId, text: chunk }))
-      }
-      schedule(turnId, (t += 100), () => h.onEvent({ type: 'done', turnId }))
-    },
+    send: answer,
+    retry: answer,
     stop: clear,
     close() {
       window.clearTimeout(open)
