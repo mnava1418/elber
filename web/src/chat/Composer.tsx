@@ -8,16 +8,18 @@ interface Props {
   responding: boolean
   onSend: (text: string) => void
   onStop: () => void
+  /** Bloquea el envío aunque haya conexión, p. ej. mientras carga una conversación. */
+  locked?: boolean
 }
 
 const fmt = (n: number) => n.toLocaleString('es-MX')
 
-export function Composer({ connection, responding, onSend, onStop }: Props) {
+export function Composer({ connection, responding, onSend, onStop, locked = false }: Props) {
   const [text, setText] = useState('')
   const [waitNotice, setWaitNotice] = useState(false)
   const ref = useRef<HTMLTextAreaElement>(null)
 
-  const disabled = connection !== 'open'
+  const disabled = connection !== 'open' || locked
   const len = text.length
   const over = len > MAX_CHARS
   const canSend = !disabled && !over && text.trim().length > 0
@@ -87,7 +89,7 @@ export function Composer({ connection, responding, onSend, onStop }: Props) {
             rows={1}
             value={text}
             disabled={disabled}
-            placeholder={disabled ? 'Esperando conexión…' : 'Escríbele a Elber…'}
+            placeholder={locked ? 'Cargando conversación…' : disabled ? 'Esperando conexión…' : 'Escríbele a Elber…'}
             aria-label="Mensaje para Elber"
             aria-invalid={over}
             aria-describedby="composer-hint"

@@ -6,8 +6,13 @@ const uid = () => crypto.randomUUID()
 const isLive = (t: Turn): t is ElberTurn => t.role === 'elber' && (t.status === 'thinking' || t.status === 'streaming')
 const finishSteps = (t: ElberTurn): ElberTurn => ({ ...t, steps: t.steps.map((s) => ({ ...s, status: 'done' })) })
 
+interface Options {
+  /** El servidor creó la conversación del primer mensaje. */
+  onConversation?: (id: string, title: string) => void
+}
+
 /** `transport` debe ser estable (constante de módulo o useMemo). */
-export function useChat(transport: Transport) {
+export function useChat(transport: Transport, { onConversation }: Options = {}) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [connection, setConnection] = useState<ConnectionState>('connecting')
   const [retryIn, setRetryIn] = useState(0)
@@ -17,9 +22,16 @@ export function useChat(transport: Transport) {
   // The conversation on screen, once the server has created it. In a ref, not
   // in the transport: it must outlive reconnections.
   const conversationId = useRef<string | null>(null)
+  // The same, for rendering.
+  const [conversation, setConversation] = useState<string | null>(null)
   // The turn that started a new conversation, waiting for its id. A late id
   // from before a reset must not bring the old conversation back.
   const newConversationTurn = useRef<string | null>(null)
+  // Latest callback, without re-subscribing to the transport when it changes.
+  const onConversationRef = useRef(onConversation)
+  useEffect(() => {
+    onConversationRef.current = onConversation
+  })
 
   const patch = useCallback((id: string, fn: (t: ElberTurn) => ElberTurn) => {
     setTurns((ts) => ts.map((t) => (t.id === id && t.role === 'elber' ? fn(t) : t)))
@@ -31,6 +43,8 @@ export function useChat(transport: Transport) {
         if (e.turnId === newConversationTurn.current) {
           conversationId.current = e.id
           newConversationTurn.current = null
+          setConversation(e.id)
+          onConversationRef.current?.(e.id, e.title)
         }
         return
       }
@@ -87,6 +101,11 @@ export function useChat(transport: Transport) {
 
   const liveTurn = useMemo(() => turns.find(isLive), [turns])
   const responding = Boolean(liveTurn)
+  // For reset, which must stay stable: the page calls it from effects.
+  const liveTurnId = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    liveTurnId.current = liveTurn?.id
+  })
 
   const send = useCallback(
     (raw: string): SendResult => {
@@ -134,11 +153,26 @@ export function useChat(transport: Transport) {
 
   const reconnectNow = useCallback(() => setAttemptKey((k) => k + 1), [])
   const reset = useCallback(() => {
-    if (liveTurn) conn.current?.stop(liveTurn.id)
+    if (liveTurnId.current) conn.current?.stop(liveTurnId.current)
     conversationId.current = null
     newConversationTurn.current = null
+    setConversation(null)
     setTurns([])
-  }, [liveTurn])
+  }, [])
 
-  return { turns, connection, retryIn, responding, send, stop, retry, reconnectNow, reset }
+  /** Muestra una conversación guardada; los mensajes nuevos la continúan. */
+  const show = useCallback((id: string, saved: Turn[]) => {
+    conversationId.current = id
+    newConversationTurn.current = null
+    setConversation(id)
+    setTurns(saved)
+  }, [])
+
+  /**
+   * La conversación en pantalla, o null si aún no existe en el servidor. Al
+   * instante, para efectos y handlers; `conversation` es la misma para render.
+   */
+  const currentConversation = useCallback(() => conversationId.current, [])
+
+  return { turns, conversation, connection, retryIn, responding, send, stop, retry, reconnectNow, reset, show, currentConversation }
 }
