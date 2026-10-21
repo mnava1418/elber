@@ -2,19 +2,27 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import type { Server } from 'socket.io'
 import env from './config/env.js'
+import createChatModule from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
 import errorHandler from './shared/http/middlewares/error.middleware.js'
 
-const createApp = () => {
+interface AppDeps {
+    // Modules with real-time features register their namespaces on it.
+    io: Server
+}
+
+const createApp = ({io}: AppDeps) => {
     const app = express()
 
     // Modules never import each other: they communicate through this bus.
     const bus = new InMemoryEventBus()
     const users = createUsersModule({bus})
+    const chat = createChatModule({io})
     createNotificationsModule({bus})
 
     app.use(helmet())
@@ -37,6 +45,7 @@ const createApp = () => {
         message: {error: {code: 'TOO_MANY_REQUESTS', message: 'Too many requests, try again later'}},
     }))
     api.use('/users', users.router)
+    api.use('/chat', chat.router)
     app.use('/api/v1', api)
 
     // Order matters: these must be registered after every route.

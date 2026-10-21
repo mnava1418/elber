@@ -23,8 +23,8 @@ const INVALID_TOKEN_CODES = [
 export const createFirebaseTokenVerifier = (auth: Auth): TokenVerifier => async (token) => {
     try {
         // checkRevoked costs a call to Firebase, but also rejects tokens of
-        // disabled or signed-out users. Fine as long as we verify on connect,
-        // not on every message.
+        // disabled or signed-out users. Fine for sockets (once per connection)
+        // and for the few HTTP requests the chat history makes.
         const decoded = await auth.verifyIdToken(token, true)
         return {uid: decoded.uid, email: decoded.email}
     } catch (error) {
