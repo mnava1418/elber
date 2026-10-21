@@ -29,7 +29,10 @@ export interface ReplyInput {
 }
 
 // Port: the chat depends on this, not on a specific agent framework.
-// The iteration ends when the answer is complete; it throws if it fails.
 export interface Assistant {
+    // The iteration ends when the answer is complete; it throws if it fails.
     reply(input: ReplyInput): AsyncIterable<AssistantEvent>
+    // Deletes the assistant's memory of a conversation (its `session` id).
+    // Does nothing if it doesn't exist.
+    forget(sessionId: string): Promise<void>
 }

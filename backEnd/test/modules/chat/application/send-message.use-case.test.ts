@@ -8,6 +8,7 @@ import InMemoryConversations from '../in-memory-conversations.js'
 const assistantAnswering = (...events: AssistantEvent[]) => {
     const inputs: ReplyInput[] = []
     const assistant: Assistant = {
+        forget: async () => {},
         async *reply(input) {
             inputs.push(input)
             yield* events
@@ -83,6 +84,7 @@ describe('SendMessageUseCase', () => {
     it('stores the partial answer as stopped when it is cancelled', async () => {
         const controller = new AbortController()
         const assistant: Assistant = {
+            forget: async () => {},
             async *reply({signal}) {
                 yield {type: 'delta', text: 'Empiezo'}
                 controller.abort()
@@ -100,7 +102,7 @@ describe('SendMessageUseCase', () => {
 
     it('stores the answer as failed when the assistant fails', async () => {
         // oxlint-disable-next-line require-yield
-        const assistant: Assistant = {async *reply() { throw new Error('API down') }}
+        const assistant: Assistant = {forget: async () => {}, async *reply() { throw new Error('API down') }}
         const repository = new InMemoryConversations()
         const useCase = new SendMessageUseCase(assistant, repository)
 

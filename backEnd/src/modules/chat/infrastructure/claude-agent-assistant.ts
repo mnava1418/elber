@@ -1,4 +1,4 @@
-import { query, type HookCallbackMatcher, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
+import { deleteSession, getSessionInfo, query, type HookCallbackMatcher, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
 import { ELBER_SYSTEM_PROMPT } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
@@ -12,14 +12,23 @@ interface ClaudeAgentAssistantConfig {
     model: string
     // Empty directory the agent runs in, away from the backend's code and secrets.
     workDir: string
+    // Where the agent keeps its sessions (one .jsonl per conversation), apart
+    // from the ~/.claude of whoever runs the server.
+    configDir: string
 }
 
 // Adapter: answers with the Claude Agent SDK, which runs the Claude Code
 // agent loop in a child process.
 class ClaudeAgentAssistant implements Assistant {
     private readonly options: Options
+    private readonly workDir: string
 
-    constructor({apiKey, model, workDir}: ClaudeAgentAssistantConfig) {
+    constructor({apiKey, model, workDir, configDir}: ClaudeAgentAssistantConfig) {
+        this.workDir = workDir
+        // The agent (child process) gets it in `env` below; this process needs
+        // it too: deleteSession() and getSessionInfo() run here and look for
+        // sessions in this process's CLAUDE_CONFIG_DIR.
+        process.env.CLAUDE_CONFIG_DIR = configDir
         this.options = {
             model,
             systemPrompt: ELBER_SYSTEM_PROMPT,
@@ -40,6 +49,7 @@ class ClaudeAgentAssistant implements Assistant {
             env: {
                 PATH: process.env.PATH,
                 HOME: process.env.HOME,
+                CLAUDE_CONFIG_DIR: configDir,
                 ANTHROPIC_API_KEY: apiKey,
                 CLAUDE_AGENT_SDK_CLIENT_APP: 'elber',
             },
@@ -86,6 +96,14 @@ class ClaudeAgentAssistant implements Assistant {
         } finally {
             signal.removeEventListener('abort', abort)
         }
+    }
+
+    async forget(sessionId: string): Promise<void> {
+        // deleteSession throws a plain Error when the session doesn't exist:
+        // checking first tells that case apart from real failures.
+        const dir = this.workDir
+        if (!(await getSessionInfo(sessionId, {dir}))) return
+        await deleteSession(sessionId, {dir})
     }
 }
 

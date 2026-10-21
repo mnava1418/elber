@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import path from 'node:path'
 import type { Router } from 'express'
 import type { Server } from 'socket.io'
@@ -35,9 +35,12 @@ interface ChatModuleDeps {
 const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
     const workDir = path.join(tmpdir(), 'elber-agent')
     mkdirSync(workDir, {recursive: true})
+    // Not in tmp: the OS cleans it up, and Elber would forget conversations.
+    const configDir = path.join(homedir(), '.elber', 'agent')
+    mkdirSync(configDir, {recursive: true})
 
     // To switch agent framework, swap this adapter for another Assistant.
-    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir})
+    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir, configDir})
     const conversations = new FirestoreConversationRepository(firestore)
     const sendMessage = new SendMessageUseCase(assistant, conversations)
     const verifyToken = createFirebaseTokenVerifier(firebaseAuth)
@@ -52,7 +55,7 @@ const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
     const controller = new ConversationsController(
         new ListConversationsUseCase(conversations),
         new GetConversationUseCase(conversations),
-        new DeleteConversationUseCase(conversations),
+        new DeleteConversationUseCase(conversations, assistant),
     )
 
     return {
