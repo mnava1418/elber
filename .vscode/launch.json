@@ -7,6 +7,13 @@
             "request": "launch",
             "command": "npm run dev",
             "cwd": "${workspaceFolder}/backEnd"
-        }    
+        },
+        {
+            "type": "chrome",
+            "name": "Debug Front End",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/web"
+        }
     ]
 }

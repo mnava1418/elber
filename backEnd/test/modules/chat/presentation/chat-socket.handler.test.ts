@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Assistant, AssistantEvent, ReplyInput } from '../../../../src/modules/chat/domain/assistant.port.js'
+import SendMessageUseCase, { ConversationNotFoundError, type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
 import type { ChatSocket } from '../../../../src/modules/chat/presentation/chat.events.js'
 import buildChatSocketHandler, { MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
 
@@ -21,11 +21,13 @@ const fakeSocket = () => {
     return {socket, emit, receive}
 }
 
-// An assistant that answers with the given events.
-const assistantAnswering = (...events: AssistantEvent[]): Assistant => ({
-    async *reply() {
-        yield* events
-    },
+// Only execute() is used by the handler; no assistant or storage behind it.
+const fakeUseCase = (execute: SendMessageUseCase['execute']) =>
+    ({execute}) as unknown as SendMessageUseCase
+
+// A use case that answers with the given events.
+const answering = (...events: SendMessageEvent[]) => fakeUseCase(async function* () {
+    yield* events
 })
 
 describe('chat socket handler', () => {
@@ -33,97 +35,37 @@ describe('chat socket handler', () => {
         vi.restoreAllMocks()
     })
 
-    it('streams the answer as chat:delta / chat:tool and ends with chat:done', async () => {
+    it('streams the answer as chat:conversation / delta / tool / sources and ends with chat:done', async () => {
+        const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(assistantAnswering(
+        buildChatSocketHandler(answering(
+            {type: 'conversation', id: 'conv1', title: '¿Qué clima hace?'},
             {type: 'delta', text: 'Déjame buscar.'},
             {type: 'tool', name: 'WebSearch', detail: 'clima CDMX'},
-            {type: 'delta', text: 'Hace sol.'},
+            {type: 'sources', sources},
+            {type: 'delta', text: 'Hace sol [1].'},
         ))(socket)
 
         await receive('chat:message', {text: '¿Qué clima hace?'})
 
         expect(emit.mock.calls).toEqual([
+            ['chat:conversation', {id: 'conv1', title: '¿Qué clima hace?'}],
             ['chat:delta', {text: 'Déjame buscar.'}],
             ['chat:tool', {name: 'WebSearch', detail: 'clima CDMX'}],
-            ['chat:delta', {text: 'Hace sol.'}],
-            ['chat:done', {cancelled: false}],
-        ])
-    })
-
-    it('forwards sources as chat:sources', async () => {
-        const {socket, emit, receive} = fakeSocket()
-        const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
-        buildChatSocketHandler(assistantAnswering({type: 'sources', sources}))(socket)
-
-        await receive('chat:message', {text: 'hola'})
-
-        expect(emit.mock.calls).toEqual([
             ['chat:sources', {sources}],
+            ['chat:delta', {text: 'Hace sol [1].'}],
             ['chat:done', {cancelled: false}],
         ])
     })
 
-    it('sends the trimmed text to the assistant', async () => {
-        const reply = vi.fn<Assistant['reply']>(async function* () {})
+    it('runs the use case with the user, the trimmed text and the conversation', async () => {
+        const execute = vi.fn<SendMessageUseCase['execute']>(async function* () {})
         const {socket, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
+        buildChatSocketHandler(fakeUseCase(execute))(socket)
 
-        await receive('chat:message', {text: '  hola  '})
+        await receive('chat:message', {text: '  hola  ', conversationId: 'conv1'})
 
-        expect(reply).toHaveBeenCalledExactlyOnceWith({text: 'hola', signal: expect.any(AbortSignal)})
-    })
-
-    it('continues the conversation: each message resumes the session of the previous answer', async () => {
-        const reply = vi.fn<Assistant['reply']>(async function* () {
-            yield {type: 'session', id: 'session-1'}
-        })
-        const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
-
-        await receive('chat:message', {text: 'uno'})
-        await receive('chat:message', {text: 'dos'})
-
-        expect(reply.mock.calls.map(([input]) => input.sessionId)).toEqual([undefined, 'session-1'])
-        // The session id stays on the server.
-        expect(emit.mock.calls.map(([event]) => event)).toEqual(['chat:done', 'chat:done'])
-    })
-
-    it('starts a new conversation after chat:reset', async () => {
-        const reply = vi.fn<Assistant['reply']>(async function* () {
-            yield {type: 'session', id: 'session-1'}
-        })
-        const {socket, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
-
-        await receive('chat:message', {text: 'uno'})
-        await receive('chat:reset')
-        await receive('chat:message', {text: 'dos'})
-
-        expect(reply.mock.calls.map(([input]) => input.sessionId)).toEqual([undefined, undefined])
-    })
-
-    it('on chat:reset during an answer, aborts it and forgets its session even if it arrives late', async () => {
-        let resetDone!: () => void
-        const reply = vi.fn<Assistant['reply']>()
-            .mockImplementationOnce(async function* () {
-                // The session arrives after the reset.
-                await new Promise<void>((resolve) => { resetDone = resolve })
-                yield {type: 'session', id: 'old-session'}
-            })
-            .mockImplementationOnce(async function* () {})
-        const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
-
-        const answering = receive('chat:message', {text: 'uno'})
-        await receive('chat:reset')
-        resetDone()
-        await answering
-        await receive('chat:message', {text: 'dos'})
-
-        expect(reply.mock.calls[0]![0].signal.aborted).toBe(true)
-        expect(reply.mock.calls[1]![0].sessionId).toBeUndefined()
-        expect(emit.mock.calls[0]).toEqual(['chat:done', {cancelled: true}])
+        expect(execute).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', text: 'hola', conversationId: 'conv1', signal: expect.any(AbortSignal)})
     })
 
     it.each([
@@ -131,28 +73,41 @@ describe('chat socket handler', () => {
         ['a text that is not a string', {text: 42}],
         ['an empty text', {text: '   '}],
         ['a text that is too long', {text: 'a'.repeat(MAX_MESSAGE_LENGTH + 1)}],
-    ])('answers INVALID_MESSAGE to %s without calling the assistant', async (_case, payload) => {
-        const reply = vi.fn<Assistant['reply']>()
+        ['a conversation id that is not a string', {text: 'hola', conversationId: 42}],
+        ['a conversation id that could be a path', {text: 'hola', conversationId: '../otro/conv1'}],
+    ])('answers INVALID_MESSAGE to %s without running the use case', async (_case, payload) => {
+        const execute = vi.fn<SendMessageUseCase['execute']>()
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
+        buildChatSocketHandler(fakeUseCase(execute))(socket)
 
         await receive('chat:message', payload)
 
-        expect(reply).not.toHaveBeenCalled()
+        expect(execute).not.toHaveBeenCalled()
         expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'INVALID_MESSAGE'}))
+    })
+
+    it('answers CONVERSATION_NOT_FOUND when the conversation does not exist for the user', async () => {
+        // oxlint-disable-next-line require-yield
+        const execute = vi.fn<SendMessageUseCase['execute']>(async function* (input: SendMessageInput) {
+            throw new ConversationNotFoundError(input.conversationId!)
+        })
+        const {socket, emit, receive} = fakeSocket()
+        buildChatSocketHandler(fakeUseCase(execute))(socket)
+
+        await receive('chat:message', {text: 'hola', conversationId: 'ajena'})
+
+        expect(emit).toHaveBeenCalledExactlyOnceWith('chat:error', expect.objectContaining({code: 'CONVERSATION_NOT_FOUND'}))
     })
 
     it('answers BUSY to a message sent while another answer is in progress', async () => {
         let finish!: () => void
-        const assistant: Assistant = {
-            // An answer that only waits until the test lets it finish.
-            // oxlint-disable-next-line require-yield
-            async *reply() {
-                await new Promise<void>((resolve) => { finish = resolve })
-            },
-        }
+        // An answer that only waits until the test lets it finish.
+        // oxlint-disable-next-line require-yield
+        const useCase = fakeUseCase(async function* () {
+            await new Promise<void>((resolve) => { finish = resolve })
+        })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(assistant)(socket)
+        buildChatSocketHandler(useCase)(socket)
 
         const first = receive('chat:message', {text: 'uno'})
         await receive('chat:message', {text: 'dos'})
@@ -167,18 +122,16 @@ describe('chat socket handler', () => {
 
     it.each(['chat:cancel', 'disconnect'])('aborts the answer on %s and ends with chat:done cancelled', async (event) => {
         let signal!: AbortSignal
-        const assistant: Assistant = {
-            // An answer that only waits until it's aborted.
-            // oxlint-disable-next-line require-yield
-            async *reply(input: ReplyInput) {
-                signal = input.signal
-                await new Promise((_resolve, reject) => {
-                    input.signal.addEventListener('abort', () => reject(new Error('aborted')))
-                })
-            },
-        }
+        // An answer that only waits until it's aborted.
+        // oxlint-disable-next-line require-yield
+        const useCase = fakeUseCase(async function* (input: SendMessageInput) {
+            signal = input.signal
+            await new Promise((_resolve, reject) => {
+                input.signal.addEventListener('abort', () => reject(new Error('aborted')))
+            })
+        })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler(assistant)(socket)
+        buildChatSocketHandler(useCase)(socket)
 
         const answering = receive('chat:message', {text: 'hola'})
         await receive(event)
@@ -188,9 +141,9 @@ describe('chat socket handler', () => {
         expect(emit).toHaveBeenCalledExactlyOnceWith('chat:done', {cancelled: true})
     })
 
-    it('answers a generic INTERNAL_ERROR when the assistant fails, and accepts new messages after', async () => {
+    it('answers a generic INTERNAL_ERROR when the use case fails, and accepts new messages after', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => {})
-        const reply = vi.fn<Assistant['reply']>()
+        const execute = vi.fn<SendMessageUseCase['execute']>()
             // Fails before the first piece of text.
             // oxlint-disable-next-line require-yield
             .mockImplementationOnce(async function* () {
@@ -200,7 +153,7 @@ describe('chat socket handler', () => {
                 yield {type: 'delta', text: 'ok'}
             })
         const {socket, emit, receive} = fakeSocket()
-        buildChatSocketHandler({reply})(socket)
+        buildChatSocketHandler(fakeUseCase(execute))(socket)
 
         await receive('chat:message', {text: 'uno'})
         await receive('chat:message', {text: 'dos'})

@@ -9,10 +9,9 @@ export interface TransportHandlers {
 }
 
 export interface Connection {
-  send(turnId: string, text: string): void
+  /** Sin conversationId, el servidor empieza una conversación nueva. */
+  send(turnId: string, text: string, conversationId?: string): void
   stop(turnId: string): void
-  /** Nueva conversación: el servidor olvida los mensajes anteriores. */
-  reset(): void
   close(): void
 }
 
@@ -49,17 +48,17 @@ export const socketIoTransport: Transport = (h) => {
   // After a stop, the backend still ends the cancelled answer with chat:done.
   // Until then, its late events are dropped and a new message waits.
   let draining = false
-  let queued: { turnId: string; text: string } | null = null
+  let queued: { turnId: string; text: string; conversationId?: string } | null = null
 
   const endStep = () => {
     if (turnId && runningStep) h.onEvent({ type: 'tool_end', turnId, stepId: runningStep })
     runningStep = null
   }
 
-  const emitMessage = (id: string, text: string) => {
+  const emitMessage = (id: string, text: string, conversationId?: string) => {
     turnId = id
     runningStep = null
-    socket.emit('chat:message', { text })
+    socket.emit('chat:message', { text, conversationId })
   }
 
   // The answer ended (done, error or cancelled): flush a message sent meanwhile.
@@ -70,7 +69,7 @@ export const socketIoTransport: Transport = (h) => {
     if (queued) {
       const next = queued
       queued = null
-      emitMessage(next.turnId, next.text)
+      emitMessage(next.turnId, next.text, next.conversationId)
     }
   }
 
@@ -87,6 +86,10 @@ export const socketIoTransport: Transport = (h) => {
     h.onClose('temporary')
   })
 
+  // Passed on even after a stop: the conversation exists and the next message continues it.
+  socket.on('chat:conversation', ({ id, title }) => {
+    if (turnId) h.onEvent({ type: 'conversation', turnId, id, title })
+  })
   socket.on('chat:tool', ({ name, detail }) => {
     if (draining || !turnId) return
     endStep()
@@ -115,21 +118,17 @@ export const socketIoTransport: Transport = (h) => {
   socket.connect()
 
   return {
-    send(id, text) {
+    send(id, text, conversationId) {
       if (draining) {
-        queued = { turnId: id, text }
+        queued = { turnId: id, text, conversationId }
         return
       }
-      emitMessage(id, text)
+      emitMessage(id, text, conversationId)
     },
     stop(id) {
       if (id !== turnId || draining) return
       draining = true
       socket.emit('chat:cancel')
-    },
-    reset() {
-      queued = null
-      socket.emit('chat:reset')
     },
     close() {
       closedByClient = true
@@ -194,7 +193,6 @@ export const mockTransport: Transport = (h) => {
       schedule(turnId, (t += 100), () => h.onEvent({ type: 'done', turnId }))
     },
     stop: clear,
-    reset() {},
     close() {
       window.clearTimeout(open)
       for (const id of timers.keys()) clear(id)

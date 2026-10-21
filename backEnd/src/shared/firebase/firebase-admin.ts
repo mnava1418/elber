@@ -1,6 +1,7 @@
 import admin from 'firebase-admin'
 import { initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
 import env from '../../config/env.js'
 
 // Single Firebase Admin app for the whole backend. It lives in shared because
@@ -10,3 +11,6 @@ const firebaseApp = initializeApp({
 })
 
 export const firebaseAuth = getAuth(firebaseApp)
+export const firestore = getFirestore(firebaseApp)
+// Optional fields left undefined are skipped instead of failing the write.
+firestore.settings({ignoreUndefinedProperties: true})

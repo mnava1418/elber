@@ -104,9 +104,6 @@ export function ElberMessage({ turn, canRetry, onRetry }: Props) {
           <button type="button" aria-label="Copiar respuesta" onClick={() => navigator.clipboard.writeText(text)}>
             <CopyIcon width={16} height={16} />
           </button>
-          <button type="button" aria-label="Regenerar respuesta" disabled={!canRetry} onClick={() => onRetry(turn.id)}>
-            <RefreshIcon width={16} height={16} />
-          </button>
         </div>
       )}
 
