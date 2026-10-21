@@ -1,16 +1,20 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import elberHappy from '../assets/elber_happy.webp'
 import elber from '../assets/elber.webp'
 import elberSurprise from '../assets/elber_surprise.webp'
 import { ChatHeader } from '../chat/ChatHeader'
 import { Composer } from '../chat/Composer'
 import { ElberMessage } from '../chat/ElberMessage'
+import { getConversation, toTurns, type ConversationSummary } from '../chat/history'
+import { Sidebar } from '../chat/Sidebar'
 import { mockTransport, socketIoTransport } from '../chat/transport'
 import { useChat } from '../chat/useChat'
-import { NewChatIcon, PanelIcon, PlusIcon, WifiOffIcon } from '../chat/icons'
+import { useConversations } from '../chat/useConversations'
+import { WifiOffIcon } from '../chat/icons'
 import { Button } from '../components'
 import { useAuth } from '../context/useAuth'
+import { ApiError } from '../lib/api'
 import { signOutUser } from '../services/auth.service'
 import '../styles/Chat.css'
 
@@ -25,14 +29,43 @@ const SUGGESTIONS = [
   'Explícame qué es un webhook',
 ]
 
+// Loading a saved conversation (the one in the URL).
+type LoadState = 'idle' | 'loading' | 'not_found' | 'error'
+
+// On phones the sidebar is a drawer over the chat: close it after picking.
+const isDrawer = () => window.matchMedia('(max-width: 640px)').matches
+
 function Chat() {
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
   const email = authUser?.email ?? ''
   // Accounts without a display name show the part of the email before the @.
   const user = { name: authUser?.displayName || email.split('@')[0] || 'tú', email }
-  const { turns, connection, retryIn, responding, send, stop, retry, reconnectNow, reset } = useChat(transport)
+  // The URL decides which conversation is on screen: /chat is a new one.
+  const { conversationId: routeId } = useParams()
+  const history = useConversations()
+  const { touch } = history
+  const onConversation = useCallback(
+    (id: string, title: string) => {
+      touch(id, title)
+      // Same screen, now with its address: no reload (see the effect below).
+      navigate(`/chat/${id}`, { replace: true })
+    },
+    [navigate, touch],
+  )
+  const { turns, conversation, connection, retryIn, responding, send, stop, retry, reconnectNow, reset, show, currentConversation } = useChat(
+    transport,
+    { onConversation },
+  )
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  // Why the conversation of this visit to the URL (location.key) didn't load.
+  const location = useLocation()
+  const [loadFailure, setLoadFailure] = useState<{ key: string; state: 'not_found' | 'error' } | null>(null)
+  const [loadAttempt, setLoadAttempt] = useState(0)
+  const loadState: LoadState =
+    !routeId || routeId === conversation ? 'idle' : loadFailure?.key === location.key ? loadFailure.state : 'loading'
+  const [pendingDelete, setPendingDelete] = useState<ConversationSummary | null>(null)
+  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'error'>('idle')
   const scroller = useRef<HTMLDivElement>(null)
   const stick = useRef(true)
 
@@ -41,9 +74,64 @@ function Chat() {
     if (el && stick.current) el.scrollTop = el.scrollHeight
   }, [turns])
 
+  // Follows the URL. When it already shows that conversation (e.g. the one
+  // the first message just created) there is nothing to load.
+  useEffect(() => {
+    if ((routeId ?? null) === currentConversation()) return
+    reset()
+    if (!routeId) return
+    let cancelled = false
+    const key = location.key
+    getConversation(routeId)
+      .then((saved) => {
+        if (cancelled) return
+        stick.current = true
+        show(saved.id, toTurns(saved.messages))
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setLoadFailure({ key, state: error instanceof ApiError && error.status === 404 ? 'not_found' : 'error' })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [routeId, location.key, loadAttempt, reset, show, currentConversation])
+
   function handleSend(text: string) {
     stick.current = true
-    send(text)
+    if (send(text) !== 'sent') return
+    const id = currentConversation()
+    if (id) touch(id)
+  }
+
+  function handleNew() {
+    // Already at /chat with a conversation still being created: the URL
+    // doesn't change, so reset here.
+    reset()
+    navigate('/chat')
+    if (isDrawer()) setSidebarOpen(false)
+  }
+
+  function handleSelect(id: string) {
+    navigate(`/chat/${id}`)
+    if (isDrawer()) setSidebarOpen(false)
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDelete) return
+    setDeleteStatus('deleting')
+    try {
+      await history.remove(pendingDelete.id)
+      if (pendingDelete.id === routeId) navigate('/chat', { replace: true })
+      setPendingDelete(null)
+      setDeleteStatus('idle')
+    } catch {
+      setDeleteStatus('error')
+    }
+  }
+
+  function closeDeleteDialog() {
+    setPendingDelete(null)
+    setDeleteStatus('idle')
   }
 
   async function handleLogout() {
@@ -51,7 +139,6 @@ function Chat() {
     navigate('/login')
   }
 
-  const firstQuestion = turns.find((t) => t.role === 'user')?.text
   const canRetry = connection === 'open' && !responding
   // Only the last answer can be retried (see useChat's retry).
   const lastTurnId = turns.at(-1)?.id
@@ -64,41 +151,19 @@ function Chat() {
       <span className="chat-spark chat-spark--3" aria-hidden="true" />
 
       <div className="chat-sidebar-backdrop" onClick={() => setSidebarOpen(false)} aria-hidden="true" />
-      <aside className="chat-sidebar" aria-label="Conversaciones">
-        <div className="chat-rail">
-          <button type="button" className="chat-icon-btn" aria-label="Abrir conversaciones" onClick={() => setSidebarOpen(true)}>
-            <PanelIcon />
-          </button>
-          <button type="button" className="chat-icon-btn" aria-label="Nueva conversación" onClick={reset}>
-            <NewChatIcon />
-          </button>
-        </div>
-        <div className="chat-panel">
-          <div className="chat-panel-head">
-            <span>Conversaciones</span>
-            <button type="button" className="chat-icon-btn" aria-label="Cerrar panel" onClick={() => setSidebarOpen(false)}>
-              <PanelIcon />
-            </button>
-          </div>
-          <button
-            type="button"
-            className="chat-panel-new"
-            onClick={() => {
-              reset()
-              setSidebarOpen(false)
-            }}
-          >
-            <PlusIcon />
-            Nueva conversación
-          </button>
-          <div className="chat-panel-list">
-            <span className="chat-panel-group">Hoy</span>
-            <div className="chat-panel-item" aria-current="true">
-              {firstQuestion ?? 'Nueva conversación'}
-            </div>
-          </div>
-        </div>
-      </aside>
+      <Sidebar
+        conversations={history.conversations}
+        status={history.status}
+        hasMore={history.hasMore}
+        activeId={routeId}
+        onOpen={() => setSidebarOpen(true)}
+        onClose={() => setSidebarOpen(false)}
+        onNew={handleNew}
+        onSelect={handleSelect}
+        onDelete={setPendingDelete}
+        onLoadMore={history.loadMore}
+        onRetry={history.reload}
+      />
 
       <div className="chat-main">
         <ChatHeader connection={connection} user={user} onOpenSidebar={() => setSidebarOpen(true)} onLogout={handleLogout} />
@@ -115,7 +180,45 @@ function Chat() {
           </div>
         )}
 
-        {turns.length === 0 ? (
+        {loadState !== 'idle' ? (
+          <div className="chat-empty">
+            <div className="chat-empty-mascot">
+              <img src={loadState === 'loading' ? elber : elberSurprise} alt="Elber" />
+            </div>
+            <div className="chat-empty-copy">
+              {loadState === 'loading' && <h1>Cargando conversación…</h1>}
+              {loadState === 'not_found' && (
+                <>
+                  <h1>No encontré esta conversación</h1>
+                  <p>Puede que la hayas borrado. Empieza una nueva cuando quieras.</p>
+                </>
+              )}
+              {loadState === 'error' && (
+                <>
+                  <h1>No pude cargar esta conversación</h1>
+                  <p>Revisa tu conexión e inténtalo de nuevo.</p>
+                </>
+              )}
+            </div>
+            {loadState === 'not_found' && (
+              <Button type="button" variant="primary" onClick={handleNew}>
+                Nueva conversación
+              </Button>
+            )}
+            {loadState === 'error' && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => {
+                  setLoadFailure(null)
+                  setLoadAttempt((n) => n + 1)
+                }}
+              >
+                Reintentar
+              </Button>
+            )}
+          </div>
+        ) : turns.length === 0 ? (
           <div className="chat-empty">
             <div className="chat-empty-mascot">
               <img src={connection === 'connecting' ? elber : elberHappy} alt="Elber" />
@@ -166,8 +269,36 @@ function Chat() {
           </div>
         )}
 
-        <Composer connection={connection} responding={responding} onSend={handleSend} onStop={stop} />
+        <Composer connection={connection} responding={responding} onSend={handleSend} onStop={stop} locked={loadState !== 'idle'} />
       </div>
+
+      {pendingDelete && (
+        <div className="chat-dialog-backdrop" onClick={closeDeleteDialog}>
+          <div
+            className="chat-dialog"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-title"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.key === 'Escape' && closeDeleteDialog()}
+          >
+            <img src={elberSurprise} alt="" className="chat-dialog-mascot" />
+            <h2 id="delete-title">¿Borrar esta conversación?</h2>
+            <p>
+              «{pendingDelete.title}» se borrará con todos sus mensajes. No se puede deshacer.
+              {deleteStatus === 'error' && <span className="chat-dialog-error"> No se pudo borrar, inténtalo de nuevo.</span>}
+            </p>
+            <div className="chat-dialog-actions">
+              <Button type="button" variant="ghost" size="lg" autoFocus onClick={closeDeleteDialog}>
+                Cancelar
+              </Button>
+              <Button type="button" variant="primary" size="lg" disabled={deleteStatus === 'deleting'} onClick={handleConfirmDelete}>
+                {deleteStatus === 'deleting' ? 'Borrando…' : 'Borrar'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {connection === 'rejected' && (
         <div className="chat-dialog-backdrop">

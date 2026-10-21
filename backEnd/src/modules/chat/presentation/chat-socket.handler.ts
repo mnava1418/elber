@@ -1,10 +1,9 @@
-import { ConversationNotFoundError, type default as SendMessageUseCase } from '../application/send-message.use-case.js'
+import type SendMessageUseCase from '../application/send-message.use-case.js'
+import { ConversationNotFoundError } from '../domain/conversation.js'
 import type { ChatSocket } from './chat.events.js'
+import { isConversationId } from './conversation-id.js'
 
 export const MAX_MESSAGE_LENGTH = 4000
-
-// Firestore auto ids are 20 alphanumeric characters; anything else can't exist.
-const CONVERSATION_ID = /^[A-Za-z0-9]{1,64}$/
 
 // Inbound adapter: wires one connection's events to the use case.
 const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: ChatSocket) => {
@@ -19,7 +18,7 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
             return
         }
         const conversationId = payload.conversationId
-        if (conversationId !== undefined && (typeof conversationId !== 'string' || !CONVERSATION_ID.test(conversationId))) {
+        if (conversationId !== undefined && !isConversationId(conversationId)) {
             socket.emit('chat:error', {code: 'INVALID_MESSAGE', message: 'Invalid conversation id'})
             return
         }

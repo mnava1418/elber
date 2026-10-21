@@ -1,33 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import SendMessageUseCase, { ConversationNotFoundError, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
+import SendMessageUseCase, { type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../../../../src/modules/chat/domain/assistant.port.js'
-import type { Conversation, Message } from '../../../../src/modules/chat/domain/conversation.js'
-import type { ConversationRepository } from '../../../../src/modules/chat/domain/conversation.repository.js'
-
-// Conversations in memory, keyed by user like the real one.
-class InMemoryConversations implements ConversationRepository {
-    readonly conversations = new Map<string, Conversation & {uid: string, messages: Message[]}>()
-
-    async create(uid: string, {title}: {title: string}) {
-        const id = `conv${this.conversations.size + 1}`
-        this.conversations.set(id, {id, uid, title, messages: []})
-        return {id, title}
-    }
-
-    async find(uid: string, conversationId: string) {
-        const stored = this.conversations.get(conversationId)
-        if (!stored || stored.uid !== uid) return null
-        return {id: stored.id, title: stored.title, assistantSessionId: stored.assistantSessionId}
-    }
-
-    async addMessage(_uid: string, conversationId: string, message: Message) {
-        this.conversations.get(conversationId)!.messages.push(message)
-    }
-
-    async setAssistantSession(_uid: string, conversationId: string, assistantSessionId: string) {
-        this.conversations.get(conversationId)!.assistantSessionId = assistantSessionId
-    }
-}
+import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
+import InMemoryConversations from '../in-memory-conversations.js'
 
 // An assistant that answers with the given events and records what it got.
 const assistantAnswering = (...events: AssistantEvent[]) => {

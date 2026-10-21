@@ -28,3 +28,4 @@ export const AlertIcon = (p: P) => (<svg {...base(18)} strokeWidth={2} {...p}><c
 export const ClockIcon = (p: P) => (<svg {...base(15)} strokeWidth={2} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>)
 export const WifiOffIcon = (p: P) => (<svg {...base(15)} strokeWidth={2} {...p}><path d="M2 2l20 20" /><path d="M8.5 16.5a5 5 0 0 1 7 0" /><path d="M5 12.9a10 10 0 0 1 5.2-2.8" /><path d="M19 12.9a10 10 0 0 0-2.3-1.6" /><path d="M12 20h.01" /></svg>)
 export const SendIcon = (p: P) => (<svg {...base(16)} strokeWidth={2.2} {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>)
+export const TrashIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>)

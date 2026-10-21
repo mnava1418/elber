@@ -1,5 +1,6 @@
 import { createChatSocket } from '../lib/socket'
-import type { ServerEvent, Source, ToolKind } from './types'
+import { toolDetail, toolKind } from './tools'
+import type { ServerEvent, Source } from './types'
 
 export interface TransportHandlers {
   onOpen(): void
@@ -16,18 +17,6 @@ export interface Connection {
 }
 
 export type Transport = (handlers: TransportHandlers) => Connection
-
-const TOOL_KIND: Record<string, ToolKind> = { WebSearch: 'search', WebFetch: 'read' }
-
-// For pages, the domain is enough: "Leyendo una página: ejemplo.com".
-function toolDetail(kind: ToolKind, detail = ''): string {
-  if (kind !== 'read') return detail
-  try {
-    return new URL(detail).hostname.replace(/^www\./, '')
-  } catch {
-    return detail
-  }
-}
 
 /**
  * Adapter to the backend's /chat namespace (Socket.IO). The backend has no
@@ -93,7 +82,7 @@ export const socketIoTransport: Transport = (h) => {
   socket.on('chat:tool', ({ name, detail }) => {
     if (draining || !turnId) return
     endStep()
-    const kind = TOOL_KIND[name] ?? 'search'
+    const kind = toolKind(name)
     runningStep = `step-${++stepCount}`
     h.onEvent({ type: 'tool_start', turnId, step: { id: runningStep, kind, detail: toolDetail(kind, detail) } })
   })

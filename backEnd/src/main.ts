@@ -6,9 +6,12 @@ import http from 'http';
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
 const startServer = () => {
-  const app = createApp();
+  // The Socket.IO server comes first so app.ts can hand it to the modules;
+  // it starts serving once attached to the HTTP server.
+  const io = createSocketServer();
+  const app = createApp({io});
   const server = http.createServer(app);
-  const io = createSocketServer(server);
+  io.attach(server);
 
   server.listen(env.PORT, () => {
     console.info('Elber listening on port: ', env.PORT);

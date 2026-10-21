@@ -1,5 +1,5 @@
 import type { Assistant, Source } from '../domain/assistant.port.js'
-import { titleFrom, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
+import { ConversationNotFoundError, titleFrom, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'
 
 export interface SendMessageInput {
@@ -17,13 +17,6 @@ export type SendMessageEvent =
     | {type: 'delta', text: string}
     | {type: 'tool', name: string, detail?: string}
     | {type: 'sources', sources: Source[]}
-
-export class ConversationNotFoundError extends Error {
-    constructor(conversationId: string) {
-        super(`Conversation ${conversationId} not found`)
-        this.name = 'ConversationNotFoundError'
-    }
-}
 
 // Sends a message in a conversation and streams Elber's answer, storing both.
 // Ends when the answer is complete; throws if it fails (the answer is still

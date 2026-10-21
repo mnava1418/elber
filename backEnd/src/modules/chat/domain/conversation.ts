@@ -10,6 +10,14 @@ export interface Conversation {
     assistantSessionId?: string
 }
 
+// A conversation as the sidebar lists it.
+export interface ConversationSummary {
+    id: string
+    title: string
+    createdAt: Date
+    updatedAt: Date
+}
+
 // A tool Elber used while answering, e.g. {name: 'WebSearch', detail: 'clima CDMX'}.
 export interface ToolUse {
     name: string
@@ -21,6 +29,16 @@ export type ElberMessageStatus = 'done' | 'stopped' | 'error'
 export type Message =
     | {role: 'user', text: string}
     | {role: 'elber', text: string, status: ElberMessageStatus, sources: Source[], tools: ToolUse[]}
+
+// A message as it was stored, to show it again.
+export type StoredMessage = Message & {id: string, createdAt: Date}
+
+export class ConversationNotFoundError extends Error {
+    constructor(conversationId: string) {
+        super(`Conversation ${conversationId} not found`)
+        this.name = 'ConversationNotFoundError'
+    }
+}
 
 const MAX_TITLE_LENGTH = 60
 

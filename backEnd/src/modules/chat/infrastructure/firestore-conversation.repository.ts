@@ -1,6 +1,6 @@
-import { FieldValue, type Firestore } from 'firebase-admin/firestore'
-import type { Conversation, Message } from '../domain/conversation.js'
-import type { ConversationRepository } from '../domain/conversation.repository.js'
+import { FieldPath, FieldValue, Timestamp, type Firestore } from 'firebase-admin/firestore'
+import type { Conversation, ConversationSummary, Message, StoredMessage } from '../domain/conversation.js'
+import { InvalidCursorError, type ConversationPage, type ConversationRepository } from '../domain/conversation.repository.js'
 
 // Adapter: conversations in Firestore, under their user, so a lookup can
 // never reach someone else's:
@@ -22,6 +22,45 @@ class FirestoreConversationRepository implements ConversationRepository {
         return {id: snapshot.id, title, assistantSessionId}
     }
 
+    async list(uid: string, {limit, cursor}: {limit: number, cursor?: string}): Promise<ConversationPage> {
+        // The id breaks ties between equal updatedAt, so a page never skips
+        // or repeats one. Single-field indexes are enough for this order.
+        let query = this.conversations(uid)
+            .orderBy('updatedAt', 'desc')
+            .orderBy(FieldPath.documentId(), 'desc')
+        if (cursor !== undefined) {
+            const {updatedAt, id} = decodeCursor(cursor)
+            query = query.startAfter(updatedAt, id)
+        }
+
+        // One extra tells whether there is a next page.
+        const snapshot = await query.limit(limit + 1).get()
+        const docs = snapshot.docs.slice(0, limit)
+        const conversations = docs.map((doc): ConversationSummary => {
+            const {title, createdAt, updatedAt} = doc.data() as {title: string, createdAt: Timestamp, updatedAt: Timestamp}
+            return {id: doc.id, title, createdAt: createdAt.toDate(), updatedAt: updatedAt.toDate()}
+        })
+
+        const last = docs.at(-1)
+        const nextCursor = snapshot.size > limit && last ? encodeCursor(last.get('updatedAt'), last.id) : null
+        return {conversations, nextCursor}
+    }
+
+    async listMessages(uid: string, conversationId: string): Promise<StoredMessage[]> {
+        const snapshot = await this.conversations(uid).doc(conversationId)
+            .collection('messages')
+            .orderBy('createdAt', 'asc')
+            .get()
+        return snapshot.docs.map((doc): StoredMessage => {
+            // Picked field by field: whatever else the document has stays here.
+            const data = doc.data()
+            const base = {id: doc.id, text: data.text as string, createdAt: (data.createdAt as Timestamp).toDate()}
+            return data.role === 'user'
+                ? {...base, role: 'user'}
+                : {...base, role: 'elber', status: data.status, sources: data.sources ?? [], tools: data.tools ?? []}
+        })
+    }
+
     async addMessage(uid: string, conversationId: string, message: Message): Promise<void> {
         const conversation = this.conversations(uid).doc(conversationId)
         const batch = this.db.batch()
@@ -34,8 +73,32 @@ class FirestoreConversationRepository implements ConversationRepository {
         await this.conversations(uid).doc(conversationId).update({assistantSessionId})
     }
 
+    async delete(uid: string, conversationId: string): Promise<boolean> {
+        const ref = this.conversations(uid).doc(conversationId)
+        if (!(await ref.get()).exists) return false
+        // Deleting a document leaves its subcollections behind: this also
+        // deletes the messages.
+        await this.db.recursiveDelete(ref)
+        return true
+    }
+
     private conversations(uid: string) {
         return this.db.collection('users').doc(uid).collection('conversations')
+    }
+}
+
+// The cursor is the position of the last conversation of the page:
+// updatedAt (exact, to the nanosecond) and id, as base64url JSON.
+const encodeCursor = (updatedAt: Timestamp, id: string): string =>
+    Buffer.from(JSON.stringify([updatedAt.seconds, updatedAt.nanoseconds, id])).toString('base64url')
+
+const decodeCursor = (cursor: string): {updatedAt: Timestamp, id: string} => {
+    try {
+        const [seconds, nanoseconds, id] = JSON.parse(Buffer.from(cursor, 'base64url').toString())
+        if (typeof id !== 'string' || id === '') throw new Error('Missing id')
+        return {updatedAt: new Timestamp(seconds, nanoseconds), id}
+    } catch {
+        throw new InvalidCursorError()
     }
 }
 

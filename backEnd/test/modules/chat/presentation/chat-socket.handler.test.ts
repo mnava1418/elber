@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import SendMessageUseCase, { ConversationNotFoundError, type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
+import SendMessageUseCase, { type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
+import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
 import type { ChatSocket } from '../../../../src/modules/chat/presentation/chat.events.js'
 import buildChatSocketHandler, { MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
 
