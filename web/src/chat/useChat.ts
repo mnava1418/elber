@@ -136,7 +136,8 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
 
   /**
    * Reintenta un turno con error o detenido. Solo el último: el servidor
-   * recuerda la conversación y reenvía la pregunta al final.
+   * reemplaza esa respuesta sin guardar la pregunta otra vez. Si la
+   * conversación aún no existe (falló al crearla), la pregunta va como nueva.
    */
   const retry = useCallback(
     (elberId: string) => {
@@ -145,8 +146,12 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       const question = turns.find((t) => t.id === turn?.replyTo)
       if (!turn || !question) return
       patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [] }))
-      if (!conversationId.current) newConversationTurn.current = elberId
-      conn.current?.send(elberId, question.text, conversationId.current ?? undefined)
+      if (conversationId.current) {
+        conn.current?.retry(elberId, conversationId.current)
+      } else {
+        newConversationTurn.current = elberId
+        conn.current?.send(elberId, question.text)
+      }
     },
     [connection, responding, turns, patch],
   )
