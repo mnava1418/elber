@@ -2,11 +2,12 @@ import { NothingToRetryError, type default as SendMessageUseCase, type SendMessa
 import { ConversationNotFoundError } from '../domain/conversation.js'
 import type { ChatSocket } from './chat.events.js'
 import { isConversationId } from './conversation-id.js'
+import type { MessageRateLimit } from './message-rate-limit.js'
 
 export const MAX_MESSAGE_LENGTH = 4000
 
 // Inbound adapter: wires one connection's events to the use case.
-const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: ChatSocket) => {
+const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: MessageRateLimit) => (socket: ChatSocket) => {
     // The answer in progress, if any.
     let current: AbortController | null = null
 
@@ -15,6 +16,12 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase) => (socket: Cha
     const stream = async (start: (signal: AbortSignal) => AsyncIterable<SendMessageEvent>) => {
         if (current) {
             socket.emit('chat:error', {code: 'BUSY', message: 'Wait for the current answer to finish'})
+            return
+        }
+        // Each answer costs API credits: retries count too.
+        const retryAfter = rateLimit.take(socket.data.user.uid)
+        if (retryAfter > 0) {
+            socket.emit('chat:error', {code: 'RATE_LIMITED', message: 'Too many messages, try again later', retryAfter})
             return
         }
 

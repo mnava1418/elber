@@ -106,8 +106,9 @@ export const socketIoTransport: Transport = (h) => {
     if (!draining && turnId) h.onEvent({ type: 'done', turnId })
     finishTurn()
   })
-  socket.on('chat:error', ({ message }) => {
-    if (!draining && turnId) h.onEvent({ type: 'error', turnId, message })
+  socket.on('chat:error', ({ code, message, retryAfter }) => {
+    const rateLimited = code === 'RATE_LIMITED' ? { retryAfter: retryAfter ?? 60 } : undefined
+    if (!draining && turnId) h.onEvent({ type: 'error', turnId, message, rateLimited })
     finishTurn()
   })
 

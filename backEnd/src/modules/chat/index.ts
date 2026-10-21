@@ -16,10 +16,14 @@ import FirestoreConversationRepository from './infrastructure/firestore-conversa
 import type { ChatNamespace } from './presentation/chat.events.js'
 import buildChatRoutes from './presentation/chat.routes.js'
 import buildChatSocketHandler from './presentation/chat-socket.handler.js'
+import { createMessageRateLimit } from './presentation/message-rate-limit.js'
 import ConversationsController from './presentation/conversations.controller.js'
 import buildSocketAuth from './presentation/socket-auth.middleware.js'
 
 const MODEL = 'claude-sonnet-5-5'
+// Answers (messages and retries) per user every 15 minutes.
+const MESSAGE_LIMIT = 20
+const MESSAGE_WINDOW_MS = 15 * 60 * 1000
 
 // Public entry point of the chat module: only app.ts imports it. The chat
 // talks to the frontend over Socket.IO, in its own namespace (/chat); its
@@ -50,7 +54,9 @@ const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
     const chat = io.of('/chat') as unknown as ChatNamespace
 
     chat.use(buildSocketAuth(verifyToken))
-    chat.on('connection', buildChatSocketHandler(sendMessage))
+    // One for the whole namespace: a user's connections share the quota.
+    const rateLimit = createMessageRateLimit({limit: MESSAGE_LIMIT, windowMs: MESSAGE_WINDOW_MS})
+    chat.on('connection', buildChatSocketHandler(sendMessage, rateLimit))
 
     const controller = new ConversationsController(
         new ListConversationsUseCase(conversations),
