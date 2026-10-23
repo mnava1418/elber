@@ -5,11 +5,25 @@ import { isConversationId } from './conversation-id.js'
 import type { MessageRateLimit } from './message-rate-limit.js'
 
 export const MAX_MESSAGE_LENGTH = 4000
+// How long the user has to answer the browser's location prompt.
+export const LOCATION_TIMEOUT_MS = 30_000
 
 // Inbound adapter: wires one connection's events to the use case.
 const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: MessageRateLimit) => (socket: ChatSocket) => {
     // The answer in progress, if any.
     let current: AbortController | null = null
+
+    // Asks the client where the user is. null if they refused, it's
+    // unavailable, the client doesn't answer in time or answers garbage.
+    const locate = async () => {
+        if (socket.disconnected) return null
+        try {
+            const reply: unknown = await socket.timeout(LOCATION_TIMEOUT_MS).emitWithAck('chat:location')
+            return toCoords(reply)
+        } catch {
+            return null
+        }
+    }
 
     // Streams one answer to the client and ends it with chat:done or
     // chat:error. One at a time per connection.
@@ -77,7 +91,7 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: Mess
             return
         }
 
-        await stream((signal) => sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal}))
+        await stream((signal) => sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal, locate}))
     })
 
     socket.on('chat:retry', async (payload) => {
@@ -87,13 +101,21 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: Mess
             return
         }
 
-        await stream((signal) => sendMessage.retry({uid: socket.data.user.uid, conversationId, signal}))
+        await stream((signal) => sendMessage.retry({uid: socket.data.user.uid, conversationId, signal, locate}))
     })
 
     socket.on('chat:cancel', () => current?.abort())
 
     // Nobody is listening anymore: stop paying for the answer.
     socket.on('disconnect', () => current?.abort())
+}
+
+// Types don't reach the wire: a client can send anything.
+const toCoords = (reply: unknown) => {
+    const {lat, lon} = (reply ?? {}) as {lat?: unknown, lon?: unknown}
+    if (typeof lat !== 'number' || typeof lon !== 'number') return null
+    if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) return null
+    return {lat, lon}
 }
 
 export default buildChatSocketHandler

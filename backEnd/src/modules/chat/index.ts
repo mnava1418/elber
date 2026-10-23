@@ -3,6 +3,7 @@ import { homedir, tmpdir } from 'node:os'
 import path from 'node:path'
 import type { Router } from 'express'
 import type { Server } from 'socket.io'
+import type { SkillTool } from '../../shared/skills/skill.js'
 import env from '../../config/env.js'
 import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
 import { firebaseAuth, firestore } from '../../shared/firebase/firebase-admin.js'
@@ -34,9 +35,11 @@ export interface ChatModule {
 
 interface ChatModuleDeps {
     io: Server
+    // The skills' tools Elber can use (weather...).
+    tools: SkillTool[]
 }
 
-const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
+const createChatModule = ({io, tools}: ChatModuleDeps): ChatModule => {
     const workDir = path.join(tmpdir(), 'elber-agent')
     mkdirSync(workDir, {recursive: true})
     // Not in tmp: the OS cleans it up, and Elber would forget conversations.
@@ -44,7 +47,7 @@ const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
     mkdirSync(configDir, {recursive: true})
 
     // To switch agent framework, swap this adapter for another Assistant.
-    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir, configDir})
+    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir, configDir, tools})
     const conversations = new FirestoreConversationRepository(firestore)
     const sendMessage = new SendMessageUseCase(assistant, conversations)
     const verifyToken = createFirebaseTokenVerifier(firebaseAuth)

@@ -1,4 +1,4 @@
-import type { Assistant, Source } from '../domain/assistant.port.js'
+import type { Assistant, ReplyInput, Source } from '../domain/assistant.port.js'
 import { ConversationNotFoundError, titleFrom, type Conversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'
 
@@ -8,6 +8,8 @@ export interface SendMessageInput {
     // Continues that conversation; without it, starts a new one.
     conversationId?: string
     signal: AbortSignal
+    // Asks the user's device where they are (for the weather...).
+    locate: ReplyInput['locate']
 }
 
 // What the user sees while Elber answers, in order.
@@ -22,6 +24,15 @@ export interface RetryInput {
     uid: string
     conversationId: string
     signal: AbortSignal
+    locate: ReplyInput['locate']
+}
+
+interface AnswerInput {
+    uid: string
+    conversation: Conversation
+    text: string
+    signal: AbortSignal
+    locate: ReplyInput['locate']
 }
 
 // The conversation doesn't end in a question without a good answer.
@@ -41,7 +52,7 @@ class SendMessageUseCase {
         private readonly conversations: ConversationRepository,
     ) {}
 
-    async *execute({uid, text, conversationId, signal}: SendMessageInput): AsyncGenerator<SendMessageEvent> {
+    async *execute({uid, text, conversationId, signal, locate}: SendMessageInput): AsyncGenerator<SendMessageEvent> {
         let conversation
         if (conversationId) {
             conversation = await this.conversations.find(uid, conversationId)
@@ -52,13 +63,13 @@ class SendMessageUseCase {
         }
 
         await this.conversations.addMessage(uid, conversation.id, {role: 'user', text})
-        yield* this.answer(uid, conversation, text, signal)
+        yield* this.answer({uid, conversation, text, signal, locate})
     }
 
     // Answers the last question again, without storing it twice: a failed or
     // stopped answer is replaced; a question left without one (the answer
     // couldn't even be stored) gets one.
-    async *retry({uid, conversationId, signal}: RetryInput): AsyncGenerator<SendMessageEvent> {
+    async *retry({uid, conversationId, signal, locate}: RetryInput): AsyncGenerator<SendMessageEvent> {
         const conversation = await this.conversations.find(uid, conversationId)
         if (!conversation) throw new ConversationNotFoundError(conversationId)
 
@@ -77,11 +88,11 @@ class SendMessageUseCase {
 
         // The assistant does get the question again: its memory of the
         // conversation can't drop the failed attempt.
-        yield* this.answer(uid, conversation, question, signal)
+        yield* this.answer({uid, conversation, text: question, signal, locate})
     }
 
     // Streams Elber's answer to `text` and stores it when it ends.
-    private async *answer(uid: string, conversation: Conversation, text: string, signal: AbortSignal): AsyncGenerator<SendMessageEvent> {
+    private async *answer({uid, conversation, text, signal, locate}: AnswerInput): AsyncGenerator<SendMessageEvent> {
         // Elber's answer, as it builds up.
         let answer = ''
         let sources: Source[] = []
@@ -89,7 +100,7 @@ class SendMessageUseCase {
         let status: ElberMessageStatus = 'error'
 
         try {
-            const events = this.assistant.reply({text, signal, sessionId: conversation.assistantSessionId})
+            const events = this.assistant.reply({text, signal, uid, locate, sessionId: conversation.assistantSessionId})
             for await (const event of events) {
                 switch (event.type) {
                     case 'session':

@@ -1,0 +1,37 @@
+import type { z } from 'zod'
+
+// Contract between Elber's skills (one module each: weather, finances...) and
+// the chat, which offers their tools to the assistant. It lives in shared/
+// because modules never import each other, and knows nothing of the agent
+// framework: the chat's adapter translates it.
+
+export interface Coords {
+    lat: number
+    lon: number
+}
+
+// What a tool knows about the request it runs in.
+export interface SkillContext {
+    uid: string
+    // Aborted when the user stops the answer.
+    signal: AbortSignal
+    // Asks the user's device where they are. null if they refused or it is
+    // unavailable.
+    locate(): Promise<Coords | null>
+}
+
+export interface SkillTool<Shape extends z.ZodRawShape = z.ZodRawShape> {
+    // snake_case, unique among all skills.
+    name: string
+    // The model reads it to decide when to call the tool.
+    description: string
+    input: Shape
+    // Its result goes to the model as JSON. Expected outcomes the model must
+    // react to (place not found...) are results, not errors; it throws only
+    // when the tool fails.
+    run(input: z.infer<z.ZodObject<Shape>>, context: SkillContext): Promise<unknown>
+}
+
+// Infers the input type from the shape when defining a tool.
+export const defineTool = <Shape extends z.ZodRawShape>(tool: SkillTool<Shape>): SkillTool =>
+    tool as unknown as SkillTool

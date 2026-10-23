@@ -1,4 +1,5 @@
 import { createChatSocket } from '../lib/socket'
+import { currentLocation } from './location'
 import { toolDetail, toolKind } from './tools'
 import type { ServerEvent, Source } from './types'
 
@@ -101,6 +102,10 @@ export const socketIoTransport: Transport = (h) => {
   socket.on('chat:sources', ({ sources }) => {
     if (draining || !turnId) return
     h.onEvent({ type: 'sources', turnId, sources })
+  })
+  // Even while draining: the backend is waiting for it either way.
+  socket.on('chat:location', (ack) => {
+    void currentLocation().then(ack)
   })
   socket.on('chat:done', () => {
     if (!draining && turnId) h.onEvent({ type: 'done', turnId })

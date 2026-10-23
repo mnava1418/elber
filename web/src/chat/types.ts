@@ -3,7 +3,7 @@ export const WARN_CHARS = 3600
 
 export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected'
 
-export type ToolKind = 'search' | 'read'
+export type ToolKind = 'search' | 'read' | 'weather'
 
 export interface ToolStep {
   id: string

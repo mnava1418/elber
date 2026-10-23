@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SendMessageUseCase, { NothingToRetryError, type SendMessageEvent, type SendMessageInput } from '../../../../src/modules/chat/application/send-message.use-case.js'
 import { ConversationNotFoundError } from '../../../../src/modules/chat/domain/conversation.js'
 import type { ChatSocket } from '../../../../src/modules/chat/presentation/chat.events.js'
-import buildChatSocketHandler, { MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
+import buildChatSocketHandler, { LOCATION_TIMEOUT_MS, MAX_MESSAGE_LENGTH } from '../../../../src/modules/chat/presentation/chat-socket.handler.js'
 import { createMessageRateLimit, type MessageRateLimit } from '../../../../src/modules/chat/presentation/message-rate-limit.js'
 
 // A socket whose incoming events we trigger by hand and whose outgoing
@@ -11,16 +11,21 @@ import { createMessageRateLimit, type MessageRateLimit } from '../../../../src/m
 const fakeSocket = () => {
     const incoming = new EventEmitter()
     const emit = vi.fn()
+    // What the client answers to chat:location.
+    const emitWithAck = vi.fn()
+    const timeout = vi.fn(() => ({emitWithAck}))
     const socket = {
         on: (event: string, listener: (...args: unknown[]) => void) => incoming.on(event, listener),
         emit,
+        timeout,
+        disconnected: false,
         data: {user: {uid: 'uid-1'}},
     } as unknown as ChatSocket
     // Runs the listener and waits for it: chat:message handlers are async.
     const receive = async (event: string, ...args: unknown[]) => {
         await Promise.all(incoming.listeners(event).map((listener) => listener(...args)))
     }
-    return {socket, emit, receive}
+    return {socket, emit, receive, timeout, emitWithAck}
 }
 
 // Only execute() and retry() are used by the handler; no assistant or storage behind it.
@@ -71,7 +76,7 @@ describe('chat socket handler', () => {
 
         await receive('chat:message', {text: '  hola  ', conversationId: 'conv1'})
 
-        expect(execute).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', text: 'hola', conversationId: 'conv1', signal: expect.any(AbortSignal)})
+        expect(execute).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', text: 'hola', conversationId: 'conv1', signal: expect.any(AbortSignal), locate: expect.any(Function)})
     })
 
     it.each([
@@ -181,7 +186,7 @@ describe('chat socket handler', () => {
 
             await receive('chat:retry', {conversationId: 'conv1'})
 
-            expect(retry).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', conversationId: 'conv1', signal: expect.any(AbortSignal)})
+            expect(retry).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', conversationId: 'conv1', signal: expect.any(AbortSignal), locate: expect.any(Function)})
             expect(emit.mock.calls).toEqual([['chat:delta', {text: 'Otra vez'}], ['chat:done', {cancelled: false}]])
         })
 
@@ -246,6 +251,53 @@ describe('chat socket handler', () => {
 
             expect(take).not.toHaveBeenCalled()
         })
+    })
+})
+
+describe('locate', () => {
+    // Sends a message and returns the locate function the use case got.
+    const locateFor = async () => {
+        const execute = vi.fn<SendMessageUseCase['execute']>(async function* () {})
+        const fake = fakeSocket()
+        handle(fakeUseCase(execute))(fake.socket)
+        await fake.receive('chat:message', {text: '¿Va a llover?'})
+        return {...fake, locate: execute.mock.calls[0]![0].locate}
+    }
+
+    it('asks the client with chat:location and returns its coordinates', async () => {
+        const {locate, timeout, emitWithAck} = await locateFor()
+        emitWithAck.mockResolvedValue({lat: 19.43, lon: -99.13})
+
+        expect(await locate()).toEqual({lat: 19.43, lon: -99.13})
+        expect(timeout).toHaveBeenCalledExactlyOnceWith(LOCATION_TIMEOUT_MS)
+        expect(emitWithAck).toHaveBeenCalledExactlyOnceWith('chat:location')
+    })
+
+    it.each([
+        ['the user refused', {error: 'DENIED'}],
+        ['coordinates out of range', {lat: 91, lon: 0}],
+        ['coordinates that are not numbers', {lat: '19', lon: '-99'}],
+        ['nothing', undefined],
+    ])('returns null when the client answers %s', async (_, reply) => {
+        const {locate, emitWithAck} = await locateFor()
+        emitWithAck.mockResolvedValue(reply)
+
+        expect(await locate()).toBeNull()
+    })
+
+    it('returns null when the client does not answer in time', async () => {
+        const {locate, emitWithAck} = await locateFor()
+        emitWithAck.mockRejectedValue(new Error('operation has timed out'))
+
+        expect(await locate()).toBeNull()
+    })
+
+    it('does not ask a disconnected client', async () => {
+        const {locate, socket, emitWithAck} = await locateFor()
+        Object.assign(socket, {disconnected: true})
+
+        expect(await locate()).toBeNull()
+        expect(emitWithAck).not.toHaveBeenCalled()
     })
 })
 

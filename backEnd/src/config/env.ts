@@ -28,6 +28,9 @@ const envSchema = z.object({
     // Claude API key used by the chat agent (Claude Agent SDK).
     ANTHROPIC_API_KEY: z.string().min(1),
 
+    // OpenWeather API key (One Call 3.0 + Geocoding) for the weather skill.
+    OPENWEATHER_API_KEY: z.string().min(1),
+
     // Frontend origins allowed to call the API (CORS), comma separated, e.g.
     // "http://localhost:5173,https://app.example.com". Browsers compare the
     // exact origin: scheme + host + port, no path and no trailing slash.
