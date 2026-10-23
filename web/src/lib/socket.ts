@@ -10,6 +10,7 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 // One answer at a time: after chat:message (or chat:retry) the server sends
 // chat:conversation if it started a new conversation, any number of
 // chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
+// While answering, the server may also ask for the user's location (chat:location).
 export interface ChatServerEvents {
   // The conversation the message started: send its id with the next messages.
   'chat:conversation': (payload: { id: string; title: string }) => void
@@ -20,7 +21,11 @@ export interface ChatServerEvents {
   'chat:done': (payload: { cancelled: boolean }) => void
   // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
   'chat:error': (payload: { code: ChatErrorCode; message: string; retryAfter?: number }) => void
+  // Elber needs to know where the user is (e.g. "will it rain?"): answer through the ack.
+  'chat:location': (ack: (reply: LocationReply) => void) => void
 }
+
+export type LocationReply = { lat: number; lon: number } | { error: 'DENIED' | 'UNAVAILABLE' }
 
 export interface ChatClientEvents {
   // Without conversationId, starts a new conversation.

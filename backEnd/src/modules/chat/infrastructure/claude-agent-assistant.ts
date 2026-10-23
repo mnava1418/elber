@@ -1,4 +1,5 @@
-import { deleteSession, getSessionInfo, query, type HookCallbackMatcher, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
+import { createSdkMcpServer, deleteSession, getSessionInfo, query, tool, type HookCallbackMatcher, type McpSdkServerConfigWithInstance, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
+import type { SkillContext, SkillTool } from '../../../shared/skills/skill.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
 import { ELBER_SYSTEM_PROMPT } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
@@ -6,6 +7,11 @@ import { citationContext, SourceList, sourcesIn } from './web-sources.js'
 // The only tools the agent has. The SDK ships Claude Code's tools (Bash,
 // Read, Write...): on a server reachable from the internet they must not exist.
 const TOOLS = ['WebSearch', 'WebFetch']
+
+// The skills' tools are served by an in-process MCP server with this name;
+// the model sees them as mcp__elber__<name>.
+const SKILLS_SERVER = 'elber'
+const SKILL_PREFIX = `mcp__${SKILLS_SERVER}__`
 
 interface ClaudeAgentAssistantConfig {
     apiKey: string
@@ -15,6 +21,8 @@ interface ClaudeAgentAssistantConfig {
     // Where the agent keeps its sessions (one .jsonl per conversation), apart
     // from the ~/.claude of whoever runs the server.
     configDir: string
+    // The skills' tools (weather...).
+    tools: SkillTool[]
 }
 
 // Adapter: answers with the Claude Agent SDK, which runs the Claude Code
@@ -22,9 +30,11 @@ interface ClaudeAgentAssistantConfig {
 class ClaudeAgentAssistant implements Assistant {
     private readonly options: Options
     private readonly workDir: string
+    private readonly tools: SkillTool[]
 
-    constructor({apiKey, model, workDir, configDir}: ClaudeAgentAssistantConfig) {
+    constructor({apiKey, model, workDir, configDir, tools}: ClaudeAgentAssistantConfig) {
         this.workDir = workDir
+        this.tools = tools
         // The agent (child process) gets it in `env` below; this process needs
         // it too: deleteSession() and getSessionInfo() run here and look for
         // sessions in this process's CLAUDE_CONFIG_DIR.
@@ -32,11 +42,13 @@ class ClaudeAgentAssistant implements Assistant {
         this.options = {
             model,
             systemPrompt: ELBER_SYSTEM_PROMPT,
-            // `tools` decides which tools exist; `allowedTools` only
-            // auto-approves them, and `dontAsk` denies anything else.
+            // `tools` decides which built-in tools exist; `allowedTools` only
+            // auto-approves them (and the skills'), and `dontAsk` denies anything else.
             tools: TOOLS,
-            allowedTools: TOOLS,
+            allowedTools: [...TOOLS, ...tools.map((skillTool) => SKILL_PREFIX + skillTool.name)],
             permissionMode: 'dontAsk',
+            // Only the MCP servers passed here, never one configured on the machine.
+            strictMcpConfig: true,
             // Don't load ~/.claude or any CLAUDE.md: the agent must not pick
             // up the settings, memory or MCP servers of whoever runs the server.
             settingSources: [],
@@ -60,7 +72,7 @@ class ClaudeAgentAssistant implements Assistant {
         }
     }
 
-    async *reply({text, signal, sessionId}: ReplyInput): AsyncGenerator<AssistantEvent> {
+    async *reply({text, signal, sessionId, uid, locate}: ReplyInput): AsyncGenerator<AssistantEvent> {
         const abortController = new AbortController()
         const abort = () => abortController.abort()
         signal.addEventListener('abort', abort, {once: true})
@@ -77,6 +89,8 @@ class ClaudeAgentAssistant implements Assistant {
                 // The SDK reloads the conversation's history and sends it with the new message.
                 resume: sessionId,
                 hooks: {PostToolUse: [citeSources(sources)]},
+                // One per answer: its tools run with this request's user and location.
+                mcpServers: {[SKILLS_SERVER]: skillsServer(this.tools, {uid, signal, locate})},
             }
             for await (const message of query({prompt: text, options})) {
                 // A new text block after earlier text (e.g. after a search)
@@ -106,6 +120,21 @@ class ClaudeAgentAssistant implements Assistant {
         await deleteSession(sessionId, {dir})
     }
 }
+
+// Serves the skills' tools to the agent. Their results go to the model as JSON.
+const skillsServer = (tools: SkillTool[], context: SkillContext): McpSdkServerConfigWithInstance => createSdkMcpServer({
+    name: SKILLS_SERVER,
+    tools: tools.map((skillTool) => tool(skillTool.name, skillTool.description, skillTool.input, async (input) => {
+        try {
+            const result = await skillTool.run(input, context)
+            return {content: [{type: 'text', text: JSON.stringify(result)}]}
+        } catch (error) {
+            console.error(`Tool ${skillTool.name} failed for ${context.uid}:`, error)
+            // The model tells the user instead of the whole answer failing.
+            return {content: [{type: 'text', text: 'The tool failed, try again later.'}], isError: true}
+        }
+    })),
+})
 
 // After each search or page read, numbers its sources and tells the model
 // which number to cite each one with.
@@ -142,7 +171,7 @@ export function* toEvents(message: SDKMessage, hasText: boolean): Generator<Assi
             // tool calls matter here (their input is complete by now).
             for (const block of message.message.content) {
                 if (block.type === 'tool_use') {
-                    yield {type: 'tool', name: block.name, detail: toolDetail(block.input)}
+                    yield {type: 'tool', name: toolName(block.name), detail: toolDetail(block.input)}
                 }
             }
             return
@@ -159,12 +188,16 @@ export function* toEvents(message: SDKMessage, hasText: boolean): Generator<Assi
     }
 }
 
-// WebSearch receives {query}, WebFetch {url, prompt}.
+// The skills' tools without the MCP prefix: the UI knows them as get_weather...
+const toolName = (name: string) => name.startsWith(SKILL_PREFIX) ? name.slice(SKILL_PREFIX.length) : name
+
+// WebSearch receives {query}, WebFetch {url, prompt}, get_weather {place?}.
 const toolDetail = (input: unknown): string | undefined => {
     if (typeof input !== 'object' || input === null) return undefined
-    const {query, url} = input as {query?: unknown, url?: unknown}
+    const {query, url, place} = input as {query?: unknown, url?: unknown, place?: unknown}
     if (typeof query === 'string') return query
     if (typeof url === 'string') return url
+    if (typeof place === 'string') return place
     return undefined
 }
 

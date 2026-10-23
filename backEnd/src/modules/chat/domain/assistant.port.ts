@@ -1,3 +1,5 @@
+import type { SkillContext } from '../../../shared/skills/skill.js'
+
 // What the assistant emits while it answers, in order.
 export type AssistantEvent =
     // A piece of the answer text, to append to what came before.
@@ -23,6 +25,9 @@ export interface ReplyInput {
     text: string
     // Aborting it stops the answer (and its cost) as soon as possible.
     signal: AbortSignal
+    // Who is asking: the skills' tools need it.
+    uid: string
+    locate: SkillContext['locate']
     // Continues that conversation (its earlier messages are the context);
     // without it, the answer starts a new one.
     sessionId?: string

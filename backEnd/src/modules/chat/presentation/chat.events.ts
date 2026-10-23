@@ -8,7 +8,8 @@ import type { Source } from '../domain/assistant.port.js'
 // One answer at a time per connection: after chat:message (or chat:retry)
 // the server sends chat:conversation if it started a new conversation, any
 // number of chat:delta / chat:tool / chat:sources, then exactly one chat:done
-// or chat:error.
+// or chat:error. While answering, the server may also ask for the user's
+// location (chat:location) and wait for the reply.
 
 // Events the client sends.
 export interface ChatClientEvents {
@@ -35,7 +36,12 @@ export interface ChatServerEvents {
     'chat:done': (payload: {cancelled: boolean}) => void
     // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
     'chat:error': (payload: {code: ChatErrorCode, message: string, retryAfter?: number}) => void
+    // Elber needs to know where the user is (e.g. "will it rain?"). The
+    // client answers through the ack with the device's location or why not.
+    'chat:location': (ack: (reply: LocationReply) => void) => void
 }
+
+export type LocationReply = {lat: number, lon: number} | {error: 'DENIED' | 'UNAVAILABLE'}
 
 export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND' | 'NOTHING_TO_RETRY' | 'RATE_LIMITED' | 'INTERNAL_ERROR'
 

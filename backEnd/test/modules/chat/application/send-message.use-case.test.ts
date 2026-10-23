@@ -17,9 +17,13 @@ const assistantAnswering = (...events: AssistantEvent[]) => {
     return {assistant, inputs}
 }
 
-const run = async (useCase: SendMessageUseCase, input: Omit<SendMessageInput, 'signal'>, signal = new AbortController().signal) => {
+// Where the user is, when a tool asks.
+const HERE = {lat: 19.43, lon: -99.13}
+const locate = async () => HERE
+
+const run = async (useCase: SendMessageUseCase, input: Omit<SendMessageInput, 'signal' | 'locate'>, signal = new AbortController().signal) => {
     const events = []
-    for await (const event of useCase.execute({...input, signal})) events.push(event)
+    for await (const event of useCase.execute({...input, signal, locate})) events.push(event)
     return events
 }
 
@@ -55,6 +59,15 @@ describe('SendMessageUseCase', () => {
                 {role: 'elber', text: 'Hace sol [1].', status: 'done', sources, tools: [{name: 'WebSearch', detail: 'clima CDMX'}]},
             ],
         })
+    })
+
+    it('gives the assistant who is asking and how to locate them, for the tools', async () => {
+        const {assistant, inputs} = assistantAnswering({type: 'delta', text: 'ok'})
+        const useCase = new SendMessageUseCase(assistant, new InMemoryConversations())
+
+        await run(useCase, {uid: 'uid-1', text: '¿Va a llover?'})
+
+        expect(inputs[0]).toMatchObject({uid: 'uid-1', locate})
     })
 
     it('continues an existing conversation with its assistant session', async () => {
@@ -111,9 +124,9 @@ describe('SendMessageUseCase', () => {
     })
 
     describe('retry', () => {
-        const retry = async (useCase: SendMessageUseCase, input: Omit<RetryInput, 'signal'>) => {
+        const retry = async (useCase: SendMessageUseCase, input: Omit<RetryInput, 'signal' | 'locate'>) => {
             const events = []
-            for await (const event of useCase.retry({...input, signal: new AbortController().signal})) events.push(event)
+            for await (const event of useCase.retry({...input, signal: new AbortController().signal, locate})) events.push(event)
             return events
         }
 

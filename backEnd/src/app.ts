@@ -7,6 +7,7 @@ import env from './config/env.js'
 import createChatModule from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
+import createWeatherModule from './modules/weather/index.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
 import errorHandler from './shared/http/middlewares/error.middleware.js'
@@ -22,7 +23,9 @@ const createApp = ({io}: AppDeps) => {
     // Modules never import each other: they communicate through this bus.
     const bus = new InMemoryEventBus()
     const users = createUsersModule({bus})
-    const chat = createChatModule({io})
+    // Skills don't talk to the chat through the bus: they hand it their tools.
+    const weather = createWeatherModule()
+    const chat = createChatModule({io, tools: weather.tools})
     createNotificationsModule({bus})
 
     app.use(helmet())

@@ -6,23 +6,29 @@ import elberSurprise from '../assets/elber_surprise.webp'
 import { Button } from '../components'
 import { Markdown } from './Markdown'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, CheckIcon, ChevronIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
+import { AlertIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
-const LABEL = { search: 'Buscando en la web', read: 'Leyendo una página' }
+const LABEL = { search: 'Buscando en la web', read: 'Leyendo una página', weather: 'Consultando el clima' }
+const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
   return (
     <ol className="steps" aria-label="Pasos de Elber">
-      {steps.map((s) => (
-        <li key={s.id} className={`step${s.status === 'running' ? ' step--running' : ''}`}>
-          <span className="step-icon">{s.kind === 'search' ? <GlobeIcon /> : <PageIcon />}</span>
-          <span className="step-text">
-            {LABEL[s.kind]}: <span className="step-detail">{s.detail}</span>
-          </span>
-          {s.status === 'running' ? <span className="step-spinner" aria-label="En curso" /> : <CheckIcon className="step-check" aria-label="Listo" />}
-        </li>
-      ))}
+      {steps.map((s) => {
+        const Icon = ICON[s.kind]
+        return (
+          <li key={s.id} className={`step${s.status === 'running' ? ' step--running' : ''}`}>
+            <span className="step-icon">
+              <Icon />
+            </span>
+            <span className="step-text">
+              {LABEL[s.kind]}: <span className="step-detail">{s.detail}</span>
+            </span>
+            {s.status === 'running' ? <span className="step-spinner" aria-label="En curso" /> : <CheckIcon className="step-check" aria-label="Listo" />}
+          </li>
+        )
+      })}
     </ol>
   )
 }
@@ -30,10 +36,12 @@ function ToolSteps({ steps }: { steps: ToolStep[] }) {
 function stepsSummary(steps: ToolStep[]) {
   const searches = steps.filter((s) => s.kind === 'search').length
   const reads = steps.filter((s) => s.kind === 'read').length
+  const weather = steps.filter((s) => s.kind === 'weather').length
   const parts: string[] = []
+  if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
   if (reads) parts.push(reads === 1 ? 'leyó 1 página' : `leyó ${reads} páginas`)
-  const desc = parts.join(' y ')
+  const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }
 

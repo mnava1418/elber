@@ -46,6 +46,23 @@ describe('toEvents', () => {
         ])
     })
 
+    it('names the skills\' tools without their MCP prefix, with the place as hint', () => {
+        const message = sdkMessage({
+            type: 'assistant',
+            message: {
+                content: [
+                    {type: 'tool_use', id: 't1', name: 'mcp__elber__get_weather', input: {place: 'Madrid'}},
+                    {type: 'tool_use', id: 't2', name: 'mcp__elber__get_weather', input: {}},
+                ],
+            },
+        })
+
+        expect(events(message)).toEqual([
+            {type: 'tool', name: 'get_weather', detail: 'Madrid'},
+            {type: 'tool', name: 'get_weather', detail: undefined},
+        ])
+    })
+
     it('ends quietly on a successful result', () => {
         const message = sdkMessage({type: 'result', subtype: 'success', is_error: false, result: 'Hola'})
 

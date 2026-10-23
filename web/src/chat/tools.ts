@@ -1,12 +1,14 @@
 import type { ToolKind } from './types'
 
 // The backend's tool names, as the UI shows them.
-export const TOOL_KIND: Record<string, ToolKind> = { WebSearch: 'search', WebFetch: 'read' }
+export const TOOL_KIND: Record<string, ToolKind> = { WebSearch: 'search', WebFetch: 'read', get_weather: 'weather' }
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'
 
-// For pages, the domain is enough: "Leyendo una página: ejemplo.com".
+// For pages, the domain is enough: "Leyendo una página: ejemplo.com". The
+// weather without a place is the user's location.
 export function toolDetail(kind: ToolKind, detail = ''): string {
+  if (kind === 'weather') return detail || 'tu ubicación'
   if (kind !== 'read') return detail
   try {
     return new URL(detail).hostname.replace(/^www\./, '')
