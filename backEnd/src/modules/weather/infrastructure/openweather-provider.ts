@@ -21,6 +21,7 @@ interface GeoPlace {
 // https://openweathermap.org/api/one-call-3
 interface Condition {
     description: string
+    icon: string
 }
 
 export interface OneCall {
@@ -112,6 +113,7 @@ export const toForecast = (data: OneCall, now: number): Forecast => {
         localTime: localTime(now, offset),
         current: {
             description: describe(current.weather),
+            icon: iconOf(current.weather),
             temp: round(current.temp),
             feelsLike: round(current.feels_like),
             humidity: current.humidity,
@@ -122,6 +124,7 @@ export const toForecast = (data: OneCall, now: number): Forecast => {
         hourly: (data.hourly ?? []).filter((hour) => hour.dt + 3600 > now).slice(0, HOURS).map((hour) => ({
             time: localTime(hour.dt, offset),
             description: describe(hour.weather),
+            icon: iconOf(hour.weather),
             temp: round(hour.temp),
             rainChance: chance(hour.pop),
             ...amounts(hour.rain?.['1h'], hour.snow?.['1h']),
@@ -129,6 +132,7 @@ export const toForecast = (data: OneCall, now: number): Forecast => {
         daily: (data.daily ?? []).map((day) => ({
             date: localTime(day.dt, offset).slice(0, 10),
             summary: day.summary ?? describe(day.weather),
+            icon: iconOf(day.weather),
             min: round(day.temp.min),
             max: round(day.temp.max),
             rainChance: chance(day.pop),
@@ -147,6 +151,9 @@ export const toForecast = (data: OneCall, now: number): Forecast => {
 const localTime = (seconds: number, offset: number) => new Date((seconds + offset) * 1000).toISOString().slice(0, 16)
 
 const describe = (conditions: Condition[]) => conditions.map((condition) => condition.description).join(', ')
+
+// The first condition is the main one. Unknown: cloudy.
+const iconOf = (conditions: Condition[]) => conditions[0]?.icon ?? '03d'
 
 const round = (value: number) => Math.round(value * 10) / 10
 

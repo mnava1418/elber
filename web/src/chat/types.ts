@@ -1,3 +1,5 @@
+import type { Widget } from '../lib/socket'
+
 export const MAX_CHARS = 4000
 export const WARN_CHARS = 3600
 
@@ -35,6 +37,8 @@ export interface ElberTurn {
   text: string
   steps: ToolStep[]
   sources: Source[]
+  /** Lo que las herramientas muestran junto a la respuesta (tarjeta del clima…). */
+  widgets: Widget[]
   /** Con status 'error': el servidor no respondió por el límite de mensajes; segundos a esperar. */
   retryAfter?: number
 }
@@ -48,6 +52,7 @@ export type ServerEvent =
   | { type: 'tool_end'; turnId: string; stepId: string }
   | { type: 'delta'; turnId: string; text: string }
   | { type: 'sources'; turnId: string; sources: Source[] }
+  | { type: 'widget'; turnId: string; widget: Widget }
   | { type: 'done'; turnId: string }
   | { type: 'error'; turnId: string; message?: string; rateLimited?: { retryAfter: number } }
 

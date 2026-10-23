@@ -1,4 +1,4 @@
-import type { SkillContext } from '../../../shared/skills/skill.js'
+import type { SkillContext, Widget } from '../../../shared/skills/skill.js'
 
 // What the assistant emits while it answers, in order.
 export type AssistantEvent =
@@ -10,6 +10,8 @@ export type AssistantEvent =
     // The sources the answer can cite as [n], complete so far: each one
     // replaces the previous list.
     | {type: 'sources', sources: Source[]}
+    // Something a tool shows the user next to the answer (a weather card...).
+    | {type: 'widget', widget: Widget}
     // Opaque id of the conversation this answer belongs to: pass it as
     // `sessionId` in the next reply to continue it.
     | {type: 'session', id: string}

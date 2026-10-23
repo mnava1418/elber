@@ -1,0 +1,84 @@
+/* Tarjeta del clima (widget 'weather'). Vive dentro de .chat: usa sus tokens. */
+.wx {
+  /* Solid, not translucent: the partly cloudy icon fills its cloud with it. */
+  --wx-bg: #0c3240;
+  --wx-rain: #7cc4ff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--wx-bg);
+  border: 1px solid var(--chat-line);
+  color: var(--chat-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.wx-place { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.wx-place-name { font-family: var(--display); font-size: 16px; font-weight: 600; color: var(--chat-ink-strong); }
+.wx-place-where { font-size: 12.5px; color: var(--chat-muted); }
+.wx-time { font-size: 12.5px; color: var(--chat-muted); }
+
+.wx-now { display: flex; align-items: center; gap: 14px; }
+.wx-now-temp { font-family: var(--display); font-size: 44px; font-weight: 600; line-height: 1; letter-spacing: -1px; color: var(--chat-ink-strong); }
+.wx-now-desc { font-size: 15px; color: var(--chat-ink); }
+
+.wx-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0; }
+.wx-stats div { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgba(55, 214, 208, 0.06); }
+.wx-stats dt { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--chat-muted); }
+.wx-stats dd { margin: 0; font-size: 14px; font-weight: 600; color: var(--chat-ink-strong); }
+
+.wx-alert { border-radius: 10px; background: rgba(255, 184, 119, 0.1); border: 1px solid rgba(255, 184, 119, 0.3); color: var(--chat-warn-text); font-size: 13.5px; }
+.wx-alert summary { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; }
+.wx-alert summary::-webkit-details-marker { display: none; }
+.wx-alert summary svg { flex: none; color: var(--chat-warn); }
+.wx-alert-event { font-weight: 600; }
+.wx-alert-until { margin-left: auto; color: var(--chat-warn); white-space: nowrap; }
+.wx-alert p { margin: 0; padding: 0 12px 10px 35px; line-height: 1.5; white-space: pre-line; }
+
+.wx-hours {
+  display: flex;
+  gap: 4px;
+  margin: 0 -18px;
+  padding: 12px 18px 2px;
+  list-style: none;
+  border-top: 1px solid var(--chat-line);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(55, 214, 208, 0.25) transparent;
+}
+.wx-hours li { flex: none; width: 46px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0; }
+.wx-hour { font-size: 12px; color: var(--chat-muted); }
+.wx-hour-temp { font-size: 14px; font-weight: 600; color: var(--chat-ink-strong); }
+
+.wx-rain { min-height: 1em; font-size: 11.5px; color: var(--wx-rain); }
+
+.wx-days { display: flex; flex-direction: column; margin: 0; padding: 12px 0 0; list-style: none; border-top: 1px solid var(--chat-line); }
+.wx-days li { display: grid; grid-template-columns: 64px 20px 40px 34px 1fr 34px; align-items: center; gap: 10px; min-height: 34px; font-size: 14px; }
+.wx-day { color: var(--chat-ink); }
+.wx-days li:first-child .wx-day { font-weight: 600; color: var(--chat-ink-strong); }
+.wx-days .wx-rain { text-align: right; }
+.wx-min { text-align: right; color: var(--chat-muted); }
+.wx-max { color: var(--chat-ink-strong); font-weight: 600; }
+.wx-range { position: relative; height: 5px; border-radius: 3px; background: rgba(213, 255, 248, 0.08); }
+.wx-range span { position: absolute; top: 0; bottom: 0; min-width: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--elber-cyan), var(--elber-orange)); }
+
+/* Weather icon colors */
+.wx-icon { flex: none; color: var(--chat-ink); }
+.wx-icon--clear, .wx-icon--partly { color: var(--elber-orange); }
+.wx-icon--night.wx-icon--clear, .wx-icon--night.wx-icon--partly { color: var(--elber-mint); }
+.wx-icon--rain { color: var(--wx-rain); }
+.wx-icon--storm { color: var(--chat-warn); }
+.wx-icon--snow { color: var(--chat-ink-strong); }
+.wx-icon--clouds, .wx-icon--mist { color: var(--text); }
+.wx-icon--partly path:last-child { stroke: var(--text); }
+
+@media (max-width: 640px) {
+  .wx { padding: 14px; }
+  .wx-hours { margin: 0 -14px; padding-inline: 14px; }
+  .wx-stats { grid-template-columns: repeat(2, 1fr); }
+  .wx-now-temp { font-size: 38px; }
+  .wx-days li { grid-template-columns: 52px 20px 36px 30px 1fr 30px; gap: 8px; }
+}

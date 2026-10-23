@@ -5,7 +5,7 @@ import { InvalidCursorError, type ConversationPage, type ConversationRepository 
 // Adapter: conversations in Firestore, under their user, so a lookup can
 // never reach someone else's:
 //   users/{uid}/conversations/{conversationId}            title, assistantSessionId, createdAt, updatedAt
-//   users/{uid}/conversations/{conversationId}/messages/  role, text, (status, sources, tools), createdAt
+//   users/{uid}/conversations/{conversationId}/messages/  role, text, (status, sources, tools, widgets), createdAt
 class FirestoreConversationRepository implements ConversationRepository {
     constructor(private readonly db: Firestore) {}
 
@@ -96,7 +96,7 @@ const toStoredMessage = (doc: QueryDocumentSnapshot): StoredMessage => {
     const base = {id: doc.id, text: data.text as string, createdAt: (data.createdAt as Timestamp).toDate()}
     return data.role === 'user'
         ? {...base, role: 'user'}
-        : {...base, role: 'elber', status: data.status, sources: data.sources ?? [], tools: data.tools ?? []}
+        : {...base, role: 'elber', status: data.status, sources: data.sources ?? [], tools: data.tools ?? [], widgets: data.widgets ?? []}
 }
 
 // The cursor is the position of the last conversation of the page:

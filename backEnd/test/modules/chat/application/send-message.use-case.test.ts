@@ -30,10 +30,12 @@ const run = async (useCase: SendMessageUseCase, input: Omit<SendMessageInput, 's
 describe('SendMessageUseCase', () => {
     it('starts a new conversation named after the message, and stores both messages', async () => {
         const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
+        const widget = {type: 'weather', data: {temp: 22}}
         const {assistant} = assistantAnswering(
             {type: 'session', id: 'session-1'},
             {type: 'tool', name: 'WebSearch', detail: 'clima CDMX'},
             {type: 'sources', sources},
+            {type: 'widget', widget},
             {type: 'delta', text: 'Hace sol '},
             {type: 'delta', text: '[1].'},
         )
@@ -46,6 +48,7 @@ describe('SendMessageUseCase', () => {
             {type: 'conversation', id: 'conv1', title: '¿Qué clima hace?'},
             {type: 'tool', name: 'WebSearch', detail: 'clima CDMX'},
             {type: 'sources', sources},
+            {type: 'widget', widget},
             {type: 'delta', text: 'Hace sol '},
             {type: 'delta', text: '[1].'},
         ])
@@ -56,7 +59,7 @@ describe('SendMessageUseCase', () => {
             assistantSessionId: 'session-1',
             messages: [
                 {role: 'user', text: '¿Qué clima hace?'},
-                {role: 'elber', text: 'Hace sol [1].', status: 'done', sources, tools: [{name: 'WebSearch', detail: 'clima CDMX'}]},
+                {role: 'elber', text: 'Hace sol [1].', status: 'done', sources, tools: [{name: 'WebSearch', detail: 'clima CDMX'}], widgets: [widget]},
             ],
         })
     })
@@ -109,7 +112,7 @@ describe('SendMessageUseCase', () => {
 
         await expect(run(useCase, {uid: 'uid-1', text: 'hola'}, controller.signal)).rejects.toThrow('aborted')
         expect(repository.conversations.get('conv1')!.messages.at(-1)).toEqual(
-            {role: 'elber', text: 'Empiezo', status: 'stopped', sources: [], tools: []},
+            {role: 'elber', text: 'Empiezo', status: 'stopped', sources: [], tools: [], widgets: []},
         )
     })
 
@@ -144,7 +147,7 @@ describe('SendMessageUseCase', () => {
             ['failed', 'error'],
             ['stopped', 'stopped'],
         ] as const)('replaces a %s answer, asking the same question without storing it again', async (_case, status) => {
-            const repository = await conversationWith({role: 'elber', text: 'Empie', status, sources: [], tools: []})
+            const repository = await conversationWith({role: 'elber', text: 'Empie', status, sources: [], tools: [], widgets: []})
             const {assistant, inputs} = assistantAnswering({type: 'delta', text: 'Hola de nuevo'})
 
             const events = await retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-1', conversationId: 'conv1'})
@@ -153,7 +156,7 @@ describe('SendMessageUseCase', () => {
             expect(inputs).toEqual([expect.objectContaining({text: 'hola', sessionId: 'session-1'})])
             expect(repository.conversations.get('conv1')!.messages).toEqual([
                 {role: 'user', text: 'hola'},
-                {role: 'elber', text: 'Hola de nuevo', status: 'done', sources: [], tools: []},
+                {role: 'elber', text: 'Hola de nuevo', status: 'done', sources: [], tools: [], widgets: []},
             ])
         })
 
@@ -165,12 +168,12 @@ describe('SendMessageUseCase', () => {
 
             expect(repository.conversations.get('conv1')!.messages).toEqual([
                 {role: 'user', text: 'hola'},
-                {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: []},
+                {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: [], widgets: []},
             ])
         })
 
         it('throws NothingToRetryError when the last answer is fine, touching nothing', async () => {
-            const answer: Message = {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: []}
+            const answer: Message = {role: 'elber', text: 'Hola', status: 'done', sources: [], tools: [], widgets: []}
             const repository = await conversationWith(answer)
             const {assistant, inputs} = assistantAnswering()
 
@@ -180,7 +183,7 @@ describe('SendMessageUseCase', () => {
         })
 
         it('throws ConversationNotFoundError for someone else\'s conversation', async () => {
-            const repository = await conversationWith({role: 'elber', text: '', status: 'error', sources: [], tools: []})
+            const repository = await conversationWith({role: 'elber', text: '', status: 'error', sources: [], tools: [], widgets: []})
             const {assistant, inputs} = assistantAnswering()
 
             await expect(retry(new SendMessageUseCase(assistant, repository), {uid: 'uid-2', conversationId: 'conv1'})).rejects.toThrow(ConversationNotFoundError)

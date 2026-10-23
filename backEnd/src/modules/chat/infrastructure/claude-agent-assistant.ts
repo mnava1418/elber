@@ -1,5 +1,5 @@
 import { createSdkMcpServer, deleteSession, getSessionInfo, query, tool, type HookCallbackMatcher, type McpSdkServerConfigWithInstance, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
-import type { SkillContext, SkillTool } from '../../../shared/skills/skill.js'
+import type { SkillContext, SkillTool, Widget } from '../../../shared/skills/skill.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
 import { ELBER_SYSTEM_PROMPT } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
@@ -79,6 +79,9 @@ class ClaudeAgentAssistant implements Assistant {
 
         const sources = new SourceList()
         let sentSources = 0
+        // Shown by tools as they run, sent between the SDK's messages.
+        const widgets: Widget[] = []
+        const show = (widget: Widget) => widgets.push(widget)
         // The whole answer, to know which sources it cites.
         let answer = ''
 
@@ -90,7 +93,7 @@ class ClaudeAgentAssistant implements Assistant {
                 resume: sessionId,
                 hooks: {PostToolUse: [citeSources(sources)]},
                 // One per answer: its tools run with this request's user and location.
-                mcpServers: {[SKILLS_SERVER]: skillsServer(this.tools, {uid, signal, locate})},
+                mcpServers: {[SKILLS_SERVER]: skillsServer(this.tools, {uid, signal, locate, show})},
             }
             for await (const message of query({prompt: text, options})) {
                 // A new text block after earlier text (e.g. after a search)
@@ -104,6 +107,7 @@ class ClaudeAgentAssistant implements Assistant {
                     sentSources = sources.size
                     yield {type: 'sources', sources: sources.all()}
                 }
+                for (const widget of widgets.splice(0)) yield {type: 'widget', widget}
             }
             // The final list: only what the answer cites (a search returns many pages).
             if (sentSources > 0) yield {type: 'sources', sources: sources.citedIn(answer)}

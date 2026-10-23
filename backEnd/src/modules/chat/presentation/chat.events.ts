@@ -1,5 +1,6 @@
 import type { Namespace, Socket } from 'socket.io'
 import type { AuthUser } from '../../../shared/auth/token-verifier.js'
+import type { Widget } from '../../../shared/skills/skill.js'
 import type { Source } from '../domain/assistant.port.js'
 
 // Contract of the /chat namespace: event name -> payload. The frontend keeps
@@ -7,7 +8,7 @@ import type { Source } from '../domain/assistant.port.js'
 //
 // One answer at a time per connection: after chat:message (or chat:retry)
 // the server sends chat:conversation if it started a new conversation, any
-// number of chat:delta / chat:tool / chat:sources, then exactly one chat:done
+// number of chat:delta / chat:tool / chat:sources / chat:widget, then exactly one chat:done
 // or chat:error. While answering, the server may also ask for the user's
 // location (chat:location) and wait for the reply.
 
@@ -33,6 +34,9 @@ export interface ChatServerEvents {
     // Sources the answer cites as [n]. Each one replaces the previous list;
     // the last one, just before chat:done, has only those actually cited.
     'chat:sources': (payload: {sources: Source[]}) => void
+    // Something to show next to the answer, e.g. {type: 'weather', data: {...}}.
+    // The frontend draws the types it knows and ignores the rest.
+    'chat:widget': (payload: {widget: Widget}) => void
     'chat:done': (payload: {cancelled: boolean}) => void
     // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
     'chat:error': (payload: {code: ChatErrorCode, message: string, retryAfter?: number}) => void
