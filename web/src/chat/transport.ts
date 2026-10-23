@@ -107,6 +107,10 @@ export const socketIoTransport: Transport = (h) => {
   socket.on('chat:location', (ack) => {
     void currentLocation().then(ack)
   })
+  socket.on('chat:widget', ({ widget }) => {
+    if (draining || !turnId) return
+    h.onEvent({ type: 'widget', turnId, widget })
+  })
   socket.on('chat:done', () => {
     if (!draining && turnId) h.onEvent({ type: 'done', turnId })
     finishTurn()

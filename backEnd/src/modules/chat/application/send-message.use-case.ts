@@ -1,3 +1,4 @@
+import type { Widget } from '../../../shared/skills/skill.js'
 import type { Assistant, ReplyInput, Source } from '../domain/assistant.port.js'
 import { ConversationNotFoundError, titleFrom, type Conversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'
@@ -19,6 +20,7 @@ export type SendMessageEvent =
     | {type: 'delta', text: string}
     | {type: 'tool', name: string, detail?: string}
     | {type: 'sources', sources: Source[]}
+    | {type: 'widget', widget: Widget}
 
 export interface RetryInput {
     uid: string
@@ -97,6 +99,7 @@ class SendMessageUseCase {
         let answer = ''
         let sources: Source[] = []
         const tools: ToolUse[] = []
+        const widgets: Widget[] = []
         let status: ElberMessageStatus = 'error'
 
         try {
@@ -122,6 +125,10 @@ class SendMessageUseCase {
                         sources = event.sources
                         yield event
                         break
+                    case 'widget':
+                        widgets.push(event.widget)
+                        yield event
+                        break
                 }
             }
             status = signal.aborted ? 'stopped' : 'done'
@@ -129,7 +136,7 @@ class SendMessageUseCase {
             if (signal.aborted) status = 'stopped'
             throw error
         } finally {
-            await this.conversations.addMessage(uid, conversation.id, {role: 'elber', text: answer, status, sources, tools})
+            await this.conversations.addMessage(uid, conversation.id, {role: 'elber', text: answer, status, sources, tools, widgets})
         }
     }
 }

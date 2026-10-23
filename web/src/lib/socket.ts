@@ -9,7 +9,7 @@ const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_A
 //
 // One answer at a time: after chat:message (or chat:retry) the server sends
 // chat:conversation if it started a new conversation, any number of
-// chat:delta / chat:tool / chat:sources, then exactly one chat:done or chat:error.
+// chat:delta / chat:tool / chat:sources / chat:widget, then exactly one chat:done or chat:error.
 // While answering, the server may also ask for the user's location (chat:location).
 export interface ChatServerEvents {
   // The conversation the message started: send its id with the next messages.
@@ -18,11 +18,19 @@ export interface ChatServerEvents {
   'chat:tool': (payload: { name: string; detail?: string }) => void
   // Each one replaces the previous list; the last one has only the cited sources.
   'chat:sources': (payload: { sources: { n: number; url: string; title: string }[] }) => void
+  // Something to show next to the answer, e.g. a weather card. Unknown types are ignored.
+  'chat:widget': (payload: { widget: Widget }) => void
   'chat:done': (payload: { cancelled: boolean }) => void
   // retryAfter (seconds) comes with RATE_LIMITED. Nothing was stored.
   'chat:error': (payload: { code: ChatErrorCode; message: string; retryAfter?: number }) => void
   // Elber needs to know where the user is (e.g. "will it rain?"): answer through the ack.
   'chat:location': (ack: (reply: LocationReply) => void) => void
+}
+
+// Each `type` has its own `data` (see src/chat/widgets).
+export interface Widget {
+  type: string
+  data: unknown
 }
 
 export type LocationReply = { lat: number; lon: number } | { error: 'DENIED' | 'UNAVAILABLE' }

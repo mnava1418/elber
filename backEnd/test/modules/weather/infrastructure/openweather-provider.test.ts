@@ -10,16 +10,16 @@ const OFFSET = 2 * HOUR
 
 const ONE_CALL: OneCall = {
     timezone_offset: OFFSET,
-    current: {dt: NOW, temp: 17.26, feels_like: 16.84, humidity: 72, uvi: 0.4, wind_speed: 3, weather: [{description: 'nubes'}]},
+    current: {dt: NOW, temp: 17.26, feels_like: 16.84, humidity: 72, uvi: 0.4, wind_speed: 3, weather: [{description: 'nubes', icon: '04n'}]},
     hourly: [
         // Ended an hour ago: left out.
-        {dt: NOW - 1.5 * HOUR, temp: 18, pop: 0, weather: [{description: 'nubes'}]},
-        {dt: NOW - 0.5 * HOUR, temp: 17.2, pop: 0.35, rain: {'1h': 0.42}, weather: [{description: 'lluvia ligera'}]},
-        {dt: NOW + 0.5 * HOUR, temp: 16, pop: 0, weather: [{description: 'cielo claro'}]},
+        {dt: NOW - 1.5 * HOUR, temp: 18, pop: 0, weather: [{description: 'nubes', icon: '04n'}]},
+        {dt: NOW - 0.5 * HOUR, temp: 17.2, pop: 0.35, rain: {'1h': 0.42}, weather: [{description: 'lluvia ligera', icon: '10n'}]},
+        {dt: NOW + 0.5 * HOUR, temp: 16, pop: 0, weather: [{description: 'cielo claro', icon: '01n'}]},
     ],
     daily: [{
         dt: NOW, summary: 'Lluvia por la tarde', temp: {min: 11.04, max: 19.96}, pop: 0.6, rain: 2.345,
-        weather: [{description: 'lluvia'}],
+        weather: [{description: 'lluvia', icon: '10d'}],
     }],
     alerts: [{event: 'Viento', start: NOW, end: NOW + 6 * HOUR, description: 'Rachas fuertes'}],
 }
@@ -28,12 +28,12 @@ describe('toForecast', () => {
     it('trims the response and gives times in the place\'s local time', () => {
         expect(toForecast(ONE_CALL, NOW)).toEqual({
             localTime: '2026-10-23T20:30',
-            current: {description: 'nubes', temp: 17.3, feelsLike: 16.8, humidity: 72, windKmh: 10.8, uvIndex: 0.4},
+            current: {description: 'nubes', icon: '04n', temp: 17.3, feelsLike: 16.8, humidity: 72, windKmh: 10.8, uvIndex: 0.4},
             hourly: [
-                {time: '2026-10-23T20:00', description: 'lluvia ligera', temp: 17.2, rainChance: 35, rainMm: 0.4},
-                {time: '2026-10-23T21:00', description: 'cielo claro', temp: 16, rainChance: 0},
+                {time: '2026-10-23T20:00', description: 'lluvia ligera', icon: '10n', temp: 17.2, rainChance: 35, rainMm: 0.4},
+                {time: '2026-10-23T21:00', description: 'cielo claro', icon: '01n', temp: 16, rainChance: 0},
             ],
-            daily: [{date: '2026-10-23', summary: 'Lluvia por la tarde', min: 11, max: 20, rainChance: 60, rainMm: 2.3}],
+            daily: [{date: '2026-10-23', summary: 'Lluvia por la tarde', icon: '10d', min: 11, max: 20, rainChance: 60, rainMm: 2.3}],
             alerts: [{event: 'Viento', start: '2026-10-23T20:30', end: '2026-10-24T02:30', description: 'Rachas fuertes'}],
         })
     })

@@ -15,7 +15,7 @@ describe('GetWeatherUseCase', () => {
     const forecast = vi.fn<WeatherProvider['forecast']>()
     const locate = vi.fn<SkillContext['locate']>()
     const signal = new AbortController().signal
-    const context: SkillContext = {uid: 'user-1', signal, locate}
+    const context: SkillContext = {uid: 'user-1', signal, locate, show: () => {}}
 
     let useCase: GetWeatherUseCase
 

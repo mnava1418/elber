@@ -10,6 +10,14 @@ export interface Coords {
     lon: number
 }
 
+// Something a tool shows the user in the chat, next to Elber's answer (a
+// weather card...). The chat stores and sends it without looking inside: each
+// `type` has its own `data` and its own component in the frontend.
+export interface Widget {
+    type: string
+    data: unknown
+}
+
 // What a tool knows about the request it runs in.
 export interface SkillContext {
     uid: string
@@ -18,6 +26,8 @@ export interface SkillContext {
     // Asks the user's device where they are. null if they refused or it is
     // unavailable.
     locate(): Promise<Coords | null>
+    // Shows a widget in the answer. The model still answers in words.
+    show(widget: Widget): void
 }
 
 export interface SkillTool<Shape extends z.ZodRawShape = z.ZodRawShape> {

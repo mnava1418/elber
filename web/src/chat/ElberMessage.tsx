@@ -5,6 +5,7 @@ import elberThinking from '../assets/elber_thinking.webp'
 import elberSurprise from '../assets/elber_surprise.webp'
 import { Button } from '../components'
 import { Markdown } from './Markdown'
+import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
 import { AlertIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
 
@@ -74,7 +75,7 @@ interface Props {
 
 export function ElberMessage({ turn, canRetry, onRetry }: Props) {
   const [showSteps, setShowSteps] = useState(false)
-  const { status, steps, text, sources } = turn
+  const { status, steps, text, sources, widgets } = turn
   const live = status === 'thinking' || status === 'streaming'
   const toolRunning = steps.some((s) => s.status === 'running')
 
@@ -102,6 +103,8 @@ export function ElberMessage({ turn, canRetry, onRetry }: Props) {
           Pensando…
         </div>
       )}
+
+      {widgets.length > 0 && <Widgets widgets={widgets} />}
 
       {text && <Markdown text={text} sources={sources} state={status === 'streaming' ? 'streaming' : status === 'stopped' ? 'stopped' : undefined} />}
 

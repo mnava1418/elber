@@ -1,3 +1,4 @@
+import type { Widget } from '../../../shared/skills/skill.js'
 import type { Source } from './assistant.port.js'
 
 // A chat between a user and Elber. Its messages are what the app shows; the
@@ -28,7 +29,7 @@ export type ElberMessageStatus = 'done' | 'stopped' | 'error'
 
 export type Message =
     | {role: 'user', text: string}
-    | {role: 'elber', text: string, status: ElberMessageStatus, sources: Source[], tools: ToolUse[]}
+    | {role: 'elber', text: string, status: ElberMessageStatus, sources: Source[], tools: ToolUse[], widgets: Widget[]}
 
 // A message as it was stored, to show it again.
 export type StoredMessage = Message & {id: string, createdAt: Date}

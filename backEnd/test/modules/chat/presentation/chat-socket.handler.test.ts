@@ -46,7 +46,7 @@ describe('chat socket handler', () => {
         vi.restoreAllMocks()
     })
 
-    it('streams the answer as chat:conversation / delta / tool / sources and ends with chat:done', async () => {
+    it('streams the answer as chat:conversation / delta / tool / sources / widget and ends with chat:done', async () => {
         const sources = [{n: 1, url: 'https://a.com', title: 'A'}]
         const {socket, emit, receive} = fakeSocket()
         handle(answering(
@@ -54,6 +54,7 @@ describe('chat socket handler', () => {
             {type: 'delta', text: 'Déjame buscar.'},
             {type: 'tool', name: 'WebSearch', detail: 'clima CDMX'},
             {type: 'sources', sources},
+            {type: 'widget', widget: {type: 'weather', data: {temp: 22}}},
             {type: 'delta', text: 'Hace sol [1].'},
         ))(socket)
 
@@ -64,6 +65,7 @@ describe('chat socket handler', () => {
             ['chat:delta', {text: 'Déjame buscar.'}],
             ['chat:tool', {name: 'WebSearch', detail: 'clima CDMX'}],
             ['chat:sources', {sources}],
+            ['chat:widget', {widget: {type: 'weather', data: {temp: 22}}}],
             ['chat:delta', {text: 'Hace sol [1].'}],
             ['chat:done', {cancelled: false}],
         ])

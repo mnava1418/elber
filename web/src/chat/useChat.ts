@@ -64,6 +64,8 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
             return { ...t, status: 'streaming', text: t.text + e.text }
           case 'sources':
             return { ...t, sources: e.sources }
+          case 'widget':
+            return { ...t, widgets: [...t.widgets, e.widget] }
           case 'done':
             return finishSteps({ ...t, status: 'done' })
           case 'error':
@@ -125,7 +127,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       setTurns((ts) => [
         ...ts,
         { id: userId, role: 'user', text },
-        { id: elberId, role: 'elber', replyTo: userId, status: 'thinking', text: '', steps: [], sources: [] },
+        { id: elberId, role: 'elber', replyTo: userId, status: 'thinking', text: '', steps: [], sources: [], widgets: [] },
       ])
       if (!conversationId.current) newConversationTurn.current = elberId
       sentAsMessage.current = elberId
@@ -153,7 +155,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       const turn = turns.find((t): t is ElberTurn => t.id === elberId && t.role === 'elber')
       const question = turns.find((t) => t.id === turn?.replyTo)
       if (!turn || !question) return
-      patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [], retryAfter: undefined }))
+      patch(elberId, (t) => ({ ...t, status: 'thinking', text: '', steps: [], sources: [], widgets: [], retryAfter: undefined }))
       if (conversationId.current && !unsent.current.has(elberId)) {
         sentAsMessage.current = null
         conn.current?.retry(elberId, conversationId.current)

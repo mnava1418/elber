@@ -1,4 +1,5 @@
 import { apiDeleteAuth, apiGetAuth } from '../lib/api'
+import type { Widget } from '../lib/socket'
 import { toolDetail, toolKind } from './tools'
 import type { Source, Turn } from './types'
 
@@ -26,6 +27,7 @@ type StoredMessage = { id: string; createdAt: string } & (
       status: 'done' | 'stopped' | 'error'
       sources: Source[]
       tools: { name: string; detail?: string }[]
+      widgets: Widget[]
     }
 )
 
@@ -64,6 +66,7 @@ export function toTurns(messages: StoredMessage[]): Turn[] {
       status: m.status,
       text: m.text,
       sources: m.sources,
+      widgets: m.widgets,
       steps: m.tools.map((tool, i) => {
         const kind = toolKind(tool.name)
         return { id: `${m.id}-${i}`, kind, detail: toolDetail(kind, tool.detail), status: 'done' }

@@ -59,6 +59,9 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: Mess
                     case 'sources':
                         socket.emit('chat:sources', {sources: event.sources})
                         break
+                    case 'widget':
+                        socket.emit('chat:widget', {widget: event.widget})
+                        break
                 }
             }
             socket.emit('chat:done', {cancelled: controller.signal.aborted})

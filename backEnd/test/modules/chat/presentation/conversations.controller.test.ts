@@ -132,7 +132,7 @@ describe('chat conversations routes', () => {
             const [id] = await conversationsOf('uid-1', '¿Qué clima hace?')
             await repository.setAssistantSession('uid-1', id, 'session-1')
             await repository.addMessage('uid-1', id, {role: 'user', text: '¿Qué clima hace?'})
-            await repository.addMessage('uid-1', id, {role: 'elber', text: 'Sol', status: 'done', sources: [], tools: []})
+            await repository.addMessage('uid-1', id, {role: 'elber', text: 'Sol', status: 'done', sources: [], tools: [], widgets: []})
 
             const response = await request('GET', `/conversations/${id}`)
 
@@ -142,7 +142,7 @@ describe('chat conversations routes', () => {
                 title: '¿Qué clima hace?',
                 messages: [
                     {id: 'm1', role: 'user', text: '¿Qué clima hace?', createdAt: expect.any(String)},
-                    {id: 'm2', role: 'elber', text: 'Sol', status: 'done', sources: [], tools: [], createdAt: expect.any(String)},
+                    {id: 'm2', role: 'elber', text: 'Sol', status: 'done', sources: [], tools: [], widgets: [], createdAt: expect.any(String)},
                 ],
             }})
         })
