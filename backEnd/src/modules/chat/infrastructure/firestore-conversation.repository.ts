@@ -81,6 +81,18 @@ class FirestoreConversationRepository implements ConversationRepository {
         return true
     }
 
+    async deleteAll(uid: string): Promise<Conversation[]> {
+        const collection = this.conversations(uid)
+        // Read before deleting, for their assistant sessions. One created in
+        // between is deleted too; only its session is left behind.
+        const snapshot = await collection.get()
+        await this.db.recursiveDelete(collection)
+        return snapshot.docs.map((doc) => {
+            const {title, assistantSessionId} = doc.data() as {title: string, assistantSessionId?: string}
+            return {id: doc.id, title, assistantSessionId}
+        })
+    }
+
     private conversations(uid: string) {
         return this.db.collection('users').doc(uid).collection('conversations')
     }

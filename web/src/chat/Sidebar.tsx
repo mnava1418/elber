@@ -14,11 +14,12 @@ interface Props {
   onNew: () => void
   onSelect: (id: string) => void
   onDelete: (conversation: ConversationSummary) => void
+  onDeleteAll: () => void
   onLoadMore: () => void
   onRetry: () => void
 }
 
-export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onClose, onNew, onSelect, onDelete, onLoadMore, onRetry }: Props) {
+export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onClose, onNew, onSelect, onDelete, onDeleteAll, onLoadMore, onRetry }: Props) {
   const sentinel = useRef<HTMLDivElement>(null)
   // After an error, only the Reintentar button loads again (no retry loop).
   const autoLoad = hasMore && status === 'idle'
@@ -83,6 +84,12 @@ export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onCl
           )}
           {autoLoad && <div ref={sentinel} className="chat-panel-sentinel" aria-hidden="true" />}
         </nav>
+        {conversations.length > 0 && (
+          <button type="button" className="chat-panel-clear" onClick={onDeleteAll}>
+            <TrashIcon />
+            Borrar todas
+          </button>
+        )}
       </div>
     </aside>
   )

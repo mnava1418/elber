@@ -64,7 +64,8 @@ function Chat() {
   const [loadAttempt, setLoadAttempt] = useState(0)
   const loadState: LoadState =
     !routeId || routeId === conversation ? 'idle' : loadFailure?.key === location.key ? loadFailure.state : 'loading'
-  const [pendingDelete, setPendingDelete] = useState<ConversationSummary | null>(null)
+  // What the delete dialog asks about: one conversation, or all of them.
+  const [pendingDelete, setPendingDelete] = useState<ConversationSummary | 'all' | null>(null)
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'error'>('idle')
   const scroller = useRef<HTMLDivElement>(null)
   const stick = useRef(true)
@@ -120,8 +121,13 @@ function Chat() {
     if (!pendingDelete) return
     setDeleteStatus('deleting')
     try {
-      await history.remove(pendingDelete.id)
-      if (pendingDelete.id === routeId) navigate('/chat', { replace: true })
+      if (pendingDelete === 'all') {
+        await history.removeAll()
+        if (routeId) navigate('/chat', { replace: true })
+      } else {
+        await history.remove(pendingDelete.id)
+        if (pendingDelete.id === routeId) navigate('/chat', { replace: true })
+      }
       setPendingDelete(null)
       setDeleteStatus('idle')
     } catch {
@@ -161,6 +167,7 @@ function Chat() {
         onNew={handleNew}
         onSelect={handleSelect}
         onDelete={setPendingDelete}
+        onDeleteAll={() => setPendingDelete('all')}
         onLoadMore={history.loadMore}
         onRetry={history.reload}
       />
@@ -283,9 +290,11 @@ function Chat() {
             onKeyDown={(e) => e.key === 'Escape' && closeDeleteDialog()}
           >
             <img src={elberSurprise} alt="" className="chat-dialog-mascot" />
-            <h2 id="delete-title">¿Borrar esta conversación?</h2>
+            <h2 id="delete-title">{pendingDelete === 'all' ? '¿Borrar todas las conversaciones?' : '¿Borrar esta conversación?'}</h2>
             <p>
-              «{pendingDelete.title}» se borrará con todos sus mensajes. No se puede deshacer.
+              {pendingDelete === 'all'
+                ? 'Se borrarán todas tus conversaciones con sus mensajes. No se puede deshacer.'
+                : `«${pendingDelete.title}» se borrará con todos sus mensajes. No se puede deshacer.`}
               {deleteStatus === 'error' && <span className="chat-dialog-error"> No se pudo borrar, inténtalo de nuevo.</span>}
             </p>
             <div className="chat-dialog-actions">
@@ -293,7 +302,7 @@ function Chat() {
                 Cancelar
               </Button>
               <Button type="button" variant="primary" size="lg" disabled={deleteStatus === 'deleting'} onClick={handleConfirmDelete}>
-                {deleteStatus === 'deleting' ? 'Borrando…' : 'Borrar'}
+                {deleteStatus === 'deleting' ? 'Borrando…' : pendingDelete === 'all' ? 'Borrar todas' : 'Borrar'}
               </Button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { deleteConversation, listConversations, type ConversationSummary } from './history'
+import { deleteAllConversations, deleteConversation, listConversations, type ConversationSummary } from './history'
 
 export type ListStatus = 'loading' | 'idle' | 'error'
 
@@ -69,7 +69,17 @@ export function useConversations() {
     setConversations((cs) => cs.filter((c) => c.id !== id))
   }, [])
 
-  return { conversations, status, hasMore: nextCursor !== null, reload, loadMore, touch, remove }
+  /** Rejects if the backend could not delete them; the list stays as it was. */
+  const removeAll = useCallback(async () => {
+    await deleteAllConversations()
+    // Pages still on their way would bring deleted ones back.
+    request.current++
+    setConversations([])
+    setNextCursor(null)
+    setStatus('idle')
+  }, [])
+
+  return { conversations, status, hasMore: nextCursor !== null, reload, loadMore, touch, remove, removeAll }
 }
 
 const DAY = 24 * 60 * 60 * 1000

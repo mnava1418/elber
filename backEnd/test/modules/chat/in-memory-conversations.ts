@@ -68,6 +68,12 @@ class InMemoryConversations implements ConversationRepository {
         return true
     }
 
+    async deleteAll(uid: string) {
+        const owned = [...this.conversations.values()].filter((conversation) => conversation.uid === uid)
+        for (const {id} of owned) this.conversations.delete(id)
+        return owned.map(({id, title, assistantSessionId}) => ({id, title, assistantSessionId}))
+    }
+
     private owned(uid: string, conversationId: string) {
         const stored = this.conversations.get(conversationId)
         return stored?.uid === uid ? stored : undefined

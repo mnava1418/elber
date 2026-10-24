@@ -8,6 +8,7 @@ import env from '../../config/env.js'
 import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
 import { firebaseAuth, firestore } from '../../shared/firebase/firebase-admin.js'
 import { buildRequireAuth } from '../../shared/http/middlewares/auth.middleware.js'
+import DeleteAllConversationsUseCase from './application/delete-all-conversations.use-case.js'
 import DeleteConversationUseCase from './application/delete-conversation.use-case.js'
 import GetConversationUseCase from './application/get-conversation.use-case.js'
 import ListConversationsUseCase from './application/list-conversations.use-case.js'
@@ -65,6 +66,7 @@ const createChatModule = ({io, skills}: ChatModuleDeps): ChatModule => {
         new ListConversationsUseCase(conversations),
         new GetConversationUseCase(conversations),
         new DeleteConversationUseCase(conversations, assistant),
+        new DeleteAllConversationsUseCase(conversations, assistant),
     )
 
     return {

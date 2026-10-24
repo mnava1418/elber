@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { z } from 'zod'
 import { authUser } from '../../../shared/http/middlewares/auth.middleware.js'
 import { BadRequestError, NotFoundError } from '../../../shared/http/errors.js'
+import type DeleteAllConversationsUseCase from '../application/delete-all-conversations.use-case.js'
 import type DeleteConversationUseCase from '../application/delete-conversation.use-case.js'
 import type GetConversationUseCase from '../application/get-conversation.use-case.js'
 import type ListConversationsUseCase from '../application/list-conversations.use-case.js'
@@ -32,6 +33,7 @@ class ConversationsController {
         private readonly listConversations: ListConversationsUseCase,
         private readonly getConversation: GetConversationUseCase,
         private readonly deleteConversation: DeleteConversationUseCase,
+        private readonly deleteAllConversations: DeleteAllConversationsUseCase,
     ) {}
 
     list = async (req: Request, res: Response) => {
@@ -69,6 +71,11 @@ class ConversationsController {
             if (error instanceof ConversationNotFoundError) throw conversationNotFound()
             throw error
         }
+    }
+
+    deleteAll = async (_req: Request, res: Response) => {
+        await this.deleteAllConversations.execute({uid: authUser(res).uid})
+        res.status(204).end()
     }
 }
 

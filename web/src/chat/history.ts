@@ -50,6 +50,10 @@ export function deleteConversation(id: string): Promise<void> {
   return apiDeleteAuth(`/chat/conversations/${encodeURIComponent(id)}`)
 }
 
+export function deleteAllConversations(): Promise<void> {
+  return apiDeleteAuth('/chat/conversations')
+}
+
 // Stored messages as the thread shows them. Each answer replies to the
 // question before it (what retry re-sends).
 export function toTurns(messages: StoredMessage[]): Turn[] {

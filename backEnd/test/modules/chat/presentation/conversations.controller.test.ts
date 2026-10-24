@@ -2,6 +2,7 @@ import { AddressInfo } from 'node:net'
 import { Server } from 'node:http'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import express from 'express'
+import DeleteAllConversationsUseCase from '../../../../src/modules/chat/application/delete-all-conversations.use-case.js'
 import DeleteConversationUseCase from '../../../../src/modules/chat/application/delete-conversation.use-case.js'
 import GetConversationUseCase from '../../../../src/modules/chat/application/get-conversation.use-case.js'
 import ListConversationsUseCase from '../../../../src/modules/chat/application/list-conversations.use-case.js'
@@ -30,10 +31,12 @@ describe('chat conversations routes', () => {
     beforeEach(async () => {
         vi.restoreAllMocks()
         repository = new InMemoryConversations()
+        const assistant = {forget: async () => {}, reply: () => { throw new Error('unused') }}
         const controller = new ConversationsController(
             new ListConversationsUseCase(repository),
             new GetConversationUseCase(repository),
-            new DeleteConversationUseCase(repository, {forget: async () => {}, reply: () => { throw new Error('unused') }}),
+            new DeleteConversationUseCase(repository, assistant),
+            new DeleteAllConversationsUseCase(repository, assistant),
         )
         const app = express()
         app.use('/chat', buildChatRoutes(buildRequireAuth(verify), controller))
@@ -173,6 +176,23 @@ describe('chat conversations routes', () => {
 
             expect(await request('DELETE', `/conversations/${id}`)).toEqual(NOT_FOUND)
             expect(repository.conversations.has(id)).toBe(true)
+        })
+    })
+
+    describe('DELETE /conversations', () => {
+        it("deletes every conversation of the user, keeps everyone else's, and answers 204", async () => {
+            await conversationsOf('uid-1', 'Una', 'Otra')
+            const [theirs] = await conversationsOf('someone-else', 'Ajena')
+
+            expect(await request('DELETE', '/conversations')).toEqual({status: 204, body: null})
+            expect([...repository.conversations.keys()]).toEqual([theirs])
+        })
+
+        it('answers 401 without a token', async () => {
+            await conversationsOf('uid-1', 'Una')
+
+            expect((await request('DELETE', '/conversations', null)).status).toBe(401)
+            expect(repository.conversations.size).toBe(1)
         })
     })
 })

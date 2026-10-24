@@ -33,4 +33,7 @@ export interface ConversationRepository {
     deleteMessage(uid: string, conversationId: string, messageId: string): Promise<void>
     // Deletes it with its messages. false if it didn't exist.
     delete(uid: string, conversationId: string): Promise<boolean>
+    // Deletes every conversation of the user with their messages, and gives
+    // them back (to forget their assistant sessions).
+    deleteAll(uid: string): Promise<Conversation[]>
 }
