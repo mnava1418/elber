@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { Skill } from '../../../../src/shared/skills/skill.js'
 import { contextsFor, toEvents } from '../../../../src/modules/chat/infrastructure/claude-agent-assistant.js'
-import { ELBER_SYSTEM_PROMPT, systemPromptWith } from '../../../../src/modules/chat/infrastructure/elber-system-prompt.js'
+import { ELBER_SYSTEM_PROMPT, systemPromptWith, todayContext } from '../../../../src/modules/chat/infrastructure/elber-system-prompt.js'
 
 // Builds SDK messages with only the fields toEvents reads.
 const sdkMessage = (message: object) => message as SDKMessage
@@ -140,5 +140,12 @@ describe('systemPromptWith', () => {
     it("keeps Elber's fixed prompt first, so it stays cached", () => {
         expect(systemPromptWith([])).toBe(ELBER_SYSTEM_PROMPT)
         expect(systemPromptWith(['The profile'])).toBe(`${ELBER_SYSTEM_PROMPT}\n\nThe profile`)
+    })
+})
+
+describe('todayContext', () => {
+    it('gives the local date, with its weekday and in ISO form', () => {
+        // Local time: late at night it must not jump to the next day (UTC).
+        expect(todayContext(new Date(2026, 9, 31, 23, 30))).toBe('Today is Saturday, October 31, 2026 (2026-10-31).')
     })
 })

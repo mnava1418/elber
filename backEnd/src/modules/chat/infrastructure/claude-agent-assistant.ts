@@ -1,7 +1,7 @@
 import { createSdkMcpServer, deleteSession, getSessionInfo, query, tool, type HookCallbackMatcher, type McpSdkServerConfigWithInstance, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { Skill, SkillContext, SkillTool, Widget } from '../../../shared/skills/skill.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
-import { systemPromptWith } from './elber-system-prompt.js'
+import { systemPromptWith, todayContext } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
 
 // The only tools the agent has. The SDK ships Claude Code's tools (Bash,
@@ -90,7 +90,7 @@ class ClaudeAgentAssistant implements Assistant {
             const options: Options = {
                 ...this.options,
                 // Per answer: what the skills know about this user may have changed.
-                systemPrompt: systemPromptWith(await contextsFor(this.skills, uid)),
+                systemPrompt: systemPromptWith([...await contextsFor(this.skills, uid), todayContext()]),
                 abortController,
                 // The SDK reloads the conversation's history and sends it with the new message.
                 resume: sessionId,

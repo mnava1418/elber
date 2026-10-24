@@ -16,3 +16,13 @@ If you don't know something and can't find it, say so instead of guessing.`
 // profile...): only the end changes between users or answers, so the start
 // stays cached.
 export const systemPromptWith = (contexts: string[]): string => [ELBER_SYSTEM_PROMPT, ...contexts].join('\n\n')
+
+// The model doesn't know what day it is, and needs it to turn "this
+// Saturday" into a date. In the server's timezone: Elber runs on the user's
+// machine. It goes after the other contexts because it changes every day.
+export const todayContext = (now = new Date()): string => {
+    const weekday = now.toLocaleDateString('en-US', {weekday: 'long'})
+    const day = now.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})
+    const iso = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('-')
+    return `Today is ${weekday}, ${day} (${iso}).`
+}
