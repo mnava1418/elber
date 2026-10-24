@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk'
-import { toEvents } from '../../../../src/modules/chat/infrastructure/claude-agent-assistant.js'
+import type { Skill } from '../../../../src/shared/skills/skill.js'
+import { contextsFor, toEvents } from '../../../../src/modules/chat/infrastructure/claude-agent-assistant.js'
+import { ELBER_SYSTEM_PROMPT, systemPromptWith } from '../../../../src/modules/chat/infrastructure/elber-system-prompt.js'
 
 // Builds SDK messages with only the fields toEvents reads.
 const sdkMessage = (message: object) => message as SDKMessage
@@ -63,6 +65,23 @@ describe('toEvents', () => {
         ])
     })
 
+    it('gives the fact as hint for the memory tools', () => {
+        const message = sdkMessage({
+            type: 'assistant',
+            message: {
+                content: [
+                    {type: 'tool_use', id: 't1', name: 'mcp__elber__remember', input: {section: 'Gustos', fact: 'El café de olla'}},
+                    {type: 'tool_use', id: 't2', name: 'mcp__elber__forget', input: {fact: 'El té'}},
+                ],
+            },
+        })
+
+        expect(events(message)).toEqual([
+            {type: 'tool', name: 'remember', detail: 'El café de olla'},
+            {type: 'tool', name: 'forget', detail: 'El té'},
+        ])
+    })
+
     it('ends quietly on a successful result', () => {
         const message = sdkMessage({type: 'result', subtype: 'success', is_error: false, result: 'Hola'})
 
@@ -90,5 +109,36 @@ describe('toEvents', () => {
     it('ignores other messages (other system messages, user tool results...)', () => {
         expect(events(sdkMessage({type: 'system', subtype: 'status', session_id: 'session-1'}))).toEqual([])
         expect(events(sdkMessage({type: 'user', message: {content: []}}))).toEqual([])
+    })
+})
+
+describe('contextsFor', () => {
+    it("gives what each skill knows about the user, leaving out the ones with nothing", async () => {
+        const profile = vi.fn<NonNullable<Skill['context']>>(async () => 'The profile')
+        const skills: Skill[] = [
+            {tools: []},
+            {tools: [], context: profile},
+            {tools: [], context: async () => null},
+        ]
+
+        expect(await contextsFor(skills, 'user-1')).toEqual(['The profile'])
+        expect(profile).toHaveBeenCalledExactlyOnceWith('user-1')
+    })
+
+    it('leaves out a skill that fails, so Elber still answers', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {})
+        const skills: Skill[] = [
+            {tools: [], context: async () => { throw new Error('vault missing') }},
+            {tools: [], context: async () => 'The profile'},
+        ]
+
+        expect(await contextsFor(skills, 'user-1')).toEqual(['The profile'])
+    })
+})
+
+describe('systemPromptWith', () => {
+    it("keeps Elber's fixed prompt first, so it stays cached", () => {
+        expect(systemPromptWith([])).toBe(ELBER_SYSTEM_PROMPT)
+        expect(systemPromptWith(['The profile'])).toBe(`${ELBER_SYSTEM_PROMPT}\n\nThe profile`)
     })
 })

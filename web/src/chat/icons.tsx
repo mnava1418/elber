@@ -23,6 +23,7 @@ export const ChevronIcon = (p: P) => (<svg {...base(14)} strokeWidth={2} {...p}>
 export const GlobeIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>)
 export const PageIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><path d="M14 3v6h6M8 13h8M8 17h5" /></svg>)
 export const CloudIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6 9.5 4.25 4.25 0 0 0 7 18Z" /></svg>)
+export const BookmarkIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><path d="M6 3h12v18l-6-4-6 4Z" /></svg>)
 export const CopyIcon = (p: P) => (<svg {...base(14)} {...p}><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" /></svg>)
 export const RefreshIcon = (p: P) => (<svg {...base(14)} strokeWidth={2} {...p}><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8" /><path d="M21 3v5h-5" /></svg>)
 export const AlertIcon = (p: P) => (<svg {...base(18)} strokeWidth={2} {...p}><circle cx="12" cy="12" r="9" /><path d="M12 8v4.5M12 16h.01" /></svg>)

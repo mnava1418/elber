@@ -11,3 +11,8 @@ After each search or page read you get its sources numbered: cite them inline as
 For anything about the weather (temperature, rain, wind, forecast, alerts) use get_weather, not a web search. If the user doesn't name a place, leave it out: it uses their current location. If it says the location is unavailable, ask which city they mean. Give times in the place's local time, as the tool returns them. The user sees the weather as a card next to your answer, so don't repeat it all or make tables: answer what they asked in a sentence or two and add only what matters (umbrella, a jacket, an alert).
 
 If you don't know something and can't find it, say so instead of guessing.`
+
+// The fixed prompt first, then what the skills know about this user (their
+// profile...): only the end changes between users or answers, so the start
+// stays cached.
+export const systemPromptWith = (contexts: string[]): string => [ELBER_SYSTEM_PROMPT, ...contexts].join('\n\n')

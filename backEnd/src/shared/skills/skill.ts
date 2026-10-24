@@ -42,6 +42,14 @@ export interface SkillTool<Shape extends z.ZodRawShape = z.ZodRawShape> {
     run(input: z.infer<z.ZodObject<Shape>>, context: SkillContext): Promise<unknown>
 }
 
+// What a skill module hands the chat.
+export interface Skill {
+    tools: SkillTool[]
+    // What Elber should know about the user before answering (their
+    // profile...), added to the system prompt. null when there is nothing.
+    context?(uid: string): Promise<string | null>
+}
+
 // Infers the input type from the shape when defining a tool.
 export const defineTool = <Shape extends z.ZodRawShape>(tool: SkillTool<Shape>): SkillTool =>
     tool as unknown as SkillTool
