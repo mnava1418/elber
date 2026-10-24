@@ -3,7 +3,11 @@
 // note works with it too:
 //
 //   - [ ] Hablarle a mi familia 📅 2026-10-31
+//   - [ ] Reservar el hotel [[Viaje a Oaxaca]] 📅 2026-11-15
 //   - [x] Pagar la tarjeta ✅ 2026-10-24
+//
+// A link at the end of the task is the project (a note) it belongs to; in
+// Obsidian, the project shows it among its backlinks.
 
 import { linesOf, normalize, noteOf, oneLine, type NoteEdit } from './note-lines.js'
 
@@ -11,27 +15,33 @@ import { linesOf, normalize, noteOf, oneLine, type NoteEdit } from './note-lines
 export interface Todo {
     task: string
     due: string | null
+    // The title of the note it belongs to, or null.
+    project: string | null
 }
 
 const TODO = /^(\s*[-*+]\s+\[)( |x|X)(\]\s+)(.+?)\s*$/
 const DUE = /📅\s*(\d{4}-\d{2}-\d{2})/
 // Other Tasks plugin markers (✅ done, ⏳ scheduled...) followed by a date.
 const MARKER = /[📅✅⏳🛫➕❌]\s*\d{4}-\d{2}-\d{2}/gu
+// [[Project]] (or [[Project|alias]]...) at the end of the task.
+const PROJECT = /\s*\[\[([^\]|#^]+)(?:[|#^][^\]]*)?\]\]$/
 
-interface Checkbox {
+interface Checkbox extends Todo {
     done: boolean
-    task: string
-    due: string | null
 }
 
 const checkboxOf = (line: string): Checkbox | null => {
     const match = TODO.exec(line)
     if (match === null) return null
-    const text = match[4]
+    const text = oneLine(match[4].replace(MARKER, ''))
+    const link = PROJECT.exec(text)
+    // Links elsewhere in the task ("Llamar a [[Juan]] sobre...") are part of it.
+    const task = link === null ? '' : text.slice(0, link.index).trim()
     return {
         done: match[2] !== ' ',
-        task: oneLine(text.replace(MARKER, '')),
-        due: DUE.exec(text)?.[1] ?? null,
+        task: task === '' ? text : task,
+        due: DUE.exec(match[4])?.[1] ?? null,
+        project: task === '' ? null : link![1].trim(),
     }
 }
 
@@ -42,12 +52,12 @@ const isPending = (line: string, task: string) => {
 
 // Adds the to-do at the end of the note. One already pending isn't added
 // twice; one already done can be added again (it's a new time).
-export const addTodo = (note: string, task: string, due: string | null): NoteEdit => {
+export const addTodo = (note: string, task: string, due: string | null, project: string | null): NoteEdit => {
     const lines = linesOf(note)
     if (lines.some((line) => isPending(line, task))) return {note, changed: false}
 
     while (lines.length > 0 && lines.at(-1)!.trim() === '') lines.pop()
-    lines.push(`- [ ] ${oneLine(task)}${due === null ? '' : ` 📅 ${due}`}`)
+    lines.push(`- [ ] ${oneLine(task)}${project === null ? '' : ` [[${project}]]`}${due === null ? '' : ` 📅 ${due}`}`)
     return {note: noteOf(lines), changed: true}
 }
 
@@ -66,5 +76,5 @@ export const completeTodo = (note: string, task: string, today: string): NoteEdi
 // The to-dos not done yet, in the note's order.
 export const pendingTodos = (note: string): Todo[] => linesOf(note).flatMap((line) => {
     const checkbox = checkboxOf(line)
-    return checkbox === null || checkbox.done ? [] : [{task: checkbox.task, due: checkbox.due}]
+    return checkbox === null || checkbox.done ? [] : [{task: checkbox.task, due: checkbox.due, project: checkbox.project}]
 })

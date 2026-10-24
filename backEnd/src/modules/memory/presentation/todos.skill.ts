@@ -13,14 +13,19 @@ export const buildAddTodoTool = (todos: ManageTodosUseCase) => defineTool({
         + 'It is for things to do, not facts about the user: those go to remember. '
         + 'Write the task short, as an action, in the user\'s language and without the date, e.g. "Hablarle a mi familia". '
         + 'If they give a day ("el sábado", "mañana"), work out the date from today\'s and pass it as due. '
-        + 'You can\'t alert them on that day; if they seem to expect it, tell them it is on their list.',
+        + 'You can\'t alert them on that day; if they seem to expect it, tell them it is on their list. '
+        + 'If the task is clearly part of one of their projects (a note), pass it as project.',
     input: {
         task: task.describe('The task, on one line.'),
         due: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe(
             'When it is due, as YYYY-MM-DD. Leave it out if the task has no date.',
         ),
+        project: z.string().trim().min(1).max(100).optional().describe(
+            'Title of the note (usually a proyecto) the task belongs to, as search_notes gives it. '
+            + 'Leave it out if it belongs to none.',
+        ),
     },
-    run: ({task, due}, {uid}) => todos.add({task, due: due ?? null}, uid),
+    run: ({task, due, project}, {uid}) => todos.add({task, due: due ?? null, project: project ?? null}, uid),
 })
 
 export const buildCompleteTodoTool = (todos: ManageTodosUseCase) => defineTool({
@@ -35,7 +40,8 @@ export const buildCompleteTodoTool = (todos: ManageTodosUseCase) => defineTool({
 
 export const buildListTodosTool = (todos: ManageTodosUseCase) => defineTool({
     name: 'list_todos',
-    description: 'The user\'s pending tasks, each with its due date (YYYY-MM-DD, or null if it has none). '
+    description: 'The user\'s pending tasks, each with its due date (YYYY-MM-DD, or null if it has none) '
+        + 'and the project note it belongs to (or null). '
         + 'Use it when they ask what they have to do (today, this week...) or before ticking a task off.',
     input: {},
     run: (_input, {uid}) => todos.list(uid),

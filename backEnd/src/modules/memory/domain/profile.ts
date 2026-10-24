@@ -7,11 +7,8 @@
 // The edits below change only the lines they touch, so anything else the
 // owner writes in the note (paragraphs, other headings...) stays as it is.
 
-import { linesOf, normalize, noteOf, oneLine, type NoteEdit } from './note-lines.js'
+import { addToSection, linesOf, normalize, noteOf, type NoteEdit } from './note-lines.js'
 
-const SECTION = /^##\s+(.+?)\s*$/
-// A heading that ends a section: "#" or "##". Deeper ones ("###") belong to it.
-const SECTION_END = /^#{1,2}\s/
 const BULLET = /^\s*[-*+]\s+(.+?)\s*$/
 
 const isFact = (line: string, fact: string) => {
@@ -23,27 +20,8 @@ const isFact = (line: string, fact: string) => {
 // note if it doesn't exist. A fact already in the note (in any section) isn't
 // added twice.
 export const addFact = (note: string, section: string, fact: string): NoteEdit => {
-    const lines = linesOf(note)
-    if (lines.some((line) => isFact(line, fact))) return {note, changed: false}
-
-    const bullet = `- ${oneLine(fact)}`
-    const start = lines.findIndex((line) => normalize(SECTION.exec(line)?.[1] ?? '') === normalize(section))
-    if (start === -1) {
-        while (lines.length > 0 && lines.at(-1)!.trim() === '') lines.pop()
-        if (lines.length > 0) lines.push('')
-        lines.push(`## ${oneLine(section)}`, bullet)
-        return {note: noteOf(lines), changed: true}
-    }
-
-    const next = lines.findIndex((line, i) => i > start && SECTION_END.test(line))
-    const end = next === -1 ? lines.length : next
-    // After the section's last bullet, so facts keep the order they were learned in.
-    let at = start + 1
-    for (let i = start + 1; i < end; i++) {
-        if (BULLET.test(lines[i])) at = i + 1
-    }
-    lines.splice(at, 0, bullet)
-    return {note: noteOf(lines), changed: true}
+    if (linesOf(note).some((line) => isFact(line, fact))) return {note, changed: false}
+    return {note: addToSection(note, section, fact), changed: true}
 }
 
 // Removes the fact wherever it is. The model quotes it from the profile it

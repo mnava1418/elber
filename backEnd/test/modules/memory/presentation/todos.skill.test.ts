@@ -25,7 +25,7 @@ describe('add_todo tool', () => {
 
         const result = await buildAddTodoTool(asUseCase(useCase)).run({task: 'Hablarle a mi familia', due: '2026-10-31'}, context)
 
-        expect(useCase.add).toHaveBeenCalledExactlyOnceWith({task: 'Hablarle a mi familia', due: '2026-10-31'}, 'owner-uid')
+        expect(useCase.add).toHaveBeenCalledExactlyOnceWith({task: 'Hablarle a mi familia', due: '2026-10-31', project: null}, 'owner-uid')
         expect(result).toEqual({added: true})
     })
 
@@ -34,7 +34,15 @@ describe('add_todo tool', () => {
 
         await buildAddTodoTool(asUseCase(useCase)).run({task: 'Renovar el pasaporte'}, context)
 
-        expect(useCase.add).toHaveBeenCalledExactlyOnceWith({task: 'Renovar el pasaporte', due: null}, 'owner-uid')
+        expect(useCase.add).toHaveBeenCalledExactlyOnceWith({task: 'Renovar el pasaporte', due: null, project: null}, 'owner-uid')
+    })
+
+    it("adds a task to one of the user's projects", async () => {
+        const useCase = manageTodos()
+
+        await buildAddTodoTool(asUseCase(useCase)).run({task: 'Reservar el hotel', project: 'Viaje a Oaxaca'}, context)
+
+        expect(useCase.add).toHaveBeenCalledExactlyOnceWith({task: 'Reservar el hotel', due: null, project: 'Viaje a Oaxaca'}, 'owner-uid')
     })
 
     it('rejects a blank task or a date that is not YYYY-MM-DD', () => {

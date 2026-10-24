@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import type { SkillContext } from '../../../../src/shared/skills/skill.js'
 import type ManageNotesUseCase from '../../../../src/modules/memory/application/manage-notes.use-case.js'
-import { buildReadNoteTool, buildSaveNoteTool, buildSearchNotesTool, buildUpdateNoteTool } from '../../../../src/modules/memory/presentation/notes.skill.js'
+import { buildLinkNotesTool, buildReadNoteTool, buildSaveNoteTool, buildSearchNotesTool, buildUpdateNoteTool } from '../../../../src/modules/memory/presentation/notes.skill.js'
 
 const context: SkillContext = {
     uid: 'owner-uid',
@@ -16,6 +16,7 @@ const manageNotes = () => ({
     search: vi.fn<ManageNotesUseCase['search']>(async () => ({notes: []})),
     read: vi.fn<ManageNotesUseCase['read']>(async () => ({error: 'NOT_FOUND'})),
     update: vi.fn<ManageNotesUseCase['update']>(async () => ({updated: true})),
+    link: vi.fn<ManageNotesUseCase['link']>(async () => ({linked: true})),
 })
 
 const asUseCase = (useCase: ReturnType<typeof manageNotes>) => useCase as unknown as ManageNotesUseCase
@@ -80,5 +81,14 @@ describe('update_note tool', () => {
 
         expect(await buildUpdateNoteTool(asUseCase(useCase)).run(input, context)).toEqual({updated: true})
         expect(useCase.update).toHaveBeenCalledExactlyOnceWith(input, 'owner-uid')
+    })
+})
+
+describe('link_notes tool', () => {
+    it('links the notes for the user asking', async () => {
+        const useCase = manageNotes()
+
+        expect(await buildLinkNotesTool(asUseCase(useCase)).run({from: 'Skill de finanzas', to: 'Elber'}, context)).toEqual({linked: true})
+        expect(useCase.link).toHaveBeenCalledExactlyOnceWith({from: 'Skill de finanzas', to: 'Elber'}, 'owner-uid')
     })
 })
