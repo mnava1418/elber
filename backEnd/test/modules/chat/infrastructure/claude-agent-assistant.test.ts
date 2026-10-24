@@ -99,13 +99,14 @@ describe('toEvents', () => {
         ])
     })
 
-    it('gives the title as hint for the note tools', () => {
+    it('gives the title (or the two notes) as hint for the note tools', () => {
         const message = sdkMessage({
             type: 'assistant',
             message: {
                 content: [
                     {type: 'tool_use', id: 't1', name: 'mcp__elber__save_note', input: {title: 'Skill de finanzas', type: 'idea', content: 'Texto'}},
                     {type: 'tool_use', id: 't2', name: 'mcp__elber__search_notes', input: {query: 'finanzas'}},
+                    {type: 'tool_use', id: 't3', name: 'mcp__elber__link_notes', input: {from: 'Skill de finanzas', to: 'Elber'}},
                 ],
             },
         })
@@ -113,6 +114,7 @@ describe('toEvents', () => {
         expect(events(message)).toEqual([
             {type: 'tool', name: 'save_note', detail: 'Skill de finanzas'},
             {type: 'tool', name: 'search_notes', detail: 'finanzas'},
+            {type: 'tool', name: 'link_notes', detail: 'Skill de finanzas → Elber'},
         ])
     })
 

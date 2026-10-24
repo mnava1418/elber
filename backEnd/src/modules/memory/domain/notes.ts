@@ -1,3 +1,5 @@
+import { addToSection } from './note-lines.js'
+
 // The owner's ideas and projects: one note each, which Elber writes and the
 // owner can also edit in Obsidian. The title is the note's name (its file),
 // and its properties are what Obsidian shows above it.
@@ -91,4 +93,57 @@ export const searchNotes = (notes: Note[], query: string, limit: number): NoteSu
 export const appendToBody = (body: string, text: string): string => {
     const start = body.trimEnd()
     return `${start === '' ? '' : `${start}\n\n`}${text.trim()}\n`
+}
+
+// A note's place among the others: the notes it links to with [[...]] (the
+// ones that don't exist yet too: Obsidian creates them when clicked), and the
+// notes that link to it.
+export interface NoteLinks {
+    links: {title: string, exists: boolean}[]
+    backlinks: string[]
+}
+
+// [[Target]], [[Target|alias]], [[Target#Heading]], [[Target^block]], and
+// embeds (![[Target]]).
+const WIKILINK = /\[\[([^\]|#^]+)[^\]]*\]\]/g
+// Links to files that aren't notes: images, PDFs...
+const OTHER_FILE = /\.(?!md$)[a-z0-9]{2,4}$/i
+
+// The notes the text links to, once each, in the order they appear.
+export const linksIn = (body: string): string[] => {
+    const titles = new Map<string, string>()
+    for (const [, target] of body.matchAll(WIKILINK)) {
+        const title = target.trim().replace(/\.md$/i, '')
+        if (title !== '' && !OTHER_FILE.test(title) && !titles.has(title.toLowerCase())) titles.set(title.toLowerCase(), title)
+    }
+    return [...titles.values()]
+}
+
+// Links are matched ignoring case, as Obsidian does, and named as the notes
+// they point to are.
+export const linksOf = (note: Note, notes: Note[]): NoteLinks => {
+    const byTitle = new Map(notes.map((other) => [other.title.toLowerCase(), other.title]))
+    const self = note.title.toLowerCase()
+    return {
+        links: linksIn(note.body)
+            .filter((title) => title.toLowerCase() !== self)
+            .map((title) => {
+                const existing = byTitle.get(title.toLowerCase())
+                return {title: existing ?? title, exists: existing !== undefined}
+            }),
+        backlinks: notes
+            .filter((other) => other.title.toLowerCase() !== self)
+            .filter((other) => linksIn(other.body).some((title) => title.toLowerCase() === self))
+            .map((other) => other.title),
+    }
+}
+
+// Where link_notes files a note's related notes, as Obsidian users often do.
+const RELATED_SECTION = 'Relacionado'
+
+// Links the note to another under "## Relacionado". Nothing changes when it
+// already links to it, anywhere in the text.
+export const addLink = (body: string, title: string): {body: string, changed: boolean} => {
+    if (linksIn(body).some((linked) => linked.toLowerCase() === title.toLowerCase())) return {body, changed: false}
+    return {body: addToSection(body, RELATED_SECTION, `[[${title}]]`), changed: true}
 }

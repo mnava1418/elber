@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appendToBody, cleanTags, cleanTitle, searchNotes, type Note } from '../../../../src/modules/memory/domain/notes.js'
+import { addLink, appendToBody, cleanTags, cleanTitle, linksIn, linksOf, searchNotes, type Note } from '../../../../src/modules/memory/domain/notes.js'
 
 const note = (title: string, fields: Partial<Note> = {}): Note => ({
     title,
@@ -87,5 +87,65 @@ describe('appendToBody', () => {
 
     it('starts an empty note', () => {
         expect(appendToBody('  \n', 'Algo')).toBe('Algo\n')
+    })
+})
+
+describe('linksIn', () => {
+    it('finds every kind of link to a note, once each', () => {
+        const body = 'Ver [[Viaje a Oaxaca]], [[Skill de finanzas|la de finanzas]], [[Viaje a Oaxaca#Hotel]], '
+            + '![[Mapa]] y [[ideas.md]]. Otra vez [[viaje a oaxaca]].'
+
+        expect(linksIn(body)).toEqual(['Viaje a Oaxaca', 'Skill de finanzas', 'Mapa', 'ideas'])
+    })
+
+    it('leaves out links to files that are not notes', () => {
+        expect(linksIn('![[foto.png]] [[contrato.pdf]] [[Notas v2.0]]')).toEqual(['Notas v2.0'])
+    })
+
+    it('is empty without links', () => {
+        expect(linksIn('Sin enlaces [ni esto]')).toEqual([])
+    })
+})
+
+describe('linksOf', () => {
+    const project = note('Viaje a Oaxaca', {type: 'proyecto', body: 'Ideas: [[hoteles baratos]] y [[Ruta en coche]].'})
+    const hotels = note('Hoteles baratos', {body: 'Para [[Viaje a Oaxaca]].'})
+    const other = note('Skill de finanzas', {body: 'Nada que ver, salvo [[Viaje a Oaxaca|el viaje]].'})
+    const notes = [project, hotels, other]
+
+    it('gives the notes it links to, named as they are, and which exist', () => {
+        expect(linksOf(project, notes).links).toEqual([
+            {title: 'Hoteles baratos', exists: true},
+            {title: 'Ruta en coche', exists: false},
+        ])
+    })
+
+    it('gives the notes that link to it', () => {
+        expect(linksOf(project, notes).backlinks).toEqual(['Hoteles baratos', 'Skill de finanzas'])
+        expect(linksOf(other, notes).backlinks).toEqual([])
+    })
+
+    it('ignores a note linking to itself', () => {
+        const self = note('Yo', {body: 'Ver [[Yo]].'})
+
+        expect(linksOf(self, [self])).toEqual({links: [], backlinks: []})
+    })
+})
+
+describe('addLink', () => {
+    it('starts a Relacionado section at the end of the note', () => {
+        expect(addLink('Una idea.\n', 'Viaje a Oaxaca')).toEqual({body: 'Una idea.\n\n## Relacionado\n- [[Viaje a Oaxaca]]\n', changed: true})
+    })
+
+    it('adds to the section that is already there, before what follows it', () => {
+        const body = 'Texto\n\n## Relacionado\n- [[Uno]]\n\n## Otra cosa\nMás\n'
+
+        expect(addLink(body, 'Dos').body).toBe('Texto\n\n## Relacionado\n- [[Uno]]\n- [[Dos]]\n\n## Otra cosa\nMás\n')
+    })
+
+    it("doesn't link twice, wherever the link already is", () => {
+        const body = 'Esto va con [[viaje a oaxaca|el viaje]].\n'
+
+        expect(addLink(body, 'Viaje a Oaxaca')).toEqual({body, changed: false})
     })
 })

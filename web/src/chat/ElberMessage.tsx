@@ -23,6 +23,7 @@ const LABEL = {
   search_notes: 'Buscando en tus notas',
   read_note: 'Leyendo nota',
   update_note: 'Actualizando nota',
+  link_notes: 'Enlazando notas',
 }
 const ICON = {
   search: GlobeIcon,
@@ -37,6 +38,7 @@ const ICON = {
   search_notes: NoteIcon,
   read_note: NoteIcon,
   update_note: NoteIcon,
+  link_notes: NoteIcon,
 }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
@@ -74,6 +76,7 @@ function stepsSummary(steps: ToolStep[]) {
   const searchedNotes = steps.some((s) => s.kind === 'search_notes')
   const readNotes = steps.filter((s) => s.kind === 'read_note').length
   const updated = steps.filter((s) => s.kind === 'update_note').length
+  const linked = steps.filter((s) => s.kind === 'link_notes').length
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
@@ -87,6 +90,7 @@ function stepsSummary(steps: ToolStep[]) {
   if (readNotes) parts.push(readNotes === 1 ? 'leyó 1 nota' : `leyó ${readNotes} notas`)
   if (saved) parts.push(saved === 1 ? 'guardó 1 nota' : `guardó ${saved} notas`)
   if (updated) parts.push(updated === 1 ? 'actualizó 1 nota' : `actualizó ${updated} notas`)
+  if (linked) parts.push(linked === 1 ? 'enlazó 2 notas' : `hizo ${linked} enlaces`)
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

@@ -43,8 +43,10 @@ export const buildSearchNotesTool = (notes: ManageNotesUseCase) => defineTool({
 
 export const buildReadNoteTool = (notes: ManageNotesUseCase) => defineTool({
     name: 'read_note',
-    description: 'Reads one of the user\'s notes in full, with its properties. Use it before answering about '
-        + 'a note in detail, or before rewriting it.',
+    description: 'Reads one of the user\'s notes in full, with its properties, the notes it links to '
+        + '(exists: false if not written yet), the notes that link to it (backlinks: a project\'s ideas...) '
+        + 'and its pending tasks (todos: e.g. what is left to do on a project). '
+        + 'Use it before answering about a note in detail, or before rewriting it; follow its links when they help.',
     input: {
         title: title.describe('The note\'s title, as search_notes gives it.'),
     },
@@ -62,4 +64,18 @@ export const buildUpdateNoteTool = (notes: ManageNotesUseCase) => defineTool({
         mode: z.enum(['append', 'replace']).describe('append adds to the end; replace rewrites the text.'),
     },
     run: (input, {uid}) => notes.update(input, uid),
+})
+
+export const buildLinkNotesTool = (notes: ManageNotesUseCase) => defineTool({
+    name: 'link_notes',
+    description: 'Links one of the user\'s notes to another, under a "## Relacionado" section of the first one; '
+        + 'Obsidian (and read_note\'s backlinks) shows the link from the other side too. Use it when the user says '
+        + 'something goes with something else ("esta idea es para el proyecto X"), or after saving a note that '
+        + 'clearly belongs to another (an idea for a project: link the idea to the project). '
+        + 'If you only suspect a relation, ask first. Both notes must exist.',
+    input: {
+        from: title.describe('The note that gets the link, e.g. the idea.'),
+        to: title.describe('The note it links to, e.g. the project.'),
+    },
+    run: (input, {uid}) => notes.link(input, uid),
 })
