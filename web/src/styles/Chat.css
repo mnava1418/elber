@@ -125,15 +125,14 @@
   cursor: pointer;
 }
 .chat-panel-row[aria-current] .chat-panel-item { color: var(--elber-mint); }
-/* Delete: shows on hover; always visible on touch screens */
-.chat-panel-delete {
+/* Rename and delete: show on hover; always visible on touch screens */
+.chat-panel-action {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 30px;
   height: 30px;
-  margin-right: 4px;
   border: none;
   border-radius: 7px;
   background: none;
@@ -141,11 +140,29 @@
   cursor: pointer;
   opacity: 0;
 }
-.chat-panel-row:hover .chat-panel-delete,
-.chat-panel-row[aria-current] .chat-panel-delete,
-.chat-panel-delete:focus-visible { opacity: 1; }
-.chat-panel-delete:hover { color: var(--chat-error); background: rgba(255, 122, 107, 0.1); }
-@media (hover: none) { .chat-panel-delete { opacity: 1; } }
+.chat-panel-action:last-child { margin-right: 4px; }
+.chat-panel-row:hover .chat-panel-action,
+.chat-panel-row[aria-current] .chat-panel-action,
+.chat-panel-action:focus-visible { opacity: 1; }
+.chat-panel-action:hover { color: var(--elber-mint); background: rgba(213, 255, 248, 0.08); }
+.chat-panel-action--danger:hover { color: var(--chat-error); background: rgba(255, 122, 107, 0.1); }
+@media (hover: none) { .chat-panel-action { opacity: 1; } }
+.chat-panel-rename { flex: 1; min-width: 0; display: flex; padding: 3px; }
+.chat-panel-input {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 7px;
+  border: 1px solid rgba(55, 214, 208, 0.4);
+  border-radius: 7px;
+  background: rgba(3, 14, 19, 0.5);
+  color: var(--chat-ink);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.chat-panel-input:focus { border-color: var(--elber-cyan); }
+.chat-panel-input[aria-invalid='true'] { border-color: var(--chat-error); }
+.chat-panel-input:disabled { opacity: 0.6; }
 .chat-panel-note { padding: 4px 10px; font-size: 13px; color: var(--chat-muted); }
 /* Delete all: at the foot of the panel, quiet until hovered */
 .chat-panel-clear {

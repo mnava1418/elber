@@ -31,6 +31,9 @@ export interface ConversationRepository {
     addMessage(uid: string, conversationId: string, message: Message): Promise<void>
     setAssistantSession(uid: string, conversationId: string, assistantSessionId: string): Promise<void>
     deleteMessage(uid: string, conversationId: string, messageId: string): Promise<void>
+    // Doesn't mark it as updated: renaming doesn't move it in the sidebar.
+    // false if it didn't exist.
+    rename(uid: string, conversationId: string, title: string): Promise<boolean>
     // Deletes it with its messages. false if it didn't exist.
     delete(uid: string, conversationId: string): Promise<boolean>
     // Deletes every conversation of the user with their messages, and gives

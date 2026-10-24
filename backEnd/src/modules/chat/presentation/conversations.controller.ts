@@ -6,7 +6,8 @@ import type DeleteAllConversationsUseCase from '../application/delete-all-conver
 import type DeleteConversationUseCase from '../application/delete-conversation.use-case.js'
 import type GetConversationUseCase from '../application/get-conversation.use-case.js'
 import type ListConversationsUseCase from '../application/list-conversations.use-case.js'
-import { ConversationNotFoundError } from '../domain/conversation.js'
+import type RenameConversationUseCase from '../application/rename-conversation.use-case.js'
+import { ConversationNotFoundError, MAX_TITLE_LENGTH, oneLineTitle } from '../domain/conversation.js'
 import { InvalidCursorError } from '../domain/conversation.repository.js'
 import { isConversationId } from './conversation-id.js'
 
@@ -16,6 +17,11 @@ export const MAX_PAGE_SIZE = 50
 const listQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
     cursor: z.string().min(1).optional(),
+})
+
+// Cleaned up before it's checked: a title of only spaces is no title.
+const renameBodySchema = z.object({
+    title: z.string().transform(oneLineTitle).pipe(z.string().min(1).max(MAX_TITLE_LENGTH)),
 })
 
 const conversationNotFound = () => new NotFoundError('This conversation does not exist', 'CONVERSATION_NOT_FOUND')
@@ -34,6 +40,7 @@ class ConversationsController {
         private readonly getConversation: GetConversationUseCase,
         private readonly deleteConversation: DeleteConversationUseCase,
         private readonly deleteAllConversations: DeleteAllConversationsUseCase,
+        private readonly renameConversation: RenameConversationUseCase,
     ) {}
 
     list = async (req: Request, res: Response) => {
@@ -55,6 +62,19 @@ class ConversationsController {
         const conversationId = conversationIdFrom(req)
         try {
             const conversation = await this.getConversation.execute({uid: authUser(res).uid, conversationId})
+            res.status(200).json(conversation)
+        } catch (error) {
+            if (error instanceof ConversationNotFoundError) throw conversationNotFound()
+            throw error
+        }
+    }
+
+    rename = async (req: Request, res: Response) => {
+        const conversationId = conversationIdFrom(req)
+        const parsed = renameBodySchema.safeParse(req.body)
+        if (!parsed.success) throw new BadRequestError(`title must be 1-${MAX_TITLE_LENGTH} characters`, 'INVALID_BODY')
+        try {
+            const conversation = await this.renameConversation.execute({uid: authUser(res).uid, conversationId, title: parsed.data.title})
             res.status(200).json(conversation)
         } catch (error) {
             if (error instanceof ConversationNotFoundError) throw conversationNotFound()

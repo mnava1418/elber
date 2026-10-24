@@ -8,6 +8,7 @@ const buildChatRoutes = (requireAuth: RequestHandler, conversations: Conversatio
 
     router.get('/conversations', conversations.list)
     router.get('/conversations/:id', conversations.get)
+    router.patch('/conversations/:id', conversations.rename)
     // Every conversation of the user at once.
     router.delete('/conversations', conversations.deleteAll)
     router.delete('/conversations/:id', conversations.delete)

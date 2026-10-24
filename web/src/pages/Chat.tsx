@@ -166,6 +166,7 @@ function Chat() {
         onClose={() => setSidebarOpen(false)}
         onNew={handleNew}
         onSelect={handleSelect}
+        onRename={history.rename}
         onDelete={setPendingDelete}
         onDeleteAll={() => setPendingDelete('all')}
         onLoadMore={history.loadMore}

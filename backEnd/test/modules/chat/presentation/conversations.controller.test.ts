@@ -6,6 +6,7 @@ import DeleteAllConversationsUseCase from '../../../../src/modules/chat/applicat
 import DeleteConversationUseCase from '../../../../src/modules/chat/application/delete-conversation.use-case.js'
 import GetConversationUseCase from '../../../../src/modules/chat/application/get-conversation.use-case.js'
 import ListConversationsUseCase from '../../../../src/modules/chat/application/list-conversations.use-case.js'
+import RenameConversationUseCase from '../../../../src/modules/chat/application/rename-conversation.use-case.js'
 import buildChatRoutes from '../../../../src/modules/chat/presentation/chat.routes.js'
 import ConversationsController, { MAX_PAGE_SIZE } from '../../../../src/modules/chat/presentation/conversations.controller.js'
 import type { TokenVerifier } from '../../../../src/shared/auth/token-verifier.js'
@@ -37,8 +38,11 @@ describe('chat conversations routes', () => {
             new GetConversationUseCase(repository),
             new DeleteConversationUseCase(repository, assistant),
             new DeleteAllConversationsUseCase(repository, assistant),
+            new RenameConversationUseCase(repository),
         )
         const app = express()
+        // As app.ts does, for the bodies of PATCH.
+        app.use(express.json())
         app.use('/chat', buildChatRoutes(buildRequireAuth(verify), controller))
         app.use(errorHandler)
 
@@ -51,9 +55,10 @@ describe('chat conversations routes', () => {
         server.close()
     })
 
-    const request = async (method: string, path: string, token: string | null = 'uid-1') => {
+    const request = async (method: string, path: string, token: string | null = 'uid-1', body?: unknown) => {
         const headers: Record<string, string> = token ? {Authorization: `Bearer ${token}`} : {}
-        const response = await fetch(`${url}${path}`, {method, headers})
+        if (body !== undefined) headers['Content-Type'] = 'application/json'
+        const response = await fetch(`${url}${path}`, {method, headers, body: body === undefined ? undefined : JSON.stringify(body)})
         const text = await response.text()
         return {status: response.status, body: text ? JSON.parse(text) : null}
     }
@@ -193,6 +198,38 @@ describe('chat conversations routes', () => {
 
             expect((await request('DELETE', '/conversations', null)).status).toBe(401)
             expect(repository.conversations.size).toBe(1)
+        })
+    })
+
+    describe('PATCH /conversations/:id', () => {
+        const INVALID_BODY = {status: 400, body: {error: {code: 'INVALID_BODY', message: 'title must be 1-60 characters'}}}
+
+        it('renames the conversation on one line and answers it', async () => {
+            const [id] = await conversationsOf('uid-1', 'oye qué clima hace')
+
+            const response = await request('PATCH', `/conversations/${id}`, 'uid-1', {title: '  Clima\n en  CDMX '})
+
+            expect(response).toEqual({status: 200, body: {id, title: 'Clima en CDMX'}})
+            expect(repository.conversations.get(id)?.title).toBe('Clima en CDMX')
+        })
+
+        it.each([
+            ['no title', {}],
+            ['a blank title', {title: '   '}],
+            ['a title too long', {title: 'a'.repeat(61)}],
+            ['a title that is not text', {title: 42}],
+        ])('answers 400 for %s, keeping the title', async (_case, body) => {
+            const [id] = await conversationsOf('uid-1', 'Original')
+
+            expect(await request('PATCH', `/conversations/${id}`, 'uid-1', body)).toEqual(INVALID_BODY)
+            expect(repository.conversations.get(id)?.title).toBe('Original')
+        })
+
+        it("answers 404 and keeps someone else's title", async () => {
+            const [id] = await conversationsOf('someone-else', 'Ajena')
+
+            expect(await request('PATCH', `/conversations/${id}`, 'uid-1', {title: 'Mía'})).toEqual(NOT_FOUND)
+            expect(repository.conversations.get(id)?.title).toBe('Ajena')
         })
     })
 })

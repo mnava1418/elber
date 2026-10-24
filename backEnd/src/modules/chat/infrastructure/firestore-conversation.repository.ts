@@ -72,6 +72,15 @@ class FirestoreConversationRepository implements ConversationRepository {
         await this.messages(uid, conversationId).doc(messageId).delete()
     }
 
+    async rename(uid: string, conversationId: string, title: string): Promise<boolean> {
+        const ref = this.conversations(uid).doc(conversationId)
+        // update() fails on a missing document; a transaction would be more
+        // than a rename needs.
+        if (!(await ref.get()).exists) return false
+        await ref.update({title})
+        return true
+    }
+
     async delete(uid: string, conversationId: string): Promise<boolean> {
         const ref = this.conversations(uid).doc(conversationId)
         if (!(await ref.get()).exists) return false

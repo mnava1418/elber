@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
-import type { ConversationSummary } from './history'
-import { NewChatIcon, PanelIcon, PlusIcon, TrashIcon } from './icons'
+import { useEffect, useRef, useState } from 'react'
+import { MAX_TITLE_LENGTH, type ConversationSummary } from './history'
+import { EditIcon, NewChatIcon, PanelIcon, PlusIcon, TrashIcon } from './icons'
 import { groupByDate, type ListStatus } from './useConversations'
 
 interface Props {
@@ -13,13 +13,16 @@ interface Props {
   onClose: () => void
   onNew: () => void
   onSelect: (id: string) => void
+  /** Rejects if it could not be renamed. */
+  onRename: (id: string, title: string) => Promise<void>
   onDelete: (conversation: ConversationSummary) => void
   onDeleteAll: () => void
   onLoadMore: () => void
   onRetry: () => void
 }
 
-export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onClose, onNew, onSelect, onDelete, onDeleteAll, onLoadMore, onRetry }: Props) {
+export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onClose, onNew, onSelect, onRename, onDelete, onDeleteAll, onLoadMore, onRetry }: Props) {
+  const [renamingId, setRenamingId] = useState<string | null>(null)
   const sentinel = useRef<HTMLDivElement>(null)
   // After an error, only the Reintentar button loads again (no retry loop).
   const autoLoad = hasMore && status === 'idle'
@@ -61,12 +64,21 @@ export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onCl
               <span className="chat-panel-group">{group.label}</span>
               {group.items.map((c) => (
                 <div key={c.id} className="chat-panel-row" aria-current={c.id === activeId ? 'page' : undefined}>
-                  <button type="button" className="chat-panel-item" title={c.title} onClick={() => onSelect(c.id)}>
-                    {c.title}
-                  </button>
-                  <button type="button" className="chat-panel-delete" aria-label={`Borrar «${c.title}»`} onClick={() => onDelete(c)}>
-                    <TrashIcon />
-                  </button>
+                  {renamingId === c.id ? (
+                    <TitleField title={c.title} onSave={(title) => onRename(c.id, title)} onDone={() => setRenamingId(null)} />
+                  ) : (
+                    <>
+                      <button type="button" className="chat-panel-item" title={c.title} onClick={() => onSelect(c.id)}>
+                        {c.title}
+                      </button>
+                      <button type="button" className="chat-panel-action" aria-label={`Renombrar «${c.title}»`} onClick={() => setRenamingId(c.id)}>
+                        <EditIcon />
+                      </button>
+                      <button type="button" className="chat-panel-action chat-panel-action--danger" aria-label={`Borrar «${c.title}»`} onClick={() => onDelete(c)}>
+                        <TrashIcon />
+                      </button>
+                    </>
+                  )}
                 </div>
               ))}
             </section>
@@ -92,5 +104,79 @@ export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onCl
         )}
       </div>
     </aside>
+  )
+}
+
+interface TitleFieldProps {
+  title: string
+  onSave: (title: string) => Promise<void>
+  /** Saved, unchanged or cancelled: back to the plain row. */
+  onDone: () => void
+}
+
+/** Edits a conversation's title in its row: Enter or leaving saves, Escape cancels. */
+function TitleField({ title, onSave, onDone }: TitleFieldProps) {
+  const [draft, setDraft] = useState(title)
+  const [status, setStatus] = useState<'editing' | 'saving' | 'error'>('editing')
+  // Escape and Enter also blur the field: the first one decides.
+  const finished = useRef(false)
+  const input = useRef<HTMLInputElement>(null)
+
+  // Saving disables the field, which loses focus: get it back to retry.
+  useEffect(() => {
+    if (status === 'error') input.current?.focus()
+  }, [status])
+
+  async function save() {
+    if (finished.current || status === 'saving') return
+    const clean = draft.replace(/\s+/g, ' ').trim()
+    if (clean === '' || clean === title) {
+      finished.current = true
+      onDone()
+      return
+    }
+    setStatus('saving')
+    try {
+      await onSave(clean)
+      finished.current = true
+      onDone()
+    } catch {
+      // Stays open so the title isn't lost; Escape gives up.
+      setStatus('error')
+    }
+  }
+
+  function cancel() {
+    finished.current = true
+    onDone()
+  }
+
+  return (
+    <form
+      className="chat-panel-rename"
+      onSubmit={(e) => {
+        e.preventDefault()
+        save()
+      }}
+    >
+      <input
+        ref={input}
+        className="chat-panel-input"
+        value={draft}
+        maxLength={MAX_TITLE_LENGTH}
+        autoFocus
+        onFocus={(e) => e.currentTarget.select()}
+        aria-label="Nuevo título"
+        aria-invalid={status === 'error'}
+        title={status === 'error' ? 'No se pudo renombrar. Enter para reintentar, Esc para cancelar.' : undefined}
+        disabled={status === 'saving'}
+        onChange={(e) => {
+          setDraft(e.target.value)
+          if (status === 'error') setStatus('editing')
+        }}
+        onKeyDown={(e) => e.key === 'Escape' && cancel()}
+        onBlur={save}
+      />
+    </form>
   )
 }

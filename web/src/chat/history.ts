@@ -1,4 +1,4 @@
-import { apiDeleteAuth, apiGetAuth } from '../lib/api'
+import { apiDeleteAuth, apiGetAuth, apiPatchAuth } from '../lib/api'
 import type { Widget } from '../lib/socket'
 import { toolDetail, toolKind } from './tools'
 import type { Source, Turn } from './types'
@@ -44,6 +44,15 @@ export function listConversations(cursor?: string): Promise<ConversationPage> {
 
 export function getConversation(id: string): Promise<ConversationDetail> {
   return apiGetAuth(`/chat/conversations/${encodeURIComponent(id)}`)
+}
+
+// The backend's limit for a title.
+export const MAX_TITLE_LENGTH = 60
+
+/** Resolves to the title as the backend saved it (on one line). */
+export async function renameConversation(id: string, title: string): Promise<string> {
+  const renamed = await apiPatchAuth<{ id: string; title: string }>(`/chat/conversations/${encodeURIComponent(id)}`, { title })
+  return renamed.title
 }
 
 export function deleteConversation(id: string): Promise<void> {

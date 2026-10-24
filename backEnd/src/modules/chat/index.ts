@@ -12,6 +12,7 @@ import DeleteAllConversationsUseCase from './application/delete-all-conversation
 import DeleteConversationUseCase from './application/delete-conversation.use-case.js'
 import GetConversationUseCase from './application/get-conversation.use-case.js'
 import ListConversationsUseCase from './application/list-conversations.use-case.js'
+import RenameConversationUseCase from './application/rename-conversation.use-case.js'
 import SendMessageUseCase from './application/send-message.use-case.js'
 import ClaudeAgentAssistant from './infrastructure/claude-agent-assistant.js'
 import FirestoreConversationRepository from './infrastructure/firestore-conversation.repository.js'
@@ -67,6 +68,7 @@ const createChatModule = ({io, skills}: ChatModuleDeps): ChatModule => {
         new GetConversationUseCase(conversations),
         new DeleteConversationUseCase(conversations, assistant),
         new DeleteAllConversationsUseCase(conversations, assistant),
+        new RenameConversationUseCase(conversations),
     )
 
     return {

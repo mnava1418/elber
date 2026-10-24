@@ -41,10 +41,13 @@ export class ConversationNotFoundError extends Error {
     }
 }
 
-const MAX_TITLE_LENGTH = 60
+export const MAX_TITLE_LENGTH = 60
 
-// A conversation is named after its first message, on a single line.
+// A title is a single line: it is shown in the sidebar.
+export const oneLineTitle = (text: string): string => text.replace(/\s+/g, ' ').trim()
+
+// A conversation is named after its first message (the user can rename it).
 export const titleFrom = (text: string): string => {
-    const line = text.replace(/\s+/g, ' ').trim()
+    const line = oneLineTitle(text)
     return line.length <= MAX_TITLE_LENGTH ? line : `${line.slice(0, MAX_TITLE_LENGTH - 1).trimEnd()}…`
 }

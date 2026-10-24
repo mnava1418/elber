@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { deleteAllConversations, deleteConversation, listConversations, type ConversationSummary } from './history'
+import { deleteAllConversations, deleteConversation, listConversations, renameConversation, type ConversationSummary } from './history'
 
 export type ListStatus = 'loading' | 'idle' | 'error'
 
@@ -63,6 +63,13 @@ export function useConversations() {
     })
   }, [])
 
+  /** Rejects if the backend could not rename it; the list stays as it was. */
+  const rename = useCallback(async (id: string, title: string) => {
+    const saved = await renameConversation(id, title)
+    // In place: renaming doesn't move it in the list.
+    setConversations((cs) => cs.map((c) => (c.id === id ? { ...c, title: saved } : c)))
+  }, [])
+
   /** Rejects if the backend could not delete it; the list stays as it was. */
   const remove = useCallback(async (id: string) => {
     await deleteConversation(id)
@@ -79,7 +86,7 @@ export function useConversations() {
     setStatus('idle')
   }, [])
 
-  return { conversations, status, hasMore: nextCursor !== null, reload, loadMore, touch, remove, removeAll }
+  return { conversations, status, hasMore: nextCursor !== null, reload, loadMore, touch, rename, remove, removeAll }
 }
 
 const DAY = 24 * 60 * 60 * 1000

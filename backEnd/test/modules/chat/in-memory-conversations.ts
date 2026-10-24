@@ -62,6 +62,13 @@ class InMemoryConversations implements ConversationRepository {
         this.conversations.get(conversationId)!.messages.splice(Number(messageId.slice(1)) - 1, 1)
     }
 
+    async rename(uid: string, conversationId: string, title: string) {
+        const stored = this.owned(uid, conversationId)
+        if (!stored) return false
+        stored.title = title
+        return true
+    }
+
     async delete(uid: string, conversationId: string) {
         if (!this.owned(uid, conversationId)) return false
         this.conversations.delete(conversationId)
