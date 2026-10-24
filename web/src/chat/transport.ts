@@ -5,15 +5,15 @@ import type { ServerEvent, Source } from './types'
 
 export interface TransportHandlers {
   onOpen(): void
-  /** 'rejected' = sesión inválida; 'temporary' = se reintenta solo */
+  /** 'rejected' = invalid session; 'temporary' = it retries on its own */
   onClose(reason: 'temporary' | 'rejected'): void
   onEvent(event: ServerEvent): void
 }
 
 export interface Connection {
-  /** Sin conversationId, el servidor empieza una conversación nueva. */
+  /** Without conversationId, the server starts a new conversation. */
   send(turnId: string, text: string, conversationId?: string): void
-  /** Vuelve a responder la última pregunta de la conversación, reemplazando su respuesta fallida o detenida. */
+  /** Answers the conversation's last question again, replacing its failed or stopped answer. */
   retry(turnId: string, conversationId: string): void
   stop(turnId: string): void
   close(): void
@@ -169,7 +169,7 @@ r = requests.get("https://api.open-meteo.com/v1/forecast", params=params)
 print(r.json()["daily"])
 \`\`\``
 
-/** Transporte simulado para trabajar la UI sin backend (VITE_CHAT_MOCK=true): responde siempre con la misma demo. */
+/** Fake transport to work on the UI without the backend (VITE_CHAT_MOCK=true): always answers with the same demo. */
 export const mockTransport: Transport = (h) => {
   const timers = new Map<string, number[]>()
   const open = window.setTimeout(() => h.onOpen(), 600)

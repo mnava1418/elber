@@ -1,4 +1,4 @@
-/* 404 siempre en oscuro, independiente de prefers-color-scheme */
+/* 404 is always dark, regardless of prefers-color-scheme */
 .not-found {
   --text: #9fd3ce;
   --text-h: var(--elber-mint);

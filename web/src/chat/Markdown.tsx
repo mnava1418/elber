@@ -6,7 +6,7 @@ import { CopyIcon, CheckIcon } from './icons'
 
 const CITE = /\[(\d{1,2})\](?![(:])/g
 
-/** Convierte "[1]" en un link de cita, sin tocar código. */
+/** Turns "[1]" into a citation link, leaving code untouched. */
 function linkCitations(md: string) {
   return md
     .split(/(```[\s\S]*?(?:```|$)|`[^`\n]*`)/g)

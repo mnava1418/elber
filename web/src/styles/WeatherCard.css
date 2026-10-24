@@ -1,4 +1,4 @@
-/* Tarjeta del clima (widget 'weather'). Vive dentro de .chat: usa sus tokens. */
+/* Weather card ('weather' widget). Lives inside .chat: uses its tokens. */
 .wx {
   /* Solid, not translucent: the partly cloudy icon fills its cloud with it. */
   --wx-bg: #0c3240;

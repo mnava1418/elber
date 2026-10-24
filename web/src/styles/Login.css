@@ -1,4 +1,4 @@
-/* Login siempre en oscuro, independiente de prefers-color-scheme */
+/* Login is always dark, regardless of prefers-color-scheme */
 .login {
   --text: #9fd3ce;
   --text-h: var(--elber-mint);

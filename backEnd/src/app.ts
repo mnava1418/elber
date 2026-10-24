@@ -41,8 +41,8 @@ const createApp = ({io}: AppDeps) => {
     const api = express.Router()
     // Only the API is limited: /health must stay reachable for health checks.
     api.use(rateLimit({
-        windowMs: 15 * 60 * 1000, // 15 minutos
-        limit: 100, // por IP
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        limit: 100, // per IP
         standardHeaders: 'draft-8',
         legacyHeaders: false,
         message: {error: {code: 'TOO_MANY_REQUESTS', message: 'Too many requests, try again later'}},

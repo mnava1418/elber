@@ -64,4 +64,4 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 
 - Prefer simple solutions. Work one step at a time and check in between steps.
 - The user commits and starts the dev servers themselves.
-- Comments explain the why, densely, in the language the surrounding file already uses (English in the backend).
+- Comments are always in English, in both projects, and explain the why. UI text stays in Spanish.

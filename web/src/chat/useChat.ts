@@ -7,11 +7,11 @@ const isLive = (t: Turn): t is ElberTurn => t.role === 'elber' && (t.status === 
 const finishSteps = (t: ElberTurn): ElberTurn => ({ ...t, steps: t.steps.map((s) => ({ ...s, status: 'done' })) })
 
 interface Options {
-  /** El servidor creó la conversación del primer mensaje. */
+  /** The server created the conversation for the first message. */
   onConversation?: (id: string, title: string) => void
 }
 
-/** `transport` debe ser estable (constante de módulo o useMemo). */
+/** `transport` must be stable (a module constant or useMemo). */
 export function useChat(transport: Transport, { onConversation }: Options = {}) {
   const [turns, setTurns] = useState<Turn[]>([])
   const [connection, setConnection] = useState<ConnectionState>('connecting')
@@ -54,7 +54,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
         return
       }
       patch(e.turnId, (t) => {
-        if (!isLive(t)) return t // ignora eventos tardíos de turnos detenidos o fallidos
+        if (!isLive(t)) return t // ignore late events from stopped or failed turns
         switch (e.type) {
           case 'tool_start':
             return { ...t, steps: [...t.steps, { ...e.step, status: 'running' }] }
@@ -144,10 +144,10 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
   }, [liveTurn, patch])
 
   /**
-   * Reintenta un turno con error o detenido. Solo el último: el servidor
-   * reemplaza esa respuesta sin guardar la pregunta otra vez. Si la
-   * conversación aún no existe (falló al crearla) o la pregunta no se guardó
-   * (límite de mensajes), la pregunta va como nueva.
+   * Retries a failed or stopped turn. Only the last one: the server
+   * replaces that answer without storing the question again. If the
+   * conversation doesn't exist yet (creating it failed) or the question
+   * wasn't stored (rate limit), the question goes as a new message.
    */
   const retry = useCallback(
     (elberId: string) => {
@@ -179,7 +179,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
     setTurns([])
   }, [])
 
-  /** Muestra una conversación guardada; los mensajes nuevos la continúan. */
+  /** Shows a saved conversation; new messages continue it. */
   const show = useCallback((id: string, saved: Turn[]) => {
     conversationId.current = id
     newConversationTurn.current = null
@@ -189,8 +189,8 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
   }, [])
 
   /**
-   * La conversación en pantalla, o null si aún no existe en el servidor. Al
-   * instante, para efectos y handlers; `conversation` es la misma para render.
+   * The conversation on screen, or null if it doesn't exist on the server yet.
+   * Up to date at once, for effects and handlers; `conversation` is the same, for rendering.
    */
   const currentConversation = useCallback(() => conversationId.current, [])
 

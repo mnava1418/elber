@@ -10,7 +10,7 @@ export type ToolKind = 'search' | 'read' | 'weather'
 export interface ToolStep {
   id: string
   kind: ToolKind
-  /** Lo que va después de los dos puntos: "clima en CDMX", "ejemplo.com" */
+  /** What goes after the colon: "clima en CDMX", "ejemplo.com" */
   detail: string
   status: 'running' | 'done'
 }
@@ -37,15 +37,15 @@ export interface ElberTurn {
   text: string
   steps: ToolStep[]
   sources: Source[]
-  /** Lo que las herramientas muestran junto a la respuesta (tarjeta del clima…). */
+  /** What the tools show next to the answer (a weather card…). */
   widgets: Widget[]
-  /** Con status 'error': el servidor no respondió por el límite de mensajes; segundos a esperar. */
+  /** With status 'error': the server didn't answer because of the rate limit; seconds to wait. */
   retryAfter?: number
 }
 
 export type Turn = UserTurn | ElberTurn
 
-/** Eventos que el servidor envía durante un turno de Elber */
+/** Events the server sends during one of Elber's turns */
 export type ServerEvent =
   | { type: 'conversation'; turnId: string; id: string; title: string }
   | { type: 'tool_start'; turnId: string; step: { id: string; kind: ToolKind; detail: string } }

@@ -7,7 +7,7 @@ interface Props {
   conversations: ConversationSummary[]
   status: ListStatus
   hasMore: boolean
-  /** La conversación en pantalla. */
+  /** The conversation on screen. */
   activeId?: string
   onOpen: () => void
   onClose: () => void

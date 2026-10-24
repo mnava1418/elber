@@ -8,7 +8,7 @@ interface Props {
   responding: boolean
   onSend: (text: string) => void
   onStop: () => void
-  /** Bloquea el envío aunque haya conexión, p. ej. mientras carga una conversación. */
+  /** Blocks sending even when connected, e.g. while a conversation loads. */
   locked?: boolean
 }
 
