@@ -99,6 +99,23 @@ describe('toEvents', () => {
         ])
     })
 
+    it('gives the title as hint for the note tools', () => {
+        const message = sdkMessage({
+            type: 'assistant',
+            message: {
+                content: [
+                    {type: 'tool_use', id: 't1', name: 'mcp__elber__save_note', input: {title: 'Skill de finanzas', type: 'idea', content: 'Texto'}},
+                    {type: 'tool_use', id: 't2', name: 'mcp__elber__search_notes', input: {query: 'finanzas'}},
+                ],
+            },
+        })
+
+        expect(events(message)).toEqual([
+            {type: 'tool', name: 'save_note', detail: 'Skill de finanzas'},
+            {type: 'tool', name: 'search_notes', detail: 'finanzas'},
+        ])
+    })
+
     it('ends quietly on a successful result', () => {
         const message = sdkMessage({type: 'result', subtype: 'success', is_error: false, result: 'Hola'})
 

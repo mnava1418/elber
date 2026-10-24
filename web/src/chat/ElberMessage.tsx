@@ -7,7 +7,7 @@ import { Button } from '../components'
 import { Markdown } from './Markdown'
 import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon, TodoIcon } from './icons'
+import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, NoteIcon, RefreshIcon, TodoIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
 const LABEL = {
@@ -19,8 +19,25 @@ const LABEL = {
   add_todo: 'Agregando pendiente',
   complete_todo: 'Completando',
   list_todos: 'Revisando tus pendientes',
+  save_note: 'Guardando nota',
+  search_notes: 'Buscando en tus notas',
+  read_note: 'Leyendo nota',
+  update_note: 'Actualizando nota',
 }
-const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon, remember: BookmarkIcon, forget: BookmarkIcon, add_todo: TodoIcon, complete_todo: TodoIcon, list_todos: TodoIcon }
+const ICON = {
+  search: GlobeIcon,
+  read: PageIcon,
+  weather: CloudIcon,
+  remember: BookmarkIcon,
+  forget: BookmarkIcon,
+  add_todo: TodoIcon,
+  complete_todo: TodoIcon,
+  list_todos: TodoIcon,
+  save_note: NoteIcon,
+  search_notes: NoteIcon,
+  read_note: NoteIcon,
+  update_note: NoteIcon,
+}
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
   return (
@@ -53,6 +70,10 @@ function stepsSummary(steps: ToolStep[]) {
   const added = steps.filter((s) => s.kind === 'add_todo').length
   const completed = steps.filter((s) => s.kind === 'complete_todo').length
   const listed = steps.some((s) => s.kind === 'list_todos')
+  const saved = steps.filter((s) => s.kind === 'save_note').length
+  const searchedNotes = steps.some((s) => s.kind === 'search_notes')
+  const readNotes = steps.filter((s) => s.kind === 'read_note').length
+  const updated = steps.filter((s) => s.kind === 'update_note').length
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
@@ -62,6 +83,10 @@ function stepsSummary(steps: ToolStep[]) {
   if (listed) parts.push('revisó tus pendientes')
   if (added) parts.push(added === 1 ? 'agregó 1 pendiente' : `agregó ${added} pendientes`)
   if (completed) parts.push(completed === 1 ? 'completó 1 pendiente' : `completó ${completed} pendientes`)
+  if (searchedNotes) parts.push('buscó en tus notas')
+  if (readNotes) parts.push(readNotes === 1 ? 'leyó 1 nota' : `leyó ${readNotes} notas`)
+  if (saved) parts.push(saved === 1 ? 'guardó 1 nota' : `guardó ${saved} notas`)
+  if (updated) parts.push(updated === 1 ? 'actualizó 1 nota' : `actualizó ${updated} notas`)
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

@@ -10,6 +10,10 @@ export const TOOL_KIND: Record<string, ToolKind> = {
   add_todo: 'add_todo',
   complete_todo: 'complete_todo',
   list_todos: 'list_todos',
+  save_note: 'save_note',
+  search_notes: 'search_notes',
+  read_note: 'read_note',
+  update_note: 'update_note',
 }
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'

@@ -6,6 +6,7 @@ export const WARN_CHARS = 3600
 export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected'
 
 export type ToolKind = 'search' | 'read' | 'weather' | 'remember' | 'forget' | 'add_todo' | 'complete_todo' | 'list_todos'
+  | 'save_note' | 'search_notes' | 'read_note' | 'update_note'
 
 export interface ToolStep {
   id: string
