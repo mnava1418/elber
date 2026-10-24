@@ -13,6 +13,7 @@ export const buildRememberTool = (editProfile: EditProfileUseCase) => defineTool
         + 'worth knowing next time: who they are, what they like or dislike, their projects, the people in their life. '
         + 'Not for passing states ("I\'m tired today"), for what is already in the profile, or for things '
         + 'they have to do ("recuérdame llamar a mi mamá" is a task: use add_todo). '
+        + 'An idea or project in detail goes in a note (save_note); here, at most the short fact, e.g. "Trabaja en Elber". '
         + 'One short fact per call, in the user\'s language, written as a note about them, e.g. "Vive en CDMX".',
     input: {
         section: z.string().trim().min(1).max(60).describe(
