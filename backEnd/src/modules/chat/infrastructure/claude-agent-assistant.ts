@@ -217,11 +217,12 @@ const toolName = (name: string) => name.startsWith(SKILL_PREFIX) ? name.slice(SK
 // remember {section, fact} and forget {fact}.
 const toolDetail = (input: unknown): string | undefined => {
     if (typeof input !== 'object' || input === null) return undefined
-    const {query, url, place, fact} = input as {query?: unknown, url?: unknown, place?: unknown, fact?: unknown}
+    const {query, url, place, fact, task} = input as {query?: unknown, url?: unknown, place?: unknown, fact?: unknown, task?: unknown}
     if (typeof query === 'string') return query
     if (typeof url === 'string') return url
     if (typeof place === 'string') return place
     if (typeof fact === 'string') return fact
+    if (typeof task === 'string') return task
     return undefined
 }
 

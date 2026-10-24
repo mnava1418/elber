@@ -5,12 +5,12 @@ export const WARN_CHARS = 3600
 
 export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected'
 
-export type ToolKind = 'search' | 'read' | 'weather' | 'remember' | 'forget'
+export type ToolKind = 'search' | 'read' | 'weather' | 'remember' | 'forget' | 'add_todo' | 'complete_todo' | 'list_todos'
 
 export interface ToolStep {
   id: string
   kind: ToolKind
-  /** What goes after the colon: "clima en CDMX", "ejemplo.com", "Vive en CDMX" */
+  /** What goes after the colon: "clima en CDMX", "ejemplo.com", "Vive en CDMX". Empty: just the label */
   detail: string
   status: 'running' | 'done'
 }

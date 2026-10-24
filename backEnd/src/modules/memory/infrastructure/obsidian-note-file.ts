@@ -1,19 +1,19 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { ProfileStore } from '../domain/profile-store.port.js'
+import type { NoteFile } from '../domain/note-file.port.js'
 
 // Elber writes only inside this folder of the vault: a mistake of its own
 // never touches the owner's notes.
 const ELBER_FOLDER = 'Elber'
-const PROFILE_NOTE = 'Perfil.md'
 
-// Adapter: the profile is <vault>/Elber/Perfil.md, a plain Markdown file that
-// Obsidian shows as soon as it changes on disk.
-class ObsidianProfileStore implements ProfileStore {
+// Adapter: a note is <vault>/Elber/<name>, a plain Markdown file that
+// Obsidian shows as soon as it changes on disk. `name` is fixed in code
+// (Perfil.md...), never chosen by the model.
+class ObsidianNoteFile implements NoteFile {
     private readonly file: string
 
-    constructor(vaultPath: string) {
-        this.file = path.join(vaultPath, ELBER_FOLDER, PROFILE_NOTE)
+    constructor(vaultPath: string, private readonly name: string) {
+        this.file = path.join(vaultPath, ELBER_FOLDER, name)
     }
 
     read = async () => {
@@ -29,10 +29,10 @@ class ObsidianProfileStore implements ProfileStore {
     // sees half a note. Its name starts with a dot: Obsidian doesn't list it.
     write = async (note: string) => {
         await mkdir(path.dirname(this.file), {recursive: true})
-        const temporary = path.join(path.dirname(this.file), `.${PROFILE_NOTE}.tmp`)
+        const temporary = path.join(path.dirname(this.file), `.${this.name}.tmp`)
         await writeFile(temporary, note, 'utf8')
         await rename(temporary, this.file)
     }
 }
 
-export default ObsidianProfileStore
+export default ObsidianNoteFile

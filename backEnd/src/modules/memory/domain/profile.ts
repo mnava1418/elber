@@ -7,27 +7,12 @@
 // The edits below change only the lines they touch, so anything else the
 // owner writes in the note (paragraphs, other headings...) stays as it is.
 
-// The note after an edit. `changed` is false when there was nothing to do
-// (the fact was already there, or wasn't): the model is told so.
-export interface ProfileEdit {
-    note: string
-    changed: boolean
-}
+import { linesOf, normalize, noteOf, oneLine, type NoteEdit } from './note-lines.js'
 
 const SECTION = /^##\s+(.+?)\s*$/
 // A heading that ends a section: "#" or "##". Deeper ones ("###") belong to it.
 const SECTION_END = /^#{1,2}\s/
 const BULLET = /^\s*[-*+]\s+(.+?)\s*$/
-
-// Compares text the way a person would: ignoring case, spacing and a final period.
-const normalize = (text: string) => text.replace(/\s+/g, ' ').trim().replace(/\.$/, '').toLowerCase()
-
-// A bullet is one line: a fact with line breaks would break the note.
-const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim()
-
-const linesOf = (note: string) => note === '' ? [] : note.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n')
-
-const noteOf = (lines: string[]) => lines.length === 0 ? '' : lines.join('\n') + '\n'
 
 const isFact = (line: string, fact: string) => {
     const match = BULLET.exec(line)
@@ -37,7 +22,7 @@ const isFact = (line: string, fact: string) => {
 // Files the fact under the section, creating the section at the end of the
 // note if it doesn't exist. A fact already in the note (in any section) isn't
 // added twice.
-export const addFact = (note: string, section: string, fact: string): ProfileEdit => {
+export const addFact = (note: string, section: string, fact: string): NoteEdit => {
     const lines = linesOf(note)
     if (lines.some((line) => isFact(line, fact))) return {note, changed: false}
 
@@ -63,7 +48,7 @@ export const addFact = (note: string, section: string, fact: string): ProfileEdi
 
 // Removes the fact wherever it is. The model quotes it from the profile it
 // was given, so matching is exact apart from case and spacing.
-export const removeFact = (note: string, fact: string): ProfileEdit => {
+export const removeFact = (note: string, fact: string): NoteEdit => {
     const lines = linesOf(note)
     const kept = lines.filter((line) => !isFact(line, fact))
     return kept.length === lines.length ? {note, changed: false} : {note: noteOf(kept), changed: true}

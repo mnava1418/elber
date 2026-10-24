@@ -7,6 +7,9 @@ export const TOOL_KIND: Record<string, ToolKind> = {
   get_weather: 'weather',
   remember: 'remember',
   forget: 'forget',
+  add_todo: 'add_todo',
+  complete_todo: 'complete_todo',
+  list_todos: 'list_todos',
 }
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'

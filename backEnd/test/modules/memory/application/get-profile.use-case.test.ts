@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 import GetProfileUseCase from '../../../../src/modules/memory/application/get-profile.use-case.js'
-import type { ProfileStore } from '../../../../src/modules/memory/domain/profile-store.port.js'
+import type { NoteFile } from '../../../../src/modules/memory/domain/note-file.port.js'
 
 const OWNER = 'owner-uid'
 
-const storeWith = (note: string) => ({read: vi.fn<ProfileStore['read']>(async () => note), write: vi.fn<ProfileStore['write']>()})
+const storeWith = (note: string) => ({read: vi.fn<NoteFile['read']>(async () => note), write: vi.fn<NoteFile['write']>()})
 
 describe('GetProfileUseCase', () => {
     it("gives the owner's profile, trimmed", async () => {

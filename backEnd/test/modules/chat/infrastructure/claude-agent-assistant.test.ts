@@ -82,6 +82,23 @@ describe('toEvents', () => {
         ])
     })
 
+    it('gives the task as hint for the to-do tools', () => {
+        const message = sdkMessage({
+            type: 'assistant',
+            message: {
+                content: [
+                    {type: 'tool_use', id: 't1', name: 'mcp__elber__add_todo', input: {task: 'Hablarle a mi familia', due: '2026-10-31'}},
+                    {type: 'tool_use', id: 't2', name: 'mcp__elber__list_todos', input: {}},
+                ],
+            },
+        })
+
+        expect(events(message)).toEqual([
+            {type: 'tool', name: 'add_todo', detail: 'Hablarle a mi familia'},
+            {type: 'tool', name: 'list_todos', detail: undefined},
+        ])
+    })
+
     it('ends quietly on a successful result', () => {
         const message = sdkMessage({type: 'result', subtype: 'success', is_error: false, result: 'Hola'})
 
