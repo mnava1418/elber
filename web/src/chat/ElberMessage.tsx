@@ -7,11 +7,17 @@ import { Button } from '../components'
 import { Markdown } from './Markdown'
 import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
+import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
-const LABEL = { search: 'Buscando en la web', read: 'Leyendo una página', weather: 'Consultando el clima' }
-const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon }
+const LABEL = {
+  search: 'Buscando en la web',
+  read: 'Leyendo una página',
+  weather: 'Consultando el clima',
+  remember: 'Recordando',
+  forget: 'Olvidando',
+}
+const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon, remember: BookmarkIcon, forget: BookmarkIcon }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
   return (
@@ -38,10 +44,14 @@ function stepsSummary(steps: ToolStep[]) {
   const searches = steps.filter((s) => s.kind === 'search').length
   const reads = steps.filter((s) => s.kind === 'read').length
   const weather = steps.filter((s) => s.kind === 'weather').length
+  const remembered = steps.filter((s) => s.kind === 'remember').length
+  const forgotten = steps.filter((s) => s.kind === 'forget').length
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
   if (reads) parts.push(reads === 1 ? 'leyó 1 página' : `leyó ${reads} páginas`)
+  if (remembered) parts.push(remembered === 1 ? 'guardó 1 dato' : `guardó ${remembered} datos`)
+  if (forgotten) parts.push(forgotten === 1 ? 'olvidó 1 dato' : `olvidó ${forgotten} datos`)
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

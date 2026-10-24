@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
+import path from 'node:path'
 import { z } from 'zod'
 
 // Load .env when present (local development). In deployed environments the
@@ -30,6 +31,20 @@ const envSchema = z.object({
 
     // OpenWeather API key (One Call 3.0 + Geocoding) for the weather skill.
     OPENWEATHER_API_KEY: z.string().min(1),
+
+    // Obsidian vault Elber uses as its long-term memory. It must already
+    // exist: a typo would otherwise create an empty vault somewhere else.
+    OBSIDIAN_VAULT_PATH: z
+        .string()
+        .min(1)
+        .transform((vault) => path.resolve(vault))
+        .refine((vault) => statSync(vault, {throwIfNoEntry: false})?.isDirectory() ?? false, {
+            error: 'Must be an existing directory',
+        }),
+
+    // Firebase uid of the vault's owner: only they get memory. Anyone else
+    // who signs in gets Elber without it, so they never see the owner's notes.
+    MEMORY_OWNER_UID: z.string().min(1),
 
     // Frontend origins allowed to call the API (CORS), comma separated, e.g.
     // "http://localhost:5173,https://app.example.com". Browsers compare the

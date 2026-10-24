@@ -46,7 +46,7 @@ Rules enforced by `npm run lint:arch` (`backEnd/.dependency-cruiser.cjs`):
 
 ### Skills (pattern for new ones)
 
-A skill is a module that exports `{tools}` built with `defineTool` from `src/shared/skills/skill.ts` (framework-agnostic contract). `app.ts` passes the tools to `createChatModule`, which serves them through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
+A skill is a module that exports a `Skill` (`src/shared/skills/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). `app.ts` passes the skills to `createChatModule`, which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
 
 Widgets: `show({type, data})` is stored with the message and sent as `chat:widget`. Each `type` needs its own component in `web/src/chat/widgets/` (dispatcher: `Widgets.tsx`). Use `modules/weather` as the reference implementation, and tell the model about new tools in the system prompt.
 

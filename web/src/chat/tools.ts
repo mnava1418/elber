@@ -1,7 +1,13 @@
 import type { ToolKind } from './types'
 
 // The backend's tool names, as the UI shows them.
-export const TOOL_KIND: Record<string, ToolKind> = { WebSearch: 'search', WebFetch: 'read', get_weather: 'weather' }
+export const TOOL_KIND: Record<string, ToolKind> = {
+  WebSearch: 'search',
+  WebFetch: 'read',
+  get_weather: 'weather',
+  remember: 'remember',
+  forget: 'forget',
+}
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'
 
