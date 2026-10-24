@@ -1,3 +1,5 @@
+import { localIsoDate } from '../../../shared/dates/local-date.js'
+
 // Elber's personality and rules. Kept stable (no dates or per-user data) so
 // the API can cache it between requests.
 export const ELBER_SYSTEM_PROMPT = `You are Elber, a personal assistant. Your name is Mexican, and you are warm, curious and a bit playful, but you get to the point.
@@ -23,6 +25,5 @@ export const systemPromptWith = (contexts: string[]): string => [ELBER_SYSTEM_PR
 export const todayContext = (now = new Date()): string => {
     const weekday = now.toLocaleDateString('en-US', {weekday: 'long'})
     const day = now.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})
-    const iso = [now.getFullYear(), now.getMonth() + 1, now.getDate()].map((n) => String(n).padStart(2, '0')).join('-')
-    return `Today is ${weekday}, ${day} (${iso}).`
+    return `Today is ${weekday}, ${day} (${localIsoDate(now)}).`
 }

@@ -7,7 +7,7 @@ import { Button } from '../components'
 import { Markdown } from './Markdown'
 import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon } from './icons'
+import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, RefreshIcon, TodoIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
 const LABEL = {
@@ -16,8 +16,11 @@ const LABEL = {
   weather: 'Consultando el clima',
   remember: 'Recordando',
   forget: 'Olvidando',
+  add_todo: 'Agregando pendiente',
+  complete_todo: 'Completando',
+  list_todos: 'Revisando tus pendientes',
 }
-const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon, remember: BookmarkIcon, forget: BookmarkIcon }
+const ICON = { search: GlobeIcon, read: PageIcon, weather: CloudIcon, remember: BookmarkIcon, forget: BookmarkIcon, add_todo: TodoIcon, complete_todo: TodoIcon, list_todos: TodoIcon }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
   return (
@@ -30,7 +33,8 @@ function ToolSteps({ steps }: { steps: ToolStep[] }) {
               <Icon />
             </span>
             <span className="step-text">
-              {LABEL[s.kind]}: <span className="step-detail">{s.detail}</span>
+              {LABEL[s.kind]}
+              {s.detail && <>: <span className="step-detail">{s.detail}</span></>}
             </span>
             {s.status === 'running' ? <span className="step-spinner" aria-label="En curso" /> : <CheckIcon className="step-check" aria-label="Listo" />}
           </li>
@@ -46,12 +50,18 @@ function stepsSummary(steps: ToolStep[]) {
   const weather = steps.filter((s) => s.kind === 'weather').length
   const remembered = steps.filter((s) => s.kind === 'remember').length
   const forgotten = steps.filter((s) => s.kind === 'forget').length
+  const added = steps.filter((s) => s.kind === 'add_todo').length
+  const completed = steps.filter((s) => s.kind === 'complete_todo').length
+  const listed = steps.some((s) => s.kind === 'list_todos')
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
   if (reads) parts.push(reads === 1 ? 'leyó 1 página' : `leyó ${reads} páginas`)
   if (remembered) parts.push(remembered === 1 ? 'guardó 1 dato' : `guardó ${remembered} datos`)
   if (forgotten) parts.push(forgotten === 1 ? 'olvidó 1 dato' : `olvidó ${forgotten} datos`)
+  if (listed) parts.push('revisó tus pendientes')
+  if (added) parts.push(added === 1 ? 'agregó 1 pendiente' : `agregó ${added} pendientes`)
+  if (completed) parts.push(completed === 1 ? 'completó 1 pendiente' : `completó ${completed} pendientes`)
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

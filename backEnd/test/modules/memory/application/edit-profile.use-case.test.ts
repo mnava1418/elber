@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import EditProfileUseCase from '../../../../src/modules/memory/application/edit-profile.use-case.js'
-import type { ProfileStore } from '../../../../src/modules/memory/domain/profile-store.port.js'
+import type { NoteFile } from '../../../../src/modules/memory/domain/note-file.port.js'
 
 const OWNER = 'owner-uid'
 
@@ -9,11 +9,11 @@ const OWNER = 'owner-uid'
 const fakeStore = (initial = '') => {
     let note = initial
     const store = {
-        read: vi.fn<ProfileStore['read']>(async () => {
+        read: vi.fn<NoteFile['read']>(async () => {
             await Promise.resolve()
             return note
         }),
-        write: vi.fn<ProfileStore['write']>(async (next) => {
+        write: vi.fn<NoteFile['write']>(async (next) => {
             await Promise.resolve()
             note = next
         }),

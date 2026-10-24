@@ -11,7 +11,8 @@ export const buildRememberTool = (editProfile: EditProfileUseCase) => defineTool
     description: 'Saves a lasting fact about the user in their profile, which you get at the start of every conversation. '
         + 'Use it when the user asks you to remember something, or when they tell you something about themselves '
         + 'worth knowing next time: who they are, what they like or dislike, their projects, the people in their life. '
-        + 'Not for passing states ("I\'m tired today") or for what is already in the profile. '
+        + 'Not for passing states ("I\'m tired today"), for what is already in the profile, or for things '
+        + 'they have to do ("recuérdame llamar a mi mamá" is a task: use add_todo). '
         + 'One short fact per call, in the user\'s language, written as a note about them, e.g. "Vive en CDMX".',
     input: {
         section: z.string().trim().min(1).max(60).describe(

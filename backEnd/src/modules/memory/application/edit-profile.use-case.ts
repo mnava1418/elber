@@ -1,5 +1,6 @@
-import { addFact, removeFact, type ProfileEdit } from '../domain/profile.js'
-import type { ProfileStore } from '../domain/profile-store.port.js'
+import { addFact, removeFact } from '../domain/profile.js'
+import type { NoteFile } from '../domain/note-file.port.js'
+import NoteEditor from './note-editor.js'
 
 export interface RememberInput {
     // A "## Section" of the profile, e.g. "Gustos". Created if it doesn't exist.
@@ -20,34 +21,22 @@ export type ForgetResult = {forgotten: true} | {error: 'NOT_FOUND'} | {error: 'M
 // Elber learns or forgets facts about the vault's owner. Nobody else has a
 // profile: the vault is the owner's.
 class EditProfileUseCase {
-    // Edits run one after another: two at once would both read the old note,
-    // and the second write would drop the first one's fact.
-    private queue: Promise<unknown> = Promise.resolve()
+    private readonly profile: NoteEditor
 
-    constructor(private readonly profile: ProfileStore, private readonly ownerUid: string) {}
+    constructor(profile: NoteFile, private readonly ownerUid: string) {
+        this.profile = new NoteEditor(profile)
+    }
 
     remember = async ({section, fact}: RememberInput, uid: string): Promise<RememberResult> => {
         if (uid !== this.ownerUid) return {error: 'MEMORY_UNAVAILABLE'}
-        const changed = await this.edit((note) => addFact(note, section, fact))
+        const changed = await this.profile.edit((note) => addFact(note, section, fact))
         return changed ? {remembered: true} : {error: 'ALREADY_KNOWN'}
     }
 
     forget = async ({fact}: ForgetInput, uid: string): Promise<ForgetResult> => {
         if (uid !== this.ownerUid) return {error: 'MEMORY_UNAVAILABLE'}
-        const changed = await this.edit((note) => removeFact(note, fact))
+        const changed = await this.profile.edit((note) => removeFact(note, fact))
         return changed ? {forgotten: true} : {error: 'NOT_FOUND'}
-    }
-
-    // Reads, edits and writes the note in turn. A failed edit doesn't stop
-    // the ones queued after it.
-    private edit = (change: (note: string) => ProfileEdit): Promise<boolean> => {
-        const run = this.queue.then(async () => {
-            const {note, changed} = change(await this.profile.read())
-            if (changed) await this.profile.write(note)
-            return changed
-        })
-        this.queue = run.catch(() => {})
-        return run
     }
 }
 
