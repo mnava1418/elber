@@ -2,12 +2,14 @@ import { Router } from 'express'
 import env from '../../config/env.js'
 import { EventBus } from '../../shared/events/event-bus.js'
 import { firebaseAuth } from '../../shared/firebase/firebase-admin.js'
-import AuthController from './auth/auth.controller.js'
-import AuthService from './auth/auth.service.js'
-import buildUsersRoutes from './users.routes.js'
+import RequestPasswordResetUseCase from './application/request-password-reset.use-case.js'
+import FirebasePasswordResetLinks from './infrastructure/firebase-password-reset-links.js'
+import AuthController from './presentation/auth.controller.js'
+import buildUsersRoutes from './presentation/users.routes.js'
 
-// Public entry point of the users module: only app.ts imports it. Other
-// modules never import users; they react to the events it publishes.
+// Public entry point and composition root of the users module: only app.ts
+// imports it. Other modules never import users; they react to the events it
+// publishes.
 export interface UsersModule {
     router: Router
 }
@@ -17,11 +19,12 @@ interface UsersModuleDeps {
 }
 
 const createUsersModule = ({bus}: UsersModuleDeps): UsersModule => {
-    const authService = new AuthService(firebaseAuth, bus, env.PASSWORD_RESET_CONTINUE_URL)
-    const authController = new AuthController(authService)
+    // To switch auth provider, swap this adapter for another PasswordResetLinks.
+    const links = new FirebasePasswordResetLinks(firebaseAuth, env.PASSWORD_RESET_CONTINUE_URL)
+    const requestPasswordReset = new RequestPasswordResetUseCase(links, bus)
 
     return {
-        router: buildUsersRoutes({auth: authController}),
+        router: buildUsersRoutes({auth: new AuthController(requestPasswordReset)}),
     }
 }
 

@@ -1,6 +1,5 @@
 import { Router } from 'express'
-import AuthController from './auth/auth.controller.js'
-import buildAuthRoutes from './auth/auth.routes.js'
+import type AuthController from './auth.controller.js'
 
 interface UsersControllers {
     auth: AuthController
@@ -9,7 +8,7 @@ interface UsersControllers {
 const buildUsersRoutes = ({auth}: UsersControllers) => {
     const router = Router()
 
-    router.use('/auth', buildAuthRoutes(auth))
+    router.post('/auth/password-reset', auth.requestPasswordReset)
 
     return router
 }

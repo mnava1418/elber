@@ -2,15 +2,15 @@ import { AddressInfo } from 'node:net'
 import { Server } from 'node:http'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import express from 'express'
-import AuthController from '../../../../src/modules/users/auth/auth.controller.js'
-import AuthService from '../../../../src/modules/users/auth/auth.service.js'
-import buildAuthRoutes from '../../../../src/modules/users/auth/auth.routes.js'
+import type RequestPasswordResetUseCase from '../../../../src/modules/users/application/request-password-reset.use-case.js'
+import AuthController from '../../../../src/modules/users/presentation/auth.controller.js'
+import buildUsersRoutes from '../../../../src/modules/users/presentation/users.routes.js'
 import errorHandler from '../../../../src/shared/http/middlewares/error.middleware.js'
 
 // Exercises routing, body validation and HTTP status codes through a real
-// Express app on a random local port. The service is a fake: no Firebase.
-const requestPasswordReset = vi.fn<AuthService['requestPasswordReset']>()
-const fakeService = {requestPasswordReset} as unknown as AuthService
+// Express app on a random local port. The use case is a fake: no Firebase.
+const requestPasswordReset = vi.fn<RequestPasswordResetUseCase['execute']>()
+const fakeUseCase = {execute: requestPasswordReset} as unknown as RequestPasswordResetUseCase
 
 const OK_BODY = {response: 'If the email is registered, it will receive a link to reset the password'}
 
@@ -21,7 +21,7 @@ describe('POST /auth/password-reset', () => {
     beforeAll(async () => {
         const app = express()
         app.use(express.json())
-        app.use('/auth', buildAuthRoutes(new AuthController(fakeService)))
+        app.use(buildUsersRoutes({auth: new AuthController(fakeUseCase)}))
         app.use(errorHandler)
 
         server = app.listen(0)
@@ -43,7 +43,7 @@ describe('POST /auth/password-reset', () => {
         return {status: response.status, body: await response.json()}
     }
 
-    it('answers 200 and calls the service with the email', async () => {
+    it('answers 200 and calls the use case with the email', async () => {
         const response = await post(JSON.stringify({email: 'user@example.com'}))
 
         expect(response).toEqual({status: 200, body: OK_BODY})
@@ -78,7 +78,7 @@ describe('POST /auth/password-reset', () => {
         expect(requestPasswordReset).not.toHaveBeenCalled()
     })
 
-    it('answers a generic 500 when the service fails unexpectedly', async () => {
+    it('answers a generic 500 when the use case fails unexpectedly', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => {})
         requestPasswordReset.mockRejectedValue(new Error('firebase down'))
 

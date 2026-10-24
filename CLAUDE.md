@@ -33,7 +33,7 @@ Rules enforced by `npm run lint:arch` (`backEnd/.dependency-cruiser.cjs`):
 - Outside a module, only its `index.ts` (public API) may be imported.
 - Modules never import each other. They talk through the event bus (`src/shared/events`), e.g. `users` emits `users.password_reset_requested` and `notifications` sends the email.
 - `src/shared/` never imports from modules.
-- Modules with clean architecture (`chat`, `weather`, `notifications`) use `domain/` → `application/` → `infrastructure/` + `presentation/`. `domain/` imports nothing outward, and `application/` reaches the outside only through ports defined in `domain/`. `users` is simpler (controller/service/routes).
+- Every module uses clean architecture: `domain/` → `application/` → `infrastructure/` + `presentation/`. `domain/` imports nothing outward, and `application/` reaches the outside only through ports defined in `domain/`.
 
 ### Chat and the agent
 
