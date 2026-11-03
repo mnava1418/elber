@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull *)",
+      "Bash(ls -a; ls .cursor .cursorrules .github/copilot-instructions.md .codex .gemini GEMINI.md ~/.codex/config.toml ~/.gemini/settings.json 2>&1 | grep -v \"No such\"; ls README* */README* 2>/dev/null; cat .github/workflows/ci.yml | head -50)",
+      "Bash(grep -n \"Widgets:\\\\|Use \\\\`modules/weather\\\\`\\\\|design system \\(Button\\\\|UI text is in Spanish\" CLAUDE.md)",
+      "Bash(cd /Users/mnavapena/Documents/coding/sites/elber/web && grep -n \"MOCK\\\\|mock\" -r src | head -20; cat .env 2>/dev/null | grep -v \"KEY\\\\|key\" | sed 's/=.*/=.../'; ls \"/Applications/Google Chrome.app\" 2>&1 | head -1; cat ../.claude/launch.json 2>/dev/null)"
+    ]
+  }
+}

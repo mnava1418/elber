@@ -50,6 +50,10 @@ A skill is a module that exports a `Skill` (`src/shared/skills/skill.ts`, framew
 
 Widgets: `show({type, data})` is stored with the message and sent as `chat:widget`. Each `type` needs its own component in `web/src/chat/widgets/` (dispatcher: `Widgets.tsx`). Use `modules/weather` as the reference implementation, and tell the model about new tools in the system prompt.
 
+In the web, each new tool also needs: its `ToolKind` (`src/chat/types.ts`), its entry in `TOOL_KIND` (`src/chat/tools.ts`), and its `LABEL`, `ICON` and `stepsSummary` line in `src/chat/ElberMessage.tsx`. Otherwise its step shows as a web search.
+
+Owner-only skills (memory, bugs) check `MEMORY_OWNER_UID` in the use case and return an error result (e.g. `BUG_REPORTS_UNAVAILABLE`) for anyone else, so the model explains it instead of failing.
+
 ### Tests
 
 Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, Gmail, OpenWeather, the SDK) are faked, never called.
@@ -58,6 +62,7 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 
 - `src/chat/` is the whole chat feature. `useChat` owns the conversation state and the reconnection (Socket.IO's own reconnection is off). `transport.ts` adapts the `/chat` socket, with a mock transport for `VITE_CHAT_MOCK`. The route is `/chat/:conversationId?`, and the URL is the source of truth for the open conversation.
 - `src/components/` is the design system (Button, Card, TextField...). Use these components and the CSS custom properties from `src/styles/tokens.css`, never hardcoded colors (see `web/.design-sync/conventions.md`).
+- Chat widgets (`src/chat/widgets/`) are styled with the chat's own tokens (`--chat-*`, `--display`, defined on `.chat` in `src/styles/Chat.css`), not with `Card`.
 - UI text is in Spanish.
 
 ## Working style
