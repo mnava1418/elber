@@ -46,6 +46,12 @@ const envSchema = z.object({
     // who signs in gets Elber without it, so they never see the owner's notes.
     MEMORY_OWNER_UID: z.string().min(1),
 
+    // Fine-grained GitHub token for the bugs skill: only GITHUB_REPO, with
+    // Issues: write. Only the owner (MEMORY_OWNER_UID) can file bugs.
+    GITHUB_TOKEN: z.string().min(1),
+    // Repository the bugs are filed in, as "owner/name".
+    GITHUB_REPO: z.string().regex(/^[\w.-]+\/[\w.-]+$/, {error: 'Must be "owner/name", e.g. "mnava1418/elber"'}),
+
     // Frontend origins allowed to call the API (CORS), comma separated, e.g.
     // "http://localhost:5173,https://app.example.com". Browsers compare the
     // exact origin: scheme + host + port, no path and no trailing slash.
