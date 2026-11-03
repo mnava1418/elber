@@ -78,6 +78,17 @@ npm run dev
 
 To work on the chat UI without the backend, set `VITE_CHAT_MOCK=true` in `web/.env.local`. The chat then answers with a canned demo.
 
+### With Docker
+
+Fill in `backEnd/.env` and `web/.env.local` as above, put the service account key at `backEnd/creds/service-account.json`, then:
+
+```bash
+cp .env.example .env   # the Obsidian vault's path on this machine
+docker compose up -d --build
+```
+
+The app is at http://localhost:5173, on the same ports as `npm run dev`. The vault is mounted into the backend. The agent's sessions live in the `agent-sessions` volume. Vite bakes the `VITE_*` variables in at build time, so after changing `web/.env.local`, rebuild with `--build`.
+
 ### Checks
 
 ```bash

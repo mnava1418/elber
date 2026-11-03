@@ -23,6 +23,8 @@ Run them from inside each project.
 
 CI (`.github/workflows/ci.yml`) runs, for the backend: lint, lint:arch, typecheck, test, build; for the web: lint and build.
 
+Docker (`docker compose up -d --build` from the root) runs the built apps on the same ports as dev (backend 3000, web 5173 via nginx). Compose overrides the host paths of `backEnd/.env` (service account as a secret, vault mounted at `/vault` from `ELBER_VAULT_PATH` in the root `.env`) and keeps the agent's sessions in the `agent-sessions` volume. Dependencies are installed inside the images because the Agent SDK ships a per-platform binary. The web bakes `web/.env.local` in at build time.
+
 Environment: copy `.env.example` in each project. The backend validates every variable at startup in `src/config/env.ts` and exits if one is missing. Set `VITE_CHAT_MOCK=true` to use the chat UI with a canned demo, without the backend.
 
 ## Backend architecture

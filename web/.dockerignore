@@ -1,0 +1,10 @@
+# Installed inside the image for Linux.
+node_modules
+dist
+dist-ds
+ds-bundle
+.ds-sync
+.design-sync
+# .env.local is NOT ignored on purpose: Vite reads the VITE_* variables from it
+# during the build. They are public anyway (they end up in the bundle).
+.DS_Store

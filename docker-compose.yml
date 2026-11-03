@@ -1,0 +1,37 @@
+# Elber in containers, on the same ports as `npm run dev`, so the env files,
+# CORS and Firebase's authorized domains work unchanged.
+#   docker compose up -d --build
+services:
+  backend:
+    build: ./backEnd
+    env_file: ./backEnd/.env
+    # Paths inside the container; the host paths in backEnd/.env don't exist here.
+    environment:
+      PORT: 3000
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/service_account
+      OBSIDIAN_VAULT_PATH: /vault
+    secrets:
+      - service_account
+    volumes:
+      # The memory writes here: the same vault Obsidian shows on the Mac.
+      - ${ELBER_VAULT_PATH:?Set ELBER_VAULT_PATH in .env (see .env.example)}:/vault
+      # The agent's sessions, so conversations keep their context across rebuilds.
+      - agent-sessions:/home/node/.elber/agent
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+secrets:
+  service_account:
+    file: ./backEnd/creds/service-account.json
+
+volumes:
+  agent-sessions:

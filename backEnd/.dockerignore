@@ -1,0 +1,11 @@
+# Installed inside the image for Linux.
+node_modules
+dist
+test
+# Secrets reach the container through compose (env_file and a secret), never
+# baked into the image.
+.env
+.env.*
+creds
+*service-account*.json
+.DS_Store
