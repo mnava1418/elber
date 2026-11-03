@@ -23,10 +23,9 @@ import '../styles/Chat.css'
 const transport = import.meta.env.VITE_CHAT_MOCK === 'true' ? mockTransport : socketIoTransport
 
 const SUGGESTIONS = [
-  '¿Qué tiempo hará este fin de semana en CDMX?',
-  'Resume las noticias de tecnología de hoy',
-  'Ayúdame a planear mi semana',
-  'Explícame qué es un webhook',
+  'Dame el clima actual en Nueva York',
+  '¿Que pendientes tengo?',
+  '¿Cuando juega el Real Madrid?',  
 ]
 
 // Loading a saved conversation (the one in the URL).
