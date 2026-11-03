@@ -33,4 +33,5 @@ export const ClockIcon = (p: P) => (<svg {...base(15)} strokeWidth={2} {...p}><c
 export const WifiOffIcon = (p: P) => (<svg {...base(15)} strokeWidth={2} {...p}><path d="M2 2l20 20" /><path d="M8.5 16.5a5 5 0 0 1 7 0" /><path d="M5 12.9a10 10 0 0 1 5.2-2.8" /><path d="M19 12.9a10 10 0 0 0-2.3-1.6" /><path d="M12 20h.01" /></svg>)
 export const SendIcon = (p: P) => (<svg {...base(16)} strokeWidth={2.2} {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>)
 export const EditIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /><path d="m14.5 5.5 3 3" /></svg>)
+export const BugIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><rect x="7" y="8" width="10" height="12" rx="5" /><path d="M9 5.5 10.5 8M15 5.5 13.5 8M3 13h4M17 13h4M4 8l3 2M20 8l-3 2M4 19l3-2M20 19l-3-2M12 11v9" /></svg>)
 export const TrashIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>)

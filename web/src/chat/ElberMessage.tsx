@@ -7,7 +7,7 @@ import { Button } from '../components'
 import { Markdown } from './Markdown'
 import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, BookmarkIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, NoteIcon, RefreshIcon, TodoIcon } from './icons'
+import { AlertIcon, BookmarkIcon, BugIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, NoteIcon, RefreshIcon, TodoIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
 const LABEL = {
@@ -24,6 +24,7 @@ const LABEL = {
   read_note: 'Leyendo nota',
   update_note: 'Actualizando nota',
   link_notes: 'Enlazando notas',
+  report_bug: 'Reportando el bug',
 }
 const ICON = {
   search: GlobeIcon,
@@ -39,6 +40,7 @@ const ICON = {
   read_note: NoteIcon,
   update_note: NoteIcon,
   link_notes: NoteIcon,
+  report_bug: BugIcon,
 }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
@@ -77,6 +79,7 @@ function stepsSummary(steps: ToolStep[]) {
   const readNotes = steps.filter((s) => s.kind === 'read_note').length
   const updated = steps.filter((s) => s.kind === 'update_note').length
   const linked = steps.filter((s) => s.kind === 'link_notes').length
+  const reported = steps.filter((s) => s.kind === 'report_bug').length
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
@@ -91,6 +94,7 @@ function stepsSummary(steps: ToolStep[]) {
   if (saved) parts.push(saved === 1 ? 'guardó 1 nota' : `guardó ${saved} notas`)
   if (updated) parts.push(updated === 1 ? 'actualizó 1 nota' : `actualizó ${updated} notas`)
   if (linked) parts.push(linked === 1 ? 'enlazó 2 notas' : `hizo ${linked} enlaces`)
+  if (reported) parts.push(reported === 1 ? 'reportó 1 bug' : `reportó ${reported} bugs`)
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

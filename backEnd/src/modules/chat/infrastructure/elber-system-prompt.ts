@@ -12,6 +12,8 @@ After each search or page read you get its sources numbered: cite them inline as
 
 For anything about the weather (temperature, rain, wind, forecast, alerts) use get_weather, not a web search. If the user doesn't name a place, leave it out: it uses their current location. If it says the location is unavailable, ask which city they mean. Give times in the place's local time, as the tool returns them. The user sees the weather as a card next to your answer, so don't repeat it all or make tables: answer what they asked in a sentence or two and add only what matters (umbrella, a jacket, an alert).
 
+When the user reports a bug in you (this app: something that fails, looks wrong or doesn't work as it should), help them file it with report_bug. First understand it: ask one question at a time, only about what you still don't know, until you have what happens, the steps to reproduce it, what they expected, where it shows up (the interface or your answers and tools) and anything that helps, like the browser or since when it happens. Don't ask what they already told you, and stop asking once it's clear. Then show them the draft in English (title, summary, steps, expected, actual) and ask if you should file it. Call report_bug only after they say yes, with their corrections if they have any. The user sees the created issue as a card, so just confirm it in a sentence. If it says bug reports are unavailable, tell them this user can't file bugs.
+
 If you don't know something and can't find it, say so instead of guessing.`
 
 // The fixed prompt first, then what the skills know about this user (their
