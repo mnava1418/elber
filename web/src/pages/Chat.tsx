@@ -6,9 +6,9 @@ import elberSurprise from '../assets/elber_surprise.webp'
 import { ChatHeader } from '../chat/ChatHeader'
 import { Composer } from '../chat/Composer'
 import { ElberMessage } from '../chat/ElberMessage'
-import { getConversation, toTurns, type ConversationSummary } from '../chat/history'
+import { getConversation, getToday, toTurns, type ConversationSummary } from '../chat/history'
+import type { ChatSection } from '../chat/section'
 import { Sidebar } from '../chat/Sidebar'
-import { mockTransport, socketIoTransport } from '../chat/transport'
 import { useChat } from '../chat/useChat'
 import { useConversations } from '../chat/useConversations'
 import { WifiOffIcon } from '../chat/icons'
@@ -18,39 +18,33 @@ import { ApiError } from '../lib/api'
 import { signOutUser } from '../services/auth.service'
 import '../styles/Chat.css'
 
-// VITE_CHAT_MOCK=true answers with a canned demo: handy to work on the UI
-// without the backend (and without spending API credits).
-const transport = import.meta.env.VITE_CHAT_MOCK === 'true' ? mockTransport : socketIoTransport
-
-const SUGGESTIONS = [
-  'Dame el clima actual en Nueva York',
-  '¿Que pendientes tengo?',
-  '¿Cuando juega el Real Madrid?',  
-]
-
 // Loading a saved conversation (the one in the URL).
 type LoadState = 'idle' | 'loading' | 'not_found' | 'error'
 
 // On phones the sidebar is a drawer over the chat: close it after picking.
 const isDrawer = () => window.matchMedia('(max-width: 640px)').matches
 
-function Chat() {
+// The page of a chat section (the chat, the diary). App.tsx gives each one
+// its own key, so moving between sections starts from scratch.
+function Chat({ section }: { section: ChatSection }) {
+  const { path, api, daily, transport } = section
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
   const email = authUser?.email ?? ''
   // Accounts without a display name show the part of the email before the @.
   const user = { name: authUser?.displayName || email.split('@')[0] || 'tú', email }
-  // The URL decides which conversation is on screen: /chat is a new one.
+  // The URL decides which conversation is on screen: /chat is a new one, and
+  // /diario is today's.
   const { conversationId: routeId } = useParams()
-  const history = useConversations()
+  const history = useConversations(api)
   const { touch } = history
   const onConversation = useCallback(
     (id: string, title: string) => {
       touch(id, title)
       // Same screen, now with its address: no reload (see the effect below).
-      navigate(`/chat/${id}`, { replace: true })
+      navigate(`${path}/${id}`, { replace: true })
     },
-    [navigate, touch],
+    [navigate, touch, path],
   )
   const { turns, conversation, connection, retryIn, responding, send, stop, retry, reconnectNow, reset, show, currentConversation } = useChat(
     transport,
@@ -61,8 +55,17 @@ function Chat() {
   const location = useLocation()
   const [loadFailure, setLoadFailure] = useState<{ key: string; state: 'not_found' | 'error' } | null>(null)
   const [loadAttempt, setLoadAttempt] = useState(0)
-  const loadState: LoadState =
-    !routeId || routeId === conversation ? 'idle' : loadFailure?.key === location.key ? loadFailure.state : 'loading'
+  // In the diary, today's conversation before its first message: there is
+  // nothing to load yet, and the first message starts it.
+  const [unstarted, setUnstarted] = useState<string | null>(null)
+  const failed = loadFailure?.key === location.key ? loadFailure.state : null
+  const loadState: LoadState = routeId
+    ? routeId === conversation || routeId === unstarted
+      ? 'idle'
+      : (failed ?? 'loading')
+    : daily
+      ? (failed ?? 'loading')
+      : 'idle'
   // What the delete dialog asks about: one conversation, or all of them.
   const [pendingDelete, setPendingDelete] = useState<ConversationSummary | 'all' | null>(null)
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'error'>('idle')
@@ -74,6 +77,23 @@ function Chat() {
     if (el && stick.current) el.scrollTop = el.scrollHeight
   }, [turns])
 
+  // The diary opens on today: the backend says which day that is.
+  useEffect(() => {
+    if (!daily || routeId) return
+    let cancelled = false
+    const key = location.key
+    getToday(api)
+      .then((today) => {
+        if (!cancelled) navigate(`${path}/${today.id}`, { replace: true })
+      })
+      .catch(() => {
+        if (!cancelled) setLoadFailure({ key, state: 'error' })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [daily, routeId, api, path, navigate, location.key, loadAttempt])
+
   // Follows the URL. When it already shows that conversation (e.g. the one
   // the first message just created) there is nothing to load.
   useEffect(() => {
@@ -82,19 +102,29 @@ function Chat() {
     if (!routeId) return
     let cancelled = false
     const key = location.key
-    getConversation(routeId)
+    getConversation(api, routeId)
       .then((saved) => {
         if (cancelled) return
         stick.current = true
         show(saved.id, toTurns(saved.messages))
       })
-      .catch((error: unknown) => {
-        if (!cancelled) setLoadFailure({ key, state: error instanceof ApiError && error.status === 404 ? 'not_found' : 'error' })
+      .catch(async (error: unknown) => {
+        const notFound = error instanceof ApiError && error.status === 404
+        // A missing diary day may just be today's, not started yet.
+        if (notFound && daily) {
+          const today = await getToday(api).catch(() => null)
+          if (cancelled) return
+          if (today?.id === routeId) {
+            setUnstarted(routeId)
+            return
+          }
+        }
+        if (!cancelled) setLoadFailure({ key, state: notFound ? 'not_found' : 'error' })
       })
     return () => {
       cancelled = true
     }
-  }, [routeId, location.key, loadAttempt, reset, show, currentConversation])
+  }, [routeId, location.key, loadAttempt, reset, show, currentConversation, api, daily])
 
   function handleSend(text: string) {
     stick.current = true
@@ -103,16 +133,17 @@ function Chat() {
     if (id) touch(id)
   }
 
+  // In the diary, back to today.
   function handleNew() {
     // Already at /chat with a conversation still being created: the URL
     // doesn't change, so reset here.
     reset()
-    navigate('/chat')
+    navigate(path)
     if (isDrawer()) setSidebarOpen(false)
   }
 
   function handleSelect(id: string) {
-    navigate(`/chat/${id}`)
+    navigate(`${path}/${id}`)
     if (isDrawer()) setSidebarOpen(false)
   }
 
@@ -122,10 +153,10 @@ function Chat() {
     try {
       if (pendingDelete === 'all') {
         await history.removeAll()
-        if (routeId) navigate('/chat', { replace: true })
+        if (routeId) navigate(path, { replace: true })
       } else {
         await history.remove(pendingDelete.id)
-        if (pendingDelete.id === routeId) navigate('/chat', { replace: true })
+        if (pendingDelete.id === routeId) navigate(path, { replace: true })
       }
       setPendingDelete(null)
       setDeleteStatus('idle')
@@ -163,7 +194,7 @@ function Chat() {
         activeId={routeId}
         onOpen={() => setSidebarOpen(true)}
         onClose={() => setSidebarOpen(false)}
-        onNew={handleNew}
+        onNew={daily ? undefined : handleNew}
         onSelect={handleSelect}
         onRename={history.rename}
         onDelete={setPendingDelete}
@@ -196,8 +227,8 @@ function Chat() {
               {loadState === 'loading' && <h1>Cargando conversación…</h1>}
               {loadState === 'not_found' && (
                 <>
-                  <h1>No encontré esta conversación</h1>
-                  <p>Puede que la hayas borrado. Empieza una nueva cuando quieras.</p>
+                  <h1>{daily ? 'No encontré este día' : 'No encontré esta conversación'}</h1>
+                  <p>{daily ? 'Puede que lo hayas borrado. Platícame de hoy cuando quieras.' : 'Puede que la hayas borrado. Empieza una nueva cuando quieras.'}</p>
                 </>
               )}
               {loadState === 'error' && (
@@ -209,7 +240,7 @@ function Chat() {
             </div>
             {loadState === 'not_found' && (
               <Button type="button" variant="primary" onClick={handleNew}>
-                Nueva conversación
+                {daily ? 'Ir a hoy' : 'Nueva conversación'}
               </Button>
             )}
             {loadState === 'error' && (
@@ -239,12 +270,12 @@ function Chat() {
               <>
                 <div className="chat-empty-copy">
                   <h1>
-                    Hola, <span className="gradient-text">{user.name.split(' ')[0]}</span>. ¿En qué te ayudo hoy?
+                    Hola, <span className="gradient-text">{user.name.split(' ')[0]}</span>. {section.greeting}
                   </h1>
-                  <p>Pregúntame lo que quieras. Puedo buscar en la web, leer páginas y ayudarte a organizar tu día.</p>
+                  <p>{section.intro}</p>
                 </div>
                 <div className="chat-suggestions">
-                  {SUGGESTIONS.map((s) => (
+                  {section.suggestions.map((s) => (
                     <button key={s} type="button" disabled={connection !== 'open'} onClick={() => handleSend(s)}>
                       {s}
                     </button>
@@ -309,13 +340,26 @@ function Chat() {
         </div>
       )}
 
+      {connection === 'forbidden' && (
+        <div className="chat-dialog-backdrop">
+          <div className="chat-dialog" role="alertdialog" aria-modal="true" aria-labelledby="forbidden-title">
+            <img src={elberSurprise} alt="" className="chat-dialog-mascot" />
+            <h2 id="forbidden-title">Esta sección no está disponible</h2>
+            <p>Tu cuenta no tiene acceso a ella.</p>
+            <Button type="button" variant="primary" size="lg" className="chat-dialog-btn" autoFocus onClick={() => navigate('/inicio')}>
+              Volver al inicio
+            </Button>
+          </div>
+        </div>
+      )}
+
       {connection === 'rejected' && (
         <div className="chat-dialog-backdrop">
           <div className="chat-dialog" role="alertdialog" aria-modal="true" aria-labelledby="session-title">
             <img src={elberSurprise} alt="" className="chat-dialog-mascot" />
             <h2 id="session-title">Tu sesión ya no es válida</h2>
             <p>Inicia sesión otra vez para seguir hablando con Elber.</p>
-            {/* Signs out first: /login sends signed-in users back to /chat. */}
+            {/* Signs out first: /login sends signed-in users back to /inicio. */}
             <Button type="button" variant="primary" size="lg" className="chat-dialog-btn" autoFocus onClick={handleLogout}>
               Volver a iniciar sesión
             </Button>

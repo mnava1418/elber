@@ -62,6 +62,7 @@ export function Composer({ connection, responding, onSend, onStop, locked = fals
   if (connection === 'connecting') hint = 'Conectando con Elber…'
   if (connection === 'reconnecting') hint = 'Sin conexión. Podrás escribir cuando Elber vuelva.'
   if (connection === 'rejected') hint = 'Inicia sesión de nuevo para seguir escribiendo.'
+  if (connection === 'forbidden') hint = 'Esta sección no está disponible para tu cuenta.'
   if (!disabled && over) hint = `Tu mensaje supera el límite de ${fmt(MAX_CHARS)} caracteres. Acórtalo para enviarlo.`
   const keysHint = !disabled && !over
 

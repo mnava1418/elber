@@ -21,6 +21,8 @@ export interface Widget {
 // What a tool knows about the request it runs in.
 export interface SkillContext {
     uid: string
+    // The conversation the answer belongs to (in the diary, its day).
+    conversationId: string
     // Aborted when the user stops the answer.
     signal: AbortSignal
     // Asks the user's device where they are. null if they refused or it is

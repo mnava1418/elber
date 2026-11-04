@@ -173,9 +173,9 @@ describe('contextsFor', () => {
 })
 
 describe('systemPromptWith', () => {
-    it("keeps Elber's fixed prompt first, so it stays cached", () => {
-        expect(systemPromptWith([])).toBe(ELBER_SYSTEM_PROMPT)
-        expect(systemPromptWith(['The profile'])).toBe(`${ELBER_SYSTEM_PROMPT}\n\nThe profile`)
+    it("keeps the section's fixed prompt first, so it stays cached", () => {
+        expect(systemPromptWith(ELBER_SYSTEM_PROMPT, [])).toBe(ELBER_SYSTEM_PROMPT)
+        expect(systemPromptWith(ELBER_SYSTEM_PROMPT, ['The profile'])).toBe(`${ELBER_SYSTEM_PROMPT}\n\nThe profile`)
     })
 })
 

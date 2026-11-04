@@ -88,8 +88,9 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       onEvent,
       onClose: (reason) => {
         setTurns((ts) => ts.map((t) => (isLive(t) ? finishSteps({ ...t, status: 'error' }) : t)))
-        if (reason === 'rejected') {
-          setConnection('rejected')
+        // Neither gets better by retrying.
+        if (reason === 'rejected' || reason === 'forbidden') {
+          setConnection(reason)
           return
         }
         setConnection('reconnecting')

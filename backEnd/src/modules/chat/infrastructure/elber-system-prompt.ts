@@ -16,10 +16,10 @@ When the user reports a bug in you (this app: something that fails, looks wrong 
 
 If you don't know something and can't find it, say so instead of guessing.`
 
-// The fixed prompt first, then what the skills know about this user (their
-// profile...): only the end changes between users or answers, so the start
-// stays cached.
-export const systemPromptWith = (contexts: string[]): string => [ELBER_SYSTEM_PROMPT, ...contexts].join('\n\n')
+// The section's fixed prompt first, then what the skills know about this
+// user (their profile...): only the end changes between users or answers, so
+// the start stays cached.
+export const systemPromptWith = (prompt: string, contexts: string[]): string => [prompt, ...contexts].join('\n\n')
 
 // The model doesn't know what day it is, and needs it to turn "this
 // Saturday" into a date. In the server's timezone: Elber runs on the user's

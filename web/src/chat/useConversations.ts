@@ -8,7 +8,7 @@ export type ListStatus = 'loading' | 'idle' | 'error'
  * time. What happens in the chat (a new conversation, a new message) is
  * applied here by hand instead of fetching the list again.
  */
-export function useConversations() {
+export function useConversations(api: string) {
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [status, setStatus] = useState<ListStatus>('loading')
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -19,7 +19,7 @@ export function useConversations() {
   const fetchPage = useCallback(async (cursor?: string) => {
     const id = ++request.current
     try {
-      const page = await listConversations(cursor)
+      const page = await listConversations(api, cursor)
       if (id !== request.current) return
       setConversations((cs) => {
         if (!cursor) return page.conversations
@@ -32,7 +32,7 @@ export function useConversations() {
     } catch {
       if (id === request.current) setStatus('error')
     }
-  }, [])
+  }, [api])
 
   useEffect(() => {
     // Its state updates come after the await, not during the effect.
@@ -65,26 +65,26 @@ export function useConversations() {
 
   /** Rejects if the backend could not rename it; the list stays as it was. */
   const rename = useCallback(async (id: string, title: string) => {
-    const saved = await renameConversation(id, title)
+    const saved = await renameConversation(api, id, title)
     // In place: renaming doesn't move it in the list.
     setConversations((cs) => cs.map((c) => (c.id === id ? { ...c, title: saved } : c)))
-  }, [])
+  }, [api])
 
   /** Rejects if the backend could not delete it; the list stays as it was. */
   const remove = useCallback(async (id: string) => {
-    await deleteConversation(id)
+    await deleteConversation(api, id)
     setConversations((cs) => cs.filter((c) => c.id !== id))
-  }, [])
+  }, [api])
 
   /** Rejects if the backend could not delete them; the list stays as it was. */
   const removeAll = useCallback(async () => {
-    await deleteAllConversations()
+    await deleteAllConversations(api)
     // Pages still on their way would bring deleted ones back.
     request.current++
     setConversations([])
     setNextCursor(null)
     setStatus('idle')
-  }, [])
+  }, [api])
 
   return { conversations, status, hasMore: nextCursor !== null, reload, loadMore, touch, rename, remove, removeAll }
 }

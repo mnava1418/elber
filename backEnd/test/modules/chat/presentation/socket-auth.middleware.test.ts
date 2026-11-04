@@ -55,6 +55,23 @@ describe('socket auth middleware', () => {
         )
     })
 
+    it('rejects with FORBIDDEN a user the section is not for, and accepts its owner', async () => {
+        const ownerOnly = buildSocketAuth(verify, (uid) => uid === 'owner-uid')
+        verify.mockResolvedValue(USER)
+
+        await ownerOnly(fakeSocket({token: TOKEN}), next)
+
+        expect(next).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({message: 'Not allowed', data: {code: 'FORBIDDEN'}}),
+        )
+
+        next.mockClear()
+        verify.mockResolvedValue({uid: 'owner-uid'})
+        await ownerOnly(fakeSocket({token: TOKEN}), next)
+
+        expect(next).toHaveBeenCalledExactlyOnceWith()
+    })
+
     it('rejects with a generic error when verification fails unexpectedly', async () => {
         verify.mockRejectedValue(new Error('Firebase down'))
         vi.spyOn(console, 'error').mockImplementation(() => {})

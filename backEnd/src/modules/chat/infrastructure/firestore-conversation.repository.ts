@@ -3,14 +3,15 @@ import type { Conversation, ConversationSummary, Message, StoredMessage } from '
 import { InvalidCursorError, type ConversationPage, type ConversationRepository } from '../domain/conversation.repository.js'
 
 // Adapter: conversations in Firestore, under their user, so a lookup can
-// never reach someone else's:
-//   users/{uid}/conversations/{conversationId}            title, assistantSessionId, createdAt, updatedAt
-//   users/{uid}/conversations/{conversationId}/messages/  role, text, (status, sources, tools, widgets), createdAt
+// never reach someone else's. Each chat section has its own collection
+// ("conversations", "diary"...), so one section can never reach another's:
+//   users/{uid}/{collection}/{conversationId}            title, assistantSessionId, createdAt, updatedAt
+//   users/{uid}/{collection}/{conversationId}/messages/  role, text, (status, sources, tools, widgets), createdAt
 class FirestoreConversationRepository implements ConversationRepository {
-    constructor(private readonly db: Firestore) {}
+    constructor(private readonly db: Firestore, private readonly collection: string) {}
 
-    async create(uid: string, {title}: {title: string}): Promise<Conversation> {
-        const ref = this.conversations(uid).doc()
+    async create(uid: string, {title, id}: {title: string, id?: string}): Promise<Conversation> {
+        const ref = id ? this.conversations(uid).doc(id) : this.conversations(uid).doc()
         await ref.set({title, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp()})
         return {id: ref.id, title}
     }
@@ -103,7 +104,7 @@ class FirestoreConversationRepository implements ConversationRepository {
     }
 
     private conversations(uid: string) {
-        return this.db.collection('users').doc(uid).collection('conversations')
+        return this.db.collection('users').doc(uid).collection(this.collection)
     }
 
     private messages(uid: string, conversationId: string) {

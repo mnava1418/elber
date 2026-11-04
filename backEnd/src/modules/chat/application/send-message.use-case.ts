@@ -1,12 +1,13 @@
 import type { Widget } from '../../../shared/skills/skill.js'
 import type { Assistant, ReplyInput, Source } from '../domain/assistant.port.js'
-import { ConversationNotFoundError, titleFrom, type Conversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
+import { ConversationNotFoundError, titleFrom, type Conversation, type DailyConversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'
 
 export interface SendMessageInput {
     uid: string
     text: string
-    // Continues that conversation; without it, starts a new one.
+    // Continues that conversation; without it, starts a new one (in a daily
+    // section, today's).
     conversationId?: string
     signal: AbortSignal
     // Asks the user's device where they are (for the weather...).
@@ -15,7 +16,7 @@ export interface SendMessageInput {
 
 // What the user sees while Elber answers, in order.
 export type SendMessageEvent =
-    // A new conversation was created for this message (always the first event).
+    // A conversation was created for this message (always the first event).
     | {type: 'conversation', id: string, title: string}
     | {type: 'delta', text: string}
     | {type: 'tool', name: string, detail?: string}
@@ -52,20 +53,32 @@ class SendMessageUseCase {
     constructor(
         private readonly assistant: Assistant,
         private readonly conversations: ConversationRepository,
+        // Only in a section with one conversation per day (the diary).
+        private readonly daily?: DailyConversation,
     ) {}
 
     async *execute({uid, text, conversationId, signal, locate}: SendMessageInput): AsyncGenerator<SendMessageEvent> {
-        let conversation
-        if (conversationId) {
-            conversation = await this.conversations.find(uid, conversationId)
-            if (!conversation) throw new ConversationNotFoundError(conversationId)
-        } else {
-            conversation = await this.conversations.create(uid, {title: titleFrom(text)})
+        let conversation = conversationId ? await this.conversations.find(uid, conversationId) : null
+        if (!conversation) {
+            conversation = await this.create(uid, text, conversationId)
             yield {type: 'conversation', id: conversation.id, title: conversation.title}
         }
 
         await this.conversations.addMessage(uid, conversation.id, {role: 'user', text})
         yield* this.answer({uid, conversation, text, signal, locate})
+    }
+
+    // In a daily section, the first message of the day starts today's
+    // conversation; any other missing one doesn't exist (an old day included:
+    // it can be continued, not started late).
+    private create = async (uid: string, text: string, conversationId?: string): Promise<Conversation> => {
+        if (!this.daily) {
+            if (conversationId) throw new ConversationNotFoundError(conversationId)
+            return await this.conversations.create(uid, {title: titleFrom(text)})
+        }
+        const today = this.daily(new Date())
+        if (conversationId && conversationId !== today.id) throw new ConversationNotFoundError(conversationId)
+        return await this.conversations.create(uid, today)
     }
 
     // Answers the last question again, without storing it twice: a failed or
@@ -103,7 +116,7 @@ class SendMessageUseCase {
         let status: ElberMessageStatus = 'error'
 
         try {
-            const events = this.assistant.reply({text, signal, uid, locate, sessionId: conversation.assistantSessionId})
+            const events = this.assistant.reply({text, signal, uid, conversationId: conversation.id, locate, sessionId: conversation.assistantSessionId})
             for await (const event of events) {
                 switch (event.type) {
                     case 'session':

@@ -11,7 +11,8 @@ interface Props {
   activeId?: string
   onOpen: () => void
   onClose: () => void
-  onNew: () => void
+  /** Left out where there is no new conversation (the diary: one per day). */
+  onNew?: () => void
   onSelect: (id: string) => void
   /** Rejects if it could not be renamed. */
   onRename: (id: string, title: string) => Promise<void>
@@ -43,9 +44,11 @@ export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onCl
         <button type="button" className="chat-icon-btn" aria-label="Abrir conversaciones" onClick={onOpen}>
           <PanelIcon />
         </button>
-        <button type="button" className="chat-icon-btn" aria-label="Nueva conversación" onClick={onNew}>
-          <NewChatIcon />
-        </button>
+        {onNew && (
+          <button type="button" className="chat-icon-btn" aria-label="Nueva conversación" onClick={onNew}>
+            <NewChatIcon />
+          </button>
+        )}
       </div>
       <div className="chat-panel">
         <div className="chat-panel-head">
@@ -54,10 +57,12 @@ export function Sidebar({ conversations, status, hasMore, activeId, onOpen, onCl
             <PanelIcon />
           </button>
         </div>
-        <button type="button" className="chat-panel-new" onClick={onNew}>
-          <PlusIcon />
-          Nueva conversación
-        </button>
+        {onNew && (
+          <button type="button" className="chat-panel-new" onClick={onNew}>
+            <PlusIcon />
+            Nueva conversación
+          </button>
+        )}
         <nav className="chat-panel-list" aria-label="Historial">
           {groupByDate(conversations).map((group) => (
             <section key={group.label} className="chat-panel-section">

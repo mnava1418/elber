@@ -18,7 +18,8 @@ export class InvalidCursorError extends Error {
 // Port: where conversations are stored. Every method is scoped to a user:
 // a conversation of someone else is, for this user, one that doesn't exist.
 export interface ConversationRepository {
-    create(uid: string, data: {title: string}): Promise<Conversation>
+    // With an id when it is known beforehand (a diary day); a new one otherwise.
+    create(uid: string, data: {title: string, id?: string}): Promise<Conversation>
     // null if it doesn't exist or belongs to another user.
     find(uid: string, conversationId: string): Promise<Conversation | null>
     // Throws InvalidCursorError for a cursor list() didn't give.

@@ -3,7 +3,7 @@ import type { NoteFile } from '../domain/note-file.port.js'
 import type { NoteStore } from '../domain/note-store.port.js'
 import { addLink, appendToBody, cleanTags, cleanTitle, linksOf, searchNotes, type Note, type NoteLinks, type NoteSummary, type NoteType } from '../domain/notes.js'
 import { pendingTodos, type Todo } from '../domain/todos.js'
-import { serial } from './serial.js'
+import { serial } from '../../../shared/async/serial.js'
 
 // Notes a search gives at most: enough to choose, without filling the context.
 const SEARCH_LIMIT = 10

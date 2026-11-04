@@ -8,8 +8,7 @@ class InMemoryConversations implements ConversationRepository {
     private readonly updatedAt = new Map<string, number>()
     private clock = 0
 
-    async create(uid: string, {title}: {title: string}) {
-        const id = `conv${this.conversations.size + 1}`
+    async create(uid: string, {title, id = `conv${this.conversations.size + 1}`}: {title: string, id?: string}) {
         this.conversations.set(id, {id, uid, title, messages: []})
         this.touch(id)
         return {id, title}

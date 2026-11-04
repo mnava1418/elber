@@ -6,7 +6,7 @@ function GuestRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth()
 
   if (loading) return null
-  if (user) return <Navigate to="/chat" replace />
+  if (user) return <Navigate to="/inicio" replace />
 
   return children
 }

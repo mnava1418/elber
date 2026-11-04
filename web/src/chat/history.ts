@@ -3,7 +3,8 @@ import type { Widget } from '../lib/socket'
 import { toolDetail, toolKind } from './tools'
 import type { Source, Turn } from './types'
 
-// Contract of the backend's chat history (GET/DELETE /chat/conversations).
+// Contract of the backend's chat history (GET/DELETE <section>/conversations).
+// `api` is the section's path (/chat, /diary).
 // Copy of the types in backEnd/src/modules/chat/domain: change both together.
 // Dates arrive as ISO strings.
 export interface ConversationSummary {
@@ -37,30 +38,35 @@ export interface ConversationDetail {
   messages: StoredMessage[]
 }
 
-export function listConversations(cursor?: string): Promise<ConversationPage> {
+export function listConversations(api: string, cursor?: string): Promise<ConversationPage> {
   const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
-  return apiGetAuth(`/chat/conversations${query}`)
+  return apiGetAuth(`${api}/conversations${query}`)
 }
 
-export function getConversation(id: string): Promise<ConversationDetail> {
-  return apiGetAuth(`/chat/conversations/${encodeURIComponent(id)}`)
+export function getConversation(api: string, id: string): Promise<ConversationDetail> {
+  return apiGetAuth(`${api}/conversations/${encodeURIComponent(id)}`)
 }
 
 // The backend's limit for a title.
 export const MAX_TITLE_LENGTH = 60
 
 /** Resolves to the title as the backend saved it (on one line). */
-export async function renameConversation(id: string, title: string): Promise<string> {
-  const renamed = await apiPatchAuth<{ id: string; title: string }>(`/chat/conversations/${encodeURIComponent(id)}`, { title })
+export async function renameConversation(api: string, id: string, title: string): Promise<string> {
+  const renamed = await apiPatchAuth<{ id: string; title: string }>(`${api}/conversations/${encodeURIComponent(id)}`, { title })
   return renamed.title
 }
 
-export function deleteConversation(id: string): Promise<void> {
-  return apiDeleteAuth(`/chat/conversations/${encodeURIComponent(id)}`)
+export function deleteConversation(api: string, id: string): Promise<void> {
+  return apiDeleteAuth(`${api}/conversations/${encodeURIComponent(id)}`)
 }
 
-export function deleteAllConversations(): Promise<void> {
-  return apiDeleteAuth('/chat/conversations')
+export function deleteAllConversations(api: string): Promise<void> {
+  return apiDeleteAuth(`${api}/conversations`)
+}
+
+/** In a daily section (the diary): which conversation is today's. The backend decides when the day changes. */
+export function getToday(api: string): Promise<{ id: string; title: string }> {
+  return apiGetAuth(`${api}/today`)
 }
 
 // Stored messages as the thread shows them. Each answer replies to the

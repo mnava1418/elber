@@ -27,8 +27,9 @@ export interface ReplyInput {
     text: string
     // Aborting it stops the answer (and its cost) as soon as possible.
     signal: AbortSignal
-    // Who is asking: the skills' tools need it.
+    // Who is asking, and in which conversation: the skills' tools need it.
     uid: string
+    conversationId: string
     locate: SkillContext['locate']
     // Continues that conversation (its earlier messages are the context);
     // without it, the answer starts a new one.
