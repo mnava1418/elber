@@ -3,10 +3,11 @@ import type { Widget } from '../lib/socket'
 export const MAX_CHARS = 4000
 export const WARN_CHARS = 3600
 
-export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected'
+export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected' | 'forbidden'
 
 export type ToolKind = 'search' | 'read' | 'weather' | 'remember' | 'forget' | 'add_todo' | 'complete_todo' | 'list_todos'
   | 'save_note' | 'search_notes' | 'read_note' | 'update_note' | 'link_notes' | 'report_bug'
+  | 'save_entry' | 'read_month' | 'list_months'
 
 export interface ToolStep {
   id: string

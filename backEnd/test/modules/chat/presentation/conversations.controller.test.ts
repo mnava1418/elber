@@ -44,6 +44,10 @@ describe('chat conversations routes', () => {
         // As app.ts does, for the bodies of PATCH.
         app.use(express.json())
         app.use('/chat', buildChatRoutes(buildRequireAuth(verify), controller))
+        // A section only its owner can use, like the diary.
+        app.use('/private', buildChatRoutes(buildRequireAuth(verify), controller, (uid) => uid === 'uid-owner'))
+        // A section with one conversation per day, like the diary.
+        app.use('/daily', buildChatRoutes(buildRequireAuth(verify), controller, undefined, () => ({id: '2026-11-02', title: 'Lunes 2 de noviembre'})))
         app.use(errorHandler)
 
         server = app.listen(0)
@@ -79,6 +83,25 @@ describe('chat conversations routes', () => {
             const response = await request('GET', '/conversations', token)
 
             expect(response).toEqual({status: 401, body: {error: {code: 'UNAUTHORIZED', message}}})
+        })
+
+        it('answers 403 in a section the user may not use, and lets its owner in', async () => {
+            const privateUrl = url.replace(/\/chat$/, '/private/conversations')
+            const as = (token: string) => fetch(privateUrl, {headers: {Authorization: `Bearer ${token}`}})
+
+            const denied = await as('uid-1')
+            expect(denied.status).toBe(403)
+            expect(await denied.json()).toEqual({error: {code: 'FORBIDDEN', message: 'Forbidden'}})
+            expect((await as('uid-owner')).status).toBe(200)
+        })
+
+        it('tells which conversation is today\'s in a daily section, and only there', async () => {
+            const at = (section: string) => fetch(url.replace(/\/chat$/, `/${section}/today`), {headers: {Authorization: 'Bearer uid-1'}})
+
+            const today = await at('daily')
+            expect(today.status).toBe(200)
+            expect(await today.json()).toEqual({id: '2026-11-02', title: 'Lunes 2 de noviembre'})
+            expect((await at('chat')).status).toBe(404)
         })
 
         it('answers a generic 500 when the token cannot be checked', async () => {

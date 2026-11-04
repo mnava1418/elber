@@ -25,6 +25,7 @@ It runs locally on my machine for my own use. It is not deployed anywhere.
   - a profile of what it knows about you, which it reads before every answer;
   - a to-do list;
   - notes for ideas and projects, linked to each other.
+- **Diary**: a separate section where Elber asks about your day, one question at a time, and, once you approve its summary, saves it as that day's entry in `Elber/Diario/` of the vault (mood, topics and people included). The regular chat has no access to it.
 - **Bug reports**: tell Elber about a bug in Elber. It asks what it needs to know, one question at a time, shows you a draft, and opens a GitHub issue once you approve it.
 
 ## Stack

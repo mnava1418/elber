@@ -4,12 +4,14 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import type { Server } from 'socket.io'
 import env from './config/env.js'
-import createChatModule from './modules/chat/index.js'
+import createChatModule, { ELBER_SYSTEM_PROMPT } from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import createMemoryModule from './modules/memory/index.js'
 import createWeatherModule from './modules/weather/index.js'
 import createBugsModule from './modules/bugs/index.js'
+import createJournalModule, { DIARY_SYSTEM_PROMPT } from './modules/journal/index.js'
+import { journalDay } from './shared/dates/journal-day.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
 import errorHandler from './shared/http/middlewares/error.middleware.js'
@@ -30,7 +32,27 @@ const createApp = ({io}: AppDeps) => {
     const weather = createWeatherModule()
     const memory = createMemoryModule()
     const bugs = createBugsModule()
-    const chat = createChatModule({io, skills: [weather, memory, bugs]})
+    const chat = createChatModule({io, section: {
+        namespace: '/chat',
+        collection: 'conversations',
+        systemPrompt: ELBER_SYSTEM_PROMPT,
+        skills: [weather, memory.skill, bugs],
+        webTools: true,
+    }})
+    // The diary only has its own tools and the profile: the chat can't reach
+    // its conversations, and it can't reach the chat's notes or the web.
+    const diary = createChatModule({io, section: {
+        namespace: '/diary',
+        collection: 'diary',
+        systemPrompt: DIARY_SYSTEM_PROMPT,
+        skills: [createJournalModule(), memory.profile],
+        webTools: false,
+        canUse: (uid) => uid === env.MEMORY_OWNER_UID,
+        daily: (now) => {
+            const {date, title} = journalDay(now)
+            return {id: date, title: title.charAt(0).toUpperCase() + title.slice(1)}
+        },
+    }})
     createNotificationsModule({bus})
 
     app.use(helmet())
@@ -54,6 +76,7 @@ const createApp = ({io}: AppDeps) => {
     }))
     api.use('/users', users.router)
     api.use('/chat', chat.router)
+    api.use('/diary', diary.router)
     app.use('/api/v1', api)
 
     // Order matters: these must be registered after every route.

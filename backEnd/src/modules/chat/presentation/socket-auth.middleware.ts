@@ -8,7 +8,8 @@ const connectionError = (message: string, code: string): ExtendedError =>
 
 // Runs once per connection (and again on every reconnection), before any
 // event is accepted. The client sends its Firebase ID token in `auth.token`.
-const buildSocketAuth = (verify: TokenVerifier) =>
+// `canUse` keeps a section to some users (the diary, to the vault's owner).
+const buildSocketAuth = (verify: TokenVerifier, canUse: (uid: string) => boolean = () => true) =>
     async (socket: Socket, next: (err?: ExtendedError) => void) => {
         const token: unknown = socket.handshake.auth?.token
         if (typeof token !== 'string' || token === '') {
@@ -19,6 +20,9 @@ const buildSocketAuth = (verify: TokenVerifier) =>
             const user = await verify(token)
             if (!user) {
                 return next(connectionError('Invalid auth token', 'UNAUTHORIZED'))
+            }
+            if (!canUse(user.uid)) {
+                return next(connectionError('Not allowed', 'FORBIDDEN'))
             }
             socket.data.user = user
             next()

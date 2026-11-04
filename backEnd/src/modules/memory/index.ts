@@ -13,7 +13,13 @@ import { buildAddTodoTool, buildCompleteTodoTool, buildListTodosTool } from './p
 // Public entry point of the memory skill: what Elber knows about the owner of
 // the Obsidian vault. Tools to learn and forget, the profile it reads before
 // every answer, the owner's to-do list, and their notes (ideas, projects...).
-export type MemoryModule = Skill
+export interface MemoryModule {
+    // All of it, for the chat.
+    skill: Skill
+    // Only the profile and the tools to change it, for the diary: it gets to
+    // know the user, but not their notes or to-dos.
+    profile: Skill
+}
 
 const createMemoryModule = (): MemoryModule => {
     // To keep the notes somewhere else, swap this adapter for another NoteFile.
@@ -25,20 +31,27 @@ const createMemoryModule = (): MemoryModule => {
     const todos = new ManageTodosUseCase(todoList, noteStore, env.MEMORY_OWNER_UID)
     const notes = new ManageNotesUseCase(noteStore, todoList, env.MEMORY_OWNER_UID)
 
+    const remember = buildRememberTool(editProfile)
+    const forget = buildForgetTool(editProfile)
+    const profileContext = buildProfileContext(new GetProfileUseCase(profile, env.MEMORY_OWNER_UID))
+
     return {
-        tools: [
-            buildRememberTool(editProfile),
-            buildForgetTool(editProfile),
-            buildAddTodoTool(todos),
-            buildCompleteTodoTool(todos),
-            buildListTodosTool(todos),
-            buildSaveNoteTool(notes),
-            buildSearchNotesTool(notes),
-            buildReadNoteTool(notes),
-            buildUpdateNoteTool(notes),
-            buildLinkNotesTool(notes),
-        ],
-        context: buildProfileContext(new GetProfileUseCase(profile, env.MEMORY_OWNER_UID)),
+        skill: {
+            tools: [
+                remember,
+                forget,
+                buildAddTodoTool(todos),
+                buildCompleteTodoTool(todos),
+                buildListTodosTool(todos),
+                buildSaveNoteTool(notes),
+                buildSearchNotesTool(notes),
+                buildReadNoteTool(notes),
+                buildUpdateNoteTool(notes),
+                buildLinkNotesTool(notes),
+            ],
+            context: profileContext,
+        },
+        profile: {tools: [remember, forget], context: profileContext},
     }
 }
 

@@ -4,7 +4,7 @@ import { auth } from './firebase'
 // Socket.IO lives on the same server as the API, at its root (no /api/v1).
 const SOCKET_URL = import.meta.env.VITE_API_URL ? new URL(import.meta.env.VITE_API_URL).origin : ''
 
-// Contract of the /chat namespace. Copy of
+// Contract of the chat namespaces (/chat, /diary...). Copy of
 // backEnd/src/modules/chat/presentation/chat.events.ts: change both together.
 //
 // One answer at a time: after chat:message (or chat:retry) the server sends
@@ -48,11 +48,11 @@ export type ChatErrorCode = 'INVALID_MESSAGE' | 'BUSY' | 'CONVERSATION_NOT_FOUND
 export type ChatSocket = Socket<ChatServerEvents, ChatClientEvents>
 
 // Created disconnected: call connect() when the page needs it.
-// `options` overrides the defaults below.
-export function createChatSocket(options: Partial<ManagerOptions & SocketOptions> = {}): ChatSocket {
+// `namespace` is the section's (/chat, /diary); `options` overrides the defaults below.
+export function createChatSocket(namespace: string, options: Partial<ManagerOptions & SocketOptions> = {}): ChatSocket {
   if (!SOCKET_URL) throw new Error('VITE_API_URL no está configurada (ver web/.env.example)')
 
-  return io(`${SOCKET_URL}/chat`, {
+  return io(`${SOCKET_URL}${namespace}`, {
     transports: ['websocket'],
     reconnectionDelayMax: 3000,
     timeout: 10000,

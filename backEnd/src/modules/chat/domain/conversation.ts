@@ -41,6 +41,10 @@ export class ConversationNotFoundError extends Error {
     }
 }
 
+// A section with one conversation per day (the diary): the day `now` belongs
+// to, which is the id and title of its conversation.
+export type DailyConversation = (now: Date) => {id: string, title: string}
+
 export const MAX_TITLE_LENGTH = 60
 
 // A title is a single line: it is shown in the sidebar.

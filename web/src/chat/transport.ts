@@ -5,8 +5,8 @@ import type { ServerEvent, Source } from './types'
 
 export interface TransportHandlers {
   onOpen(): void
-  /** 'rejected' = invalid session; 'temporary' = it retries on its own */
-  onClose(reason: 'temporary' | 'rejected'): void
+  /** 'rejected' = invalid session; 'forbidden' = this section isn't for the user; 'temporary' = it retries on its own */
+  onClose(reason: 'temporary' | 'rejected' | 'forbidden'): void
   onEvent(event: ServerEvent): void
 }
 
@@ -22,15 +22,15 @@ export interface Connection {
 export type Transport = (handlers: TransportHandlers) => Connection
 
 /**
- * Adapter to the backend's /chat namespace (Socket.IO). The backend has no
+ * Adapter to one of the backend's chat namespaces (Socket.IO): /chat, /diary... The backend has no
  * turn ids and answers one message at a time, so this keeps track of the
  * current turn and translates its events into the ServerEvents useChat expects.
  *
  * Each connection is a new socket: useChat decides when to reconnect (with
  * its own backoff and countdown), so Socket.IO's reconnection is off.
  */
-export const socketIoTransport: Transport = (h) => {
-  const socket = createChatSocket({ reconnection: false })
+export const socketIoTransport = (namespace: string): Transport => (h) => {
+  const socket = createChatSocket(namespace, { reconnection: false })
   let closedByClient = false
 
   // The turn the backend is answering, and its tool step still running.
@@ -73,7 +73,7 @@ export const socketIoTransport: Transport = (h) => {
   socket.on('connect', () => h.onOpen())
   socket.on('connect_error', (err) => {
     const code = (err as { data?: { code?: string } }).data?.code
-    h.onClose(code === 'UNAUTHORIZED' ? 'rejected' : 'temporary')
+    h.onClose(code === 'UNAUTHORIZED' ? 'rejected' : code === 'FORBIDDEN' ? 'forbidden' : 'temporary')
   })
   socket.on('disconnect', () => {
     if (closedByClient) return

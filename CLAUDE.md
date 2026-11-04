@@ -39,10 +39,12 @@ Rules enforced by `npm run lint:arch` (`backEnd/.dependency-cruiser.cjs`):
 
 ### Chat and the agent
 
+The `chat` module is instantiated once per **section** in `app.ts` (`ChatSection`: namespace, Firestore collection, prompt, skills, `webTools`, `canUse`, `daily`). Today: the chat (`/chat`, `conversations`, everything) and the diary (`/diary`, `diary`, owner only, one conversation per day whose id is its date, 4:00 cutoff via `shared/dates/journal-day.ts`). Sections share no data: the diary's privacy comes from this construction (its own collection, routes and tools), not from prompts. Everything lives under `Elber/` in the vault. The chat's memory only reaches its own files there (`Perfil.md`, `Pendientes.md`, `Notas/`); only the diary's `journal` module reaches `Elber/Diario/`.
+
 - `modules/chat` uses the Claude Agent SDK (`infrastructure/claude-agent-assistant.ts`), behind the `Assistant` port so the agent framework can be swapped.
 - The agent is locked down on purpose: only `WebSearch`/`WebFetch` plus Elber's skill tools, `permissionMode: 'dontAsk'`, `settingSources: []` (no CLAUDE.md or ~/.claude), `skills: []`, `strictMcpConfig`, an empty `cwd` in tmp, and a minimal `env`. In the SDK, `tools` decides which built-in tools exist, while `allowedTools` only auto-approves them. Never add Bash/Read/Write.
 - Sessions: the SDK stores one `.jsonl` per conversation in `CLAUDE_CONFIG_DIR=~/.elber/agent`. It is set both in the child's env and in `process.env`, because `getSessionInfo`/`deleteSession` run in-process. Conversations live in Firestore (`users/{uid}/conversations/{id}` + `messages`), each linked to its SDK session through `resume`.
-- Transport: Socket.IO namespace `/chat`, with the Firebase ID token verified in the handshake. History uses REST under `/api/v1/chat/conversations` (Bearer token). Event types are deliberately duplicated in the backend and the web.
+- Transport: one Socket.IO namespace per section (`/chat`, `/diary`), with the Firebase ID token verified in the handshake (`canUse` rejects with `FORBIDDEN`). History uses REST under `/api/v1/<section>/conversations` (Bearer token), plus `GET /api/v1/diary/today`. Event types are deliberately duplicated in the backend and the web.
 - `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) stays static (no dates or per-user data) so it can be prompt-cached.
 - Sources: a `PostToolUse` hook numbers the WebSearch/WebFetch results so the model cites them as `[n]` (`web-sources.ts`).
 
@@ -62,7 +64,8 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 
 ## Web architecture
 
-- `src/chat/` is the whole chat feature. `useChat` owns the conversation state and the reconnection (Socket.IO's own reconnection is off). `transport.ts` adapts the `/chat` socket, with a mock transport for `VITE_CHAT_MOCK`. The route is `/chat/:conversationId?`, and the URL is the source of truth for the open conversation.
+- `src/chat/` is the whole chat feature, shared by every section (`src/chat/section.ts`: `CHAT` and `DIARY`, each with its path, API, transport and texts). `useChat` owns the conversation state and the reconnection (Socket.IO's own reconnection is off). `transport.ts` adapts a section's socket, with a mock transport for `VITE_CHAT_MOCK`. The routes are `/chat/:conversationId?` and `/diario/:conversationId?` (without an id it opens today's), and the URL is the source of truth for the open conversation.
+- After sign-in the user lands on `/inicio`, a card per section (`src/pages/Inicio.tsx`).
 - `src/components/` is the design system (Button, Card, TextField...). Use these components and the CSS custom properties from `src/styles/tokens.css`, never hardcoded colors (see `web/.design-sync/conventions.md`).
 - Chat widgets (`src/chat/widgets/`) are styled with the chat's own tokens (`--chat-*`, `--display`, defined on `.chat` in `src/styles/Chat.css`), not with `Card`.
 - UI text is in Spanish.

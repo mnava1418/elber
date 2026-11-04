@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Logo } from '../components'
 import type { ConnectionState } from './types'
-import { LogoutIcon, MenuIcon } from './icons'
+import { HomeIcon, LogoutIcon, MenuIcon } from './icons'
 
 const STATUS: Record<ConnectionState, string> = {
   connecting: 'Conectando…',
   open: 'Conectado',
   reconnecting: 'Reconectando…',
   rejected: 'Sesión inválida',
+  forbidden: 'Sin acceso',
 }
 
 interface Props {
@@ -47,6 +49,9 @@ export function ChatHeader({ connection, user, onOpenSidebar, onLogout }: Props)
       <button type="button" className="chat-icon-btn chat-header-menu" aria-label="Abrir conversaciones" onClick={onOpenSidebar}>
         <MenuIcon />
       </button>
+      <Link to="/inicio" className="chat-icon-btn" aria-label="Volver al inicio" title="Volver al inicio">
+        <HomeIcon />
+      </Link>
       <Logo size="sm" />
       <div className="chat-header-spacer" />
       <div className={`chat-status chat-status--${connection}`} role="status">

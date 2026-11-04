@@ -4,9 +4,10 @@ import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.
 import { systemPromptWith, todayContext } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
 
-// The only tools the agent has. The SDK ships Claude Code's tools (Bash,
-// Read, Write...): on a server reachable from the internet they must not exist.
-const TOOLS = ['WebSearch', 'WebFetch']
+// The only built-in tools the agent may have, when its section searches the
+// web. The SDK ships Claude Code's tools (Bash, Read, Write...): on a server
+// reachable from the internet they must not exist.
+const WEB_TOOLS = ['WebSearch', 'WebFetch']
 
 // The skills' tools are served by an in-process MCP server with this name;
 // the model sees them as mcp__elber__<name>.
@@ -16,6 +17,10 @@ const SKILL_PREFIX = `mcp__${SKILLS_SERVER}__`
 interface ClaudeAgentAssistantConfig {
     apiKey: string
     model: string
+    // Who the agent is in this section (Elber, the diary...). Fixed, so it is cached.
+    systemPrompt: string
+    // Whether it can search the web and read pages.
+    webTools: boolean
     // Empty directory the agent runs in, away from the backend's code and secrets.
     workDir: string
     // Where the agent keeps its sessions (one .jsonl per conversation), apart
@@ -29,11 +34,13 @@ interface ClaudeAgentAssistantConfig {
 // agent loop in a child process.
 class ClaudeAgentAssistant implements Assistant {
     private readonly options: Options
+    private readonly systemPrompt: string
     private readonly workDir: string
     private readonly skills: Skill[]
     private readonly tools: SkillTool[]
 
-    constructor({apiKey, model, workDir, configDir, skills}: ClaudeAgentAssistantConfig) {
+    constructor({apiKey, model, systemPrompt, webTools, workDir, configDir, skills}: ClaudeAgentAssistantConfig) {
+        this.systemPrompt = systemPrompt
         this.workDir = workDir
         this.skills = skills
         this.tools = skills.flatMap((skill) => skill.tools)
@@ -41,12 +48,14 @@ class ClaudeAgentAssistant implements Assistant {
         // it too: deleteSession() and getSessionInfo() run here and look for
         // sessions in this process's CLAUDE_CONFIG_DIR.
         process.env.CLAUDE_CONFIG_DIR = configDir
+        // An empty list leaves the agent with no built-in tool at all.
+        const builtInTools = webTools ? WEB_TOOLS : []
         this.options = {
             model,
             // `tools` decides which built-in tools exist; `allowedTools` only
             // auto-approves them (and the skills'), and `dontAsk` denies anything else.
-            tools: TOOLS,
-            allowedTools: [...TOOLS, ...this.tools.map((skillTool) => SKILL_PREFIX + skillTool.name)],
+            tools: builtInTools,
+            allowedTools: [...builtInTools, ...this.tools.map((skillTool) => SKILL_PREFIX + skillTool.name)],
             permissionMode: 'dontAsk',
             // Only the MCP servers passed here, never one configured on the machine.
             strictMcpConfig: true,
@@ -73,7 +82,7 @@ class ClaudeAgentAssistant implements Assistant {
         }
     }
 
-    async *reply({text, signal, sessionId, uid, locate}: ReplyInput): AsyncGenerator<AssistantEvent> {
+    async *reply({text, signal, sessionId, uid, conversationId, locate}: ReplyInput): AsyncGenerator<AssistantEvent> {
         const abortController = new AbortController()
         const abort = () => abortController.abort()
         signal.addEventListener('abort', abort, {once: true})
@@ -90,13 +99,13 @@ class ClaudeAgentAssistant implements Assistant {
             const options: Options = {
                 ...this.options,
                 // Per answer: what the skills know about this user may have changed.
-                systemPrompt: systemPromptWith([...await contextsFor(this.skills, uid), todayContext()]),
+                systemPrompt: systemPromptWith(this.systemPrompt, [...await contextsFor(this.skills, uid), todayContext()]),
                 abortController,
                 // The SDK reloads the conversation's history and sends it with the new message.
                 resume: sessionId,
                 hooks: {PostToolUse: [citeSources(sources)]},
                 // One per answer: its tools run with this request's user and location.
-                mcpServers: {[SKILLS_SERVER]: skillsServer(this.tools, {uid, signal, locate, show})},
+                mcpServers: {[SKILLS_SERVER]: skillsServer(this.tools, {uid, conversationId, signal, locate, show})},
             }
             for await (const message of query({prompt: text, options})) {
                 // A new text block after earlier text (e.g. after a search)
@@ -214,11 +223,12 @@ export function* toEvents(message: SDKMessage, hasText: boolean): Generator<Assi
 const toolName = (name: string) => name.startsWith(SKILL_PREFIX) ? name.slice(SKILL_PREFIX.length) : name
 
 // WebSearch receives {query}, WebFetch {url, prompt}, get_weather {place?},
-// remember {section, fact} and forget {fact}.
+// remember {section, fact}, forget {fact} and read_month {month}.
 const toolDetail = (input: unknown): string | undefined => {
     if (typeof input !== 'object' || input === null) return undefined
-    const {query, url, place, fact, task, title, from, to} = input as {
-        query?: unknown, url?: unknown, place?: unknown, fact?: unknown, task?: unknown, title?: unknown, from?: unknown, to?: unknown
+    const {query, url, place, fact, task, title, from, to, month} = input as {
+        query?: unknown, url?: unknown, place?: unknown, fact?: unknown, task?: unknown, title?: unknown, from?: unknown, to?: unknown,
+        month?: unknown
     }
     if (typeof query === 'string') return query
     if (typeof url === 'string') return url
@@ -227,6 +237,7 @@ const toolDetail = (input: unknown): string | undefined => {
     if (typeof task === 'string') return task
     if (typeof title === 'string') return title
     if (typeof from === 'string' && typeof to === 'string') return `${from} → ${to}`
+    if (typeof month === 'string') return month
     return undefined
 }
 

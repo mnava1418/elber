@@ -27,6 +27,51 @@ const run = async (useCase: SendMessageUseCase, input: Omit<SendMessageInput, 's
     return events
 }
 
+// A daily section where today is always 2026-11-02.
+const TODAY = {id: '2026-11-02', title: 'Lunes 2 de noviembre'}
+const daily = () => TODAY
+
+describe('SendMessageUseCase in a daily section', () => {
+    it('starts today\'s conversation with the first message of the day, named after the day', async () => {
+        const {assistant, inputs} = assistantAnswering({type: 'delta', text: '¿Cómo te fue?'})
+        const repository = new InMemoryConversations()
+
+        const events = await run(new SendMessageUseCase(assistant, repository, daily), {uid: 'uid-1', text: 'Hola', conversationId: TODAY.id})
+
+        expect(events[0]).toEqual({type: 'conversation', ...TODAY})
+        expect(repository.conversations.get(TODAY.id)).toMatchObject({uid: 'uid-1', title: TODAY.title})
+        // The tools know which day the answer is about.
+        expect(inputs[0]).toMatchObject({conversationId: TODAY.id})
+    })
+
+    it('starts today\'s conversation when the message names none', async () => {
+        const {assistant} = assistantAnswering()
+        const repository = new InMemoryConversations()
+
+        const events = await run(new SendMessageUseCase(assistant, repository, daily), {uid: 'uid-1', text: 'Hola'})
+
+        expect(events[0]).toEqual({type: 'conversation', ...TODAY})
+    })
+
+    it('continues today\'s conversation once it exists', async () => {
+        const {assistant} = assistantAnswering()
+        const repository = new InMemoryConversations()
+        await repository.create('uid-1', TODAY)
+
+        const events = await run(new SendMessageUseCase(assistant, repository, daily), {uid: 'uid-1', text: 'Otra cosa', conversationId: TODAY.id})
+
+        expect(events.some((event) => event.type === 'conversation')).toBe(false)
+        expect(repository.conversations.get(TODAY.id)?.messages).toHaveLength(2)
+    })
+
+    it('does not start a day other than today', async () => {
+        const {assistant} = assistantAnswering()
+
+        await expect(run(new SendMessageUseCase(assistant, new InMemoryConversations(), daily), {uid: 'uid-1', text: 'Hola', conversationId: '2026-10-30'}))
+            .rejects.toThrow(ConversationNotFoundError)
+    })
+})
+
 describe('SendMessageUseCase', () => {
     it('starts a new conversation named after the message, and stores both messages', async () => {
         const sources = [{n: 1, url: 'https://a.com', title: 'A'}]

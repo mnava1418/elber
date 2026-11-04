@@ -6,6 +6,7 @@ import { buildAddTodoTool, buildCompleteTodoTool, buildListTodosTool } from '../
 
 const context: SkillContext = {
     uid: 'owner-uid',
+    conversationId: 'conv1',
     signal: new AbortController().signal,
     locate: async () => null,
     show: () => {},

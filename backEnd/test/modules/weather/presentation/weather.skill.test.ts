@@ -6,6 +6,7 @@ import { buildGetWeatherTool } from '../../../../src/modules/weather/presentatio
 
 const context = (): SkillContext => ({
     uid: 'user-1',
+    conversationId: 'conv1',
     signal: new AbortController().signal,
     locate: async () => null,
     show: vi.fn(),

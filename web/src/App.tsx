@@ -6,6 +6,8 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import RecoverPassword from './pages/RecoverPassword'
 import Chat from './pages/Chat'
+import { CHAT, DIARY } from './chat/section'
+import Inicio from './pages/Inicio'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -38,10 +40,26 @@ function App() {
             }
           />
           <Route
+            path="/inicio"
+            element={
+              <ProtectedRoute>
+                <Inicio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/chat/:conversationId?"
             element={
               <ProtectedRoute>
-                <Chat />
+                <Chat key="chat" section={CHAT} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/diario/:conversationId?"
+            element={
+              <ProtectedRoute>
+                <Chat key="diary" section={DIARY} />
               </ProtectedRoute>
             }
           />

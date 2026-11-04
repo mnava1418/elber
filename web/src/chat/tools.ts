@@ -16,6 +16,9 @@ export const TOOL_KIND: Record<string, ToolKind> = {
   update_note: 'update_note',
   link_notes: 'link_notes',
   report_bug: 'report_bug',
+  save_entry: 'save_entry',
+  read_month: 'read_month',
+  list_months: 'list_months',
 }
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'

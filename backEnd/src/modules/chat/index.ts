@@ -4,6 +4,7 @@ import path from 'node:path'
 import type { Router } from 'express'
 import type { Server } from 'socket.io'
 import type { Skill } from '../../shared/skills/skill.js'
+import type { DailyConversation } from './domain/conversation.js'
 import env from '../../config/env.js'
 import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
 import { firebaseAuth, firestore } from '../../shared/firebase/firebase-admin.js'
@@ -28,20 +29,42 @@ const MODEL = 'claude-sonnet-5-5'
 const MESSAGE_LIMIT = 20
 const MESSAGE_WINDOW_MS = 15 * 60 * 1000
 
-// Public entry point of the chat module: only app.ts imports it. The chat
-// talks to the frontend over Socket.IO, in its own namespace (/chat); its
-// history (list, load, delete) is served over HTTP by the router.
+export { ELBER_SYSTEM_PROMPT } from './infrastructure/elber-system-prompt.js'
+
+// Public entry point of the chat module: only app.ts imports it, once per
+// section of the app (the chat, the diary...). Each section talks to the
+// frontend over Socket.IO, in its own namespace; its history (list, load,
+// delete) is served over HTTP by the router.
 export interface ChatModule {
     router: Router
 }
 
-interface ChatModuleDeps {
-    io: Server
-    // What Elber can do and know beyond chatting (weather, memory...).
+// A chat with its own agent and its own conversations. Sections share no
+// data: each one only sees its own collection and has only its own tools.
+export interface ChatSection {
+    // Socket.IO namespace, e.g. "/chat".
+    namespace: string
+    // Firestore collection of its conversations, under each user.
+    collection: string
+    // Who the agent is in this section.
+    systemPrompt: string
+    // What it can do and know beyond chatting (weather, memory...).
     skills: Skill[]
+    // Whether it can search the web and read pages.
+    webTools: boolean
+    // Who may use it; everyone signed in when left out.
+    canUse?: (uid: string) => boolean
+    // One conversation per day (the diary), named after it.
+    daily?: DailyConversation
 }
 
-const createChatModule = ({io, skills}: ChatModuleDeps): ChatModule => {
+interface ChatModuleDeps {
+    io: Server
+    section: ChatSection
+}
+
+const createChatModule = ({io, section}: ChatModuleDeps): ChatModule => {
+    const {namespace, collection, systemPrompt, skills, webTools, canUse, daily} = section
     const workDir = path.join(tmpdir(), 'elber-agent')
     mkdirSync(workDir, {recursive: true})
     // Not in tmp: the OS cleans it up, and Elber would forget conversations.
@@ -49,16 +72,16 @@ const createChatModule = ({io, skills}: ChatModuleDeps): ChatModule => {
     mkdirSync(configDir, {recursive: true})
 
     // To switch agent framework, swap this adapter for another Assistant.
-    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, workDir, configDir, skills})
-    const conversations = new FirestoreConversationRepository(firestore)
-    const sendMessage = new SendMessageUseCase(assistant, conversations)
+    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, systemPrompt, webTools, workDir, configDir, skills})
+    const conversations = new FirestoreConversationRepository(firestore, collection)
+    const sendMessage = new SendMessageUseCase(assistant, conversations, daily)
     const verifyToken = createFirebaseTokenVerifier(firebaseAuth)
 
     // The Server is shared by every namespace, so its event types are generic:
-    // this cast gives /chat its own typed events.
-    const chat = io.of('/chat') as unknown as ChatNamespace
+    // this cast gives the section's namespace its own typed events.
+    const chat = io.of(namespace) as unknown as ChatNamespace
 
-    chat.use(buildSocketAuth(verifyToken))
+    chat.use(buildSocketAuth(verifyToken, canUse))
     // One for the whole namespace: a user's connections share the quota.
     const rateLimit = createMessageRateLimit({limit: MESSAGE_LIMIT, windowMs: MESSAGE_WINDOW_MS})
     chat.on('connection', buildChatSocketHandler(sendMessage, rateLimit))
@@ -72,7 +95,7 @@ const createChatModule = ({io, skills}: ChatModuleDeps): ChatModule => {
     )
 
     return {
-        router: buildChatRoutes(buildRequireAuth(verifyToken), controller),
+        router: buildChatRoutes(buildRequireAuth(verifyToken), controller, canUse, daily),
     }
 }
 

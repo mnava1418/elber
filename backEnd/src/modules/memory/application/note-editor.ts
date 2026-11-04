@@ -1,6 +1,6 @@
 import type { NoteEdit } from '../domain/note-lines.js'
 import type { NoteFile } from '../domain/note-file.port.js'
-import { serial } from './serial.js'
+import { serial } from '../../../shared/async/serial.js'
 
 // Reads, edits and writes a note, one edit after another.
 class NoteEditor {
