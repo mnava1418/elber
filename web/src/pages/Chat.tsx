@@ -3,6 +3,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import elberHappy from '../assets/elber_happy.webp'
 import elber from '../assets/elber.webp'
 import elberSurprise from '../assets/elber_surprise.webp'
+import { CallBar } from '../chat/call/CallBar'
+import { useCall } from '../chat/call/useCall'
 import { ChatHeader } from '../chat/ChatHeader'
 import { Composer } from '../chat/Composer'
 import { ElberMessage } from '../chat/ElberMessage'
@@ -50,6 +52,7 @@ function Chat({ section }: { section: ChatSection }) {
     transport,
     { onConversation },
   )
+  const call = useCall({ turns, connection, send: (text) => handleSend(text, true), stop })
   const [sidebarOpen, setSidebarOpen] = useState(false)
   // Why the conversation of this visit to the URL (location.key) didn't load.
   const location = useLocation()
@@ -126,11 +129,13 @@ function Chat({ section }: { section: ChatSection }) {
     }
   }, [routeId, location.key, loadAttempt, reset, show, currentConversation, api, daily])
 
-  function handleSend(text: string) {
+  // Also what the user says during a call (`voice`).
+  function handleSend(text: string, voice = false) {
     stick.current = true
-    if (send(text) !== 'sent') return
+    const result = send(text, { voice })
     const id = currentConversation()
-    if (id) touch(id)
+    if (result === 'sent' && id) touch(id)
+    return result
   }
 
   // In the diary, back to today.
@@ -307,7 +312,19 @@ function Chat({ section }: { section: ChatSection }) {
           </div>
         )}
 
-        <Composer connection={connection} responding={responding} onSend={handleSend} onStop={stop} locked={loadState !== 'idle'} />
+        {call.phase === 'off' ? (
+          <Composer
+            connection={connection}
+            responding={responding}
+            onSend={handleSend}
+            onStop={stop}
+            locked={loadState !== 'idle'}
+            onCall={call.start}
+            notice={call.problem}
+          />
+        ) : (
+          <CallBar phase={call.phase} ready={call.ready} heard={call.heard} problem={call.problem} onInterrupt={call.interrupt} onHangUp={call.hangUp} />
+        )}
       </div>
 
       {pendingDelete && (

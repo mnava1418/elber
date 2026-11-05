@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
+import { VoiceId } from '@aws-sdk/client-polly'
 import { z } from 'zod'
 
 // Load .env when present (local development). In deployed environments the
@@ -51,6 +52,14 @@ const envSchema = z.object({
     GITHUB_TOKEN: z.string().min(1),
     // Repository the bugs are filed in, as "owner/name".
     GITHUB_REPO: z.string().regex(/^[\w.-]+\/[\w.-]+$/, {error: 'Must be "owner/name", e.g. "mnava1418/elber"'}),
+
+    // Amazon Polly, Elber's voice in calls. An IAM user allowed only
+    // polly:SynthesizeSpeech.
+    AWS_ACCESS_KEY_ID: z.string().min(1),
+    AWS_SECRET_ACCESS_KEY: z.string().min(1),
+    AWS_REGION: z.string().min(1),
+    // A voice with the neural engine, e.g. "Mia" or "Andres" (Mexican Spanish).
+    POLLY_VOICE: z.enum(VoiceId).default('Andres'),
 
     // Frontend origins allowed to call the API (CORS), comma separated, e.g.
     // "http://localhost:5173,https://app.example.com". Browsers compare the

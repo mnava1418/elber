@@ -1,7 +1,7 @@
 import { createSdkMcpServer, deleteSession, getSessionInfo, query, tool, type HookCallbackMatcher, type McpSdkServerConfigWithInstance, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { Skill, SkillContext, SkillTool, Widget } from '../../../shared/skills/skill.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
-import { systemPromptWith, todayContext } from './elber-system-prompt.js'
+import { systemPromptWith, todayContext, VOICE_CONTEXT } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'
 
 // The only built-in tools the agent may have, when its section searches the
@@ -82,7 +82,7 @@ class ClaudeAgentAssistant implements Assistant {
         }
     }
 
-    async *reply({text, signal, sessionId, uid, conversationId, locate}: ReplyInput): AsyncGenerator<AssistantEvent> {
+    async *reply({text, signal, sessionId, uid, conversationId, locate, voice}: ReplyInput): AsyncGenerator<AssistantEvent> {
         const abortController = new AbortController()
         const abort = () => abortController.abort()
         signal.addEventListener('abort', abort, {once: true})
@@ -99,7 +99,7 @@ class ClaudeAgentAssistant implements Assistant {
             const options: Options = {
                 ...this.options,
                 // Per answer: what the skills know about this user may have changed.
-                systemPrompt: systemPromptWith(this.systemPrompt, [...await contextsFor(this.skills, uid), todayContext()]),
+                systemPrompt: systemPromptWith(this.systemPrompt, [...await contextsFor(this.skills, uid), todayContext(), ...(voice ? [VOICE_CONTEXT] : [])]),
                 abortController,
                 // The SDK reloads the conversation's history and sends it with the new message.
                 resume: sessionId,

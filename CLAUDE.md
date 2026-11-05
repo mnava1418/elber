@@ -48,6 +48,10 @@ The `chat` module is instantiated once per **section** in `app.ts` (`ChatSection
 - `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) stays static (no dates or per-user data) so it can be prompt-cached.
 - Sources: a `PostToolUse` hook numbers the WebSearch/WebFetch results so the model cites them as `[n]` (`web-sources.ts`).
 
+### Voice calls
+
+A call is the chat spoken, not a skill. The web (`src/chat/call/`) listens with the browser's speech recognition (Web Speech API, es-MX) and sends what it hears as a normal `chat:message` with `voice: true`, which appends `VOICE_CONTEXT` (short spoken answers, no Markdown) after the other contexts. It cuts the streamed answer into sentences, strips Markdown and citations, and plays each piece from `POST /api/v1/voice/speech` (`modules/voice`: Amazon Polly behind the `SpeechSynthesizer` port, max 1000 chars per piece, its own per-user rate limit outside the API's). Half duplex: the microphone is off while Elber talks.
+
 ### Skills (pattern for new ones)
 
 A skill is a module that exports a `Skill` (`src/shared/skills/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). `app.ts` passes the skills to `createChatModule`, which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.

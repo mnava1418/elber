@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Button } from '../components'
 import { MAX_CHARS, WARN_CHARS, type ConnectionState } from './types'
-import { ClockIcon, SendIcon } from './icons'
+import { AlertIcon, ClockIcon, PhoneIcon, SendIcon } from './icons'
 
 interface Props {
   connection: ConnectionState
@@ -10,11 +10,15 @@ interface Props {
   onStop: () => void
   /** Blocks sending even when connected, e.g. while a conversation loads. */
   locked?: boolean
+  /** Starts a voice call; without it there is no call button. */
+  onCall?: () => void
+  /** Why the last call couldn't start or ended (no microphone…). */
+  notice?: string | null
 }
 
 const fmt = (n: number) => n.toLocaleString('es-MX')
 
-export function Composer({ connection, responding, onSend, onStop, locked = false }: Props) {
+export function Composer({ connection, responding, onSend, onStop, locked = false, onCall, notice }: Props) {
   const [text, setText] = useState('')
   const [waitNotice, setWaitNotice] = useState(false)
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -70,6 +74,14 @@ export function Composer({ connection, responding, onSend, onStop, locked = fals
     <div className="composer-wrap">
       <div className="composer-inner">
         {/* Only while Elber answers: it disappears as soon as the answer ends. */}
+        {notice && !waitNotice && (
+          <div className="composer-toast" role="status">
+            <span>
+              <AlertIcon width={15} height={15} />
+              {notice}
+            </span>
+          </div>
+        )}
         {waitNotice && responding && (
           <div className="composer-toast" role="status">
             <span>
@@ -97,6 +109,18 @@ export function Composer({ connection, responding, onSend, onStop, locked = fals
             onChange={(e) => setText(e.target.value)}
             onKeyDown={onKeyDown}
           />
+          {onCall && (
+            <button
+              type="button"
+              className="composer-call"
+              aria-label="Llamar a Elber"
+              title="Llamar a Elber"
+              disabled={disabled || responding}
+              onClick={onCall}
+            >
+              <PhoneIcon />
+            </button>
+          )}
           {responding ? (
             <Button type="button" variant="ghost" className="composer-btn" onClick={onStop}>
               <span className="composer-stop-square" aria-hidden="true" />

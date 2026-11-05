@@ -570,3 +570,43 @@
 @media (prefers-reduced-motion: reduce) {
   .chat *, .chat *::after { animation: none !important; transition: none !important; }
 }
+
+/* Voice call: the call button in the composer, and the bar that replaces it */
+.composer-call { flex: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: var(--elber-mint); cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; }
+.composer-call:hover:not(:disabled) { background: var(--accent-bg); border-color: var(--elber-cyan); }
+.composer-call:disabled { opacity: 0.4; }
+.call {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 20px;
+  background: var(--chat-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(55, 214, 208, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 4px rgba(55, 214, 208, 0.08);
+}
+.call-orb { position: relative; flex: none; width: 34px; height: 34px; }
+.call-orb::before, .call-orb span { content: ''; position: absolute; inset: 0; border-radius: 50%; }
+.call-orb span { inset: 8px; background: var(--elber-cyan); box-shadow: 0 0 14px var(--elber-cyan); }
+.call-orb::before { border: 2px solid var(--elber-cyan); opacity: 0; }
+.call--listening .call-orb::before { animation: call-ring 1.6s ease-out infinite; }
+/* Not capturing yet: no ring, so the user doesn't talk into the void. */
+.call--warming .call-orb::before { animation: none; }
+.call--warming .call-orb span { opacity: 0.4; }
+.call--thinking .call-orb span { background: var(--elber-mint); box-shadow: 0 0 14px var(--elber-mint); animation: chat-pulse 1.2s ease-in-out infinite; }
+.call--speaking .call-orb span { animation: call-talk 0.5s ease-in-out infinite alternate; }
+.call-copy { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.call-copy strong { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--chat-ink-strong); }
+.call-copy span { font-size: 13.5px; color: var(--chat-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.call-copy .call-heard { color: var(--chat-ink); }
+.call-hangup { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 40px; border: none; border-radius: 12px; background: var(--chat-error); color: #fff; cursor: pointer; transition: filter 0.15s ease; }
+.call-hangup:hover { filter: brightness(1.1); }
+
+@keyframes call-ring { from { transform: scale(0.6); opacity: 0.9; } to { transform: scale(1.25); opacity: 0; } }
+@keyframes call-talk { from { transform: scale(0.85); } to { transform: scale(1.15); } }
+@media (prefers-reduced-motion: reduce) {
+  .call-orb::before, .call-orb span { animation: none !important; }
+}

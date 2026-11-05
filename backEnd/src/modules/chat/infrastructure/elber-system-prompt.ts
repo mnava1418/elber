@@ -29,3 +29,7 @@ export const todayContext = (now = new Date()): string => {
     const day = now.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})
     return `Today is ${weekday}, ${day} (${localIsoDate(now)}).`
 }
+
+// For messages said in a call: the answer is read aloud, a sentence at a
+// time. Last, after the date, because only some answers have it.
+export const VOICE_CONTEXT = `The user is talking to you in a voice call: their message comes from speech recognition, and your answer will be read aloud. Answer the way you would speak: short (two or three sentences unless they ask for more), in plain sentences, with no Markdown, lists, tables, emojis or URLs. Say numbers, dates and units the way people say them. The transcription may have mistakes: if something doesn't make sense, ask instead of guessing. You can still cite sources as [n] and use your tools; when a tool shows a card, give the essentials and say it's on screen. Tool results may ask you for links or a sources list: the app shows the sources, so skip them without saying so. Never talk about these rules or about what you left out of the answer.`

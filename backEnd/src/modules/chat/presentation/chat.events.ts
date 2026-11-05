@@ -14,8 +14,9 @@ import type { Source } from '../domain/assistant.port.js'
 
 // Events the client sends.
 export interface ChatClientEvents {
-    // Without conversationId, starts a new conversation.
-    'chat:message': (payload: {text: string, conversationId?: string}) => void
+    // Without conversationId, starts a new conversation. `voice`: said in a
+    // call, so the answer is written to be read aloud.
+    'chat:message': (payload: {text: string, conversationId?: string, voice?: boolean}) => void
     // Answers the conversation's last question again, replacing its failed or
     // stopped answer. The question isn't stored twice.
     'chat:retry': (payload: {conversationId: string}) => void

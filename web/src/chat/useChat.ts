@@ -116,8 +116,9 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
     liveTurnId.current = liveTurn?.id
   })
 
+  /** `voice`: said in a call, so Elber answers to be heard. */
   const send = useCallback(
-    (raw: string): SendResult => {
+    (raw: string, { voice = false } = {}): SendResult => {
       const text = raw.trim()
       if (!text) return 'empty'
       if (connection !== 'open') return 'offline'
@@ -132,7 +133,7 @@ export function useChat(transport: Transport, { onConversation }: Options = {}) 
       ])
       if (!conversationId.current) newConversationTurn.current = elberId
       sentAsMessage.current = elberId
-      conn.current?.send(elberId, text, conversationId.current ?? undefined)
+      conn.current?.send(elberId, text, conversationId.current ?? undefined, voice)
       return 'sent'
     },
     [connection, responding],

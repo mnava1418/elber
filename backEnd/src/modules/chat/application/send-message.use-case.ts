@@ -12,6 +12,8 @@ export interface SendMessageInput {
     signal: AbortSignal
     // Asks the user's device where they are (for the weather...).
     locate: ReplyInput['locate']
+    // Said in a call: the answer will be read aloud.
+    voice?: boolean
 }
 
 // What the user sees while Elber answers, in order.
@@ -36,6 +38,7 @@ interface AnswerInput {
     text: string
     signal: AbortSignal
     locate: ReplyInput['locate']
+    voice?: boolean
 }
 
 // The conversation doesn't end in a question without a good answer.
@@ -57,7 +60,7 @@ class SendMessageUseCase {
         private readonly daily?: DailyConversation,
     ) {}
 
-    async *execute({uid, text, conversationId, signal, locate}: SendMessageInput): AsyncGenerator<SendMessageEvent> {
+    async *execute({uid, text, conversationId, signal, locate, voice}: SendMessageInput): AsyncGenerator<SendMessageEvent> {
         let conversation = conversationId ? await this.conversations.find(uid, conversationId) : null
         if (!conversation) {
             conversation = await this.create(uid, text, conversationId)
@@ -65,7 +68,7 @@ class SendMessageUseCase {
         }
 
         await this.conversations.addMessage(uid, conversation.id, {role: 'user', text})
-        yield* this.answer({uid, conversation, text, signal, locate})
+        yield* this.answer({uid, conversation, text, signal, locate, voice})
     }
 
     // In a daily section, the first message of the day starts today's
@@ -107,7 +110,7 @@ class SendMessageUseCase {
     }
 
     // Streams Elber's answer to `text` and stores it when it ends.
-    private async *answer({uid, conversation, text, signal, locate}: AnswerInput): AsyncGenerator<SendMessageEvent> {
+    private async *answer({uid, conversation, text, signal, locate, voice}: AnswerInput): AsyncGenerator<SendMessageEvent> {
         // Elber's answer, as it builds up.
         let answer = ''
         let sources: Source[] = []
@@ -116,7 +119,7 @@ class SendMessageUseCase {
         let status: ElberMessageStatus = 'error'
 
         try {
-            const events = this.assistant.reply({text, signal, uid, conversationId: conversation.id, locate, sessionId: conversation.assistantSessionId})
+            const events = this.assistant.reply({text, signal, uid, conversationId: conversation.id, locate, sessionId: conversation.assistantSessionId, voice})
             for await (const event of events) {
                 switch (event.type) {
                     case 'session':

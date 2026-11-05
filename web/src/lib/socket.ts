@@ -37,7 +37,8 @@ export type LocationReply = { lat: number; lon: number } | { error: 'DENIED' | '
 
 export interface ChatClientEvents {
   // Without conversationId, starts a new conversation.
-  'chat:message': (payload: { text: string; conversationId?: string }) => void
+  // `voice`: said in a call, so the answer is written to be read aloud.
+  'chat:message': (payload: { text: string; conversationId?: string; voice?: boolean }) => void
   // Answers the last question again, replacing its failed or stopped answer.
   'chat:retry': (payload: { conversationId: string }) => void
   'chat:cancel': () => void

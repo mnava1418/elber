@@ -21,10 +21,11 @@ interface RequestOptions {
   body?: unknown
   // Sends the signed-in user's Firebase ID token as `Authorization: Bearer`.
   auth?: boolean
+  signal?: AbortSignal
 }
 
 // Network failures (server down, CORS, offline) reject with the fetch TypeError.
-async function request<T>(method: string, path: string, { body, auth: withAuth = false }: RequestOptions = {}): Promise<T> {
+async function send(method: string, path: string, { body, auth: withAuth = false, signal }: RequestOptions): Promise<Response> {
   if (!API_URL) throw new Error('VITE_API_URL no está configurada (ver web/.env.example)')
 
   const headers: Record<string, string> = {}
@@ -40,18 +41,23 @@ async function request<T>(method: string, path: string, { body, auth: withAuth =
     method,
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
+    signal,
   })
-  // null for empty answers (204).
-  const data = await response.json().catch(() => null)
-
   if (!response.ok) {
+    const data = await response.json().catch(() => null)
     throw new ApiError(
       response.status,
       data?.error?.code ?? 'UNKNOWN_ERROR',
       data?.error?.message ?? response.statusText,
     )
   }
-  return data as T
+  return response
+}
+
+async function request<T>(method: string, path: string, options: RequestOptions = {}): Promise<T> {
+  const response = await send(method, path, options)
+  // null for empty answers (204).
+  return (await response.json().catch(() => null)) as T
 }
 
 export const apiPost = <T>(path: string, body: unknown) => request<T>('POST', path, { body })
@@ -61,3 +67,7 @@ export const apiGetAuth = <T>(path: string) => request<T>('GET', path, { auth: t
 export const apiPatchAuth = <T>(path: string, body: unknown) => request<T>('PATCH', path, { body, auth: true })
 
 export const apiDeleteAuth = (path: string) => request<void>('DELETE', path, { auth: true })
+
+// For answers that aren't JSON, e.g. audio.
+export const apiPostAuthBlob = async (path: string, body: unknown, signal?: AbortSignal) =>
+  (await send('POST', path, { body, auth: true, signal })).blob()

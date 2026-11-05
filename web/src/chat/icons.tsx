@@ -40,3 +40,5 @@ export const DiaryIcon = (p: P) => (<svg {...base(26)} {...p}><path d="M6 3h11a2
 // The diary's icon at the size of a tool step.
 export const JournalIcon = (p: P) => <DiaryIcon width={13} height={13} strokeWidth={2} {...p} />
 export const TrashIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>)
+export const PhoneIcon = (p: P) => (<svg {...base(18)} {...p}><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg>)
+export const HangUpIcon = (p: P) => (<svg {...base(20)} strokeWidth={2} {...p}><path d="M3.5 14.5c4.7-4.6 12.3-4.6 17 0l-2 2.5-3.5-1.5v-2.6a11 11 0 0 0-6 0v2.6L5.5 17Z" /></svg>)

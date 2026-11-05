@@ -78,7 +78,18 @@ describe('chat socket handler', () => {
 
         await receive('chat:message', {text: '  hola  ', conversationId: 'conv1'})
 
-        expect(execute).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', text: 'hola', conversationId: 'conv1', signal: expect.any(AbortSignal), locate: expect.any(Function)})
+        expect(execute).toHaveBeenCalledExactlyOnceWith({uid: 'uid-1', text: 'hola', conversationId: 'conv1', signal: expect.any(AbortSignal), locate: expect.any(Function), voice: false})
+    })
+
+    it('tells the use case when the message was said in a call, and only with a real true', async () => {
+        const execute = vi.fn<SendMessageUseCase['execute']>(async function* () {})
+        const {socket, receive} = fakeSocket()
+        handle(fakeUseCase(execute))(socket)
+
+        await receive('chat:message', {text: 'hola', voice: true})
+        await receive('chat:message', {text: 'hola', voice: 'yes'})
+
+        expect(execute.mock.calls.map(([input]) => input.voice)).toEqual([true, false])
     })
 
     it.each([

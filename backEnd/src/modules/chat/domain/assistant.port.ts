@@ -34,6 +34,8 @@ export interface ReplyInput {
     // Continues that conversation (its earlier messages are the context);
     // without it, the answer starts a new one.
     sessionId?: string
+    // The user said it in a call: the answer will be read aloud.
+    voice?: boolean
 }
 
 // Port: the chat depends on this, not on a specific agent framework.
