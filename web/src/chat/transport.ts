@@ -11,8 +11,8 @@ export interface TransportHandlers {
 }
 
 export interface Connection {
-  /** Without conversationId, the server starts a new conversation. */
-  send(turnId: string, text: string, conversationId?: string): void
+  /** Without conversationId, the server starts a new conversation. `voice`: said in a call. */
+  send(turnId: string, text: string, conversationId?: string, voice?: boolean): void
   /** Answers the conversation's last question again, replacing its failed or stopped answer. */
   retry(turnId: string, conversationId: string): void
   stop(turnId: string): void
@@ -124,8 +124,8 @@ export const socketIoTransport = (namespace: string): Transport => (h) => {
   socket.connect()
 
   return {
-    send(id, text, conversationId) {
-      start(id, () => socket.emit('chat:message', { text, conversationId }))
+    send(id, text, conversationId, voice) {
+      start(id, () => socket.emit('chat:message', { text, conversationId, voice }))
     },
     retry(id, conversationId) {
       start(id, () => socket.emit('chat:retry', { conversationId }))

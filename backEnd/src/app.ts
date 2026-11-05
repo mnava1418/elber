@@ -10,6 +10,7 @@ import createNotificationsModule from './modules/notifications/index.js'
 import createMemoryModule from './modules/memory/index.js'
 import createWeatherModule from './modules/weather/index.js'
 import createBugsModule from './modules/bugs/index.js'
+import createVoiceModule from './modules/voice/index.js'
 import createJournalModule, { DIARY_SYSTEM_PROMPT } from './modules/journal/index.js'
 import { journalDay } from './shared/dates/journal-day.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
@@ -54,6 +55,7 @@ const createApp = ({io}: AppDeps) => {
         },
     }})
     createNotificationsModule({bus})
+    const voice = createVoiceModule()
 
     app.use(helmet())
     // The frontend lives on another domain. Before the rate limiter so
@@ -64,6 +66,10 @@ const createApp = ({io}: AppDeps) => {
     app.get('/health', (_req: Request, res: Response) => {
         res.status(200).json({status: 'OK'})
     })
+
+    // Outside the API's limit: one spoken answer is many requests. It has its
+    // own limit, per user.
+    app.use('/api/v1/voice', voice.router)
 
     const api = express.Router()
     // Only the API is limited: /health must stay reachable for health checks.

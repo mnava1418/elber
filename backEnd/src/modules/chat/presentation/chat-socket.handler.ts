@@ -94,7 +94,8 @@ const buildChatSocketHandler = (sendMessage: SendMessageUseCase, rateLimit: Mess
             return
         }
 
-        await stream((signal) => sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal, locate}))
+        const voice = payload.voice === true
+        await stream((signal) => sendMessage.execute({uid: socket.data.user.uid, text, conversationId, signal, locate, voice}))
     })
 
     socket.on('chat:retry', async (payload) => {

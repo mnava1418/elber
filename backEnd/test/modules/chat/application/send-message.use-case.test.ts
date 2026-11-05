@@ -237,3 +237,14 @@ describe('SendMessageUseCase', () => {
         })
     })
 })
+
+describe('SendMessageUseCase in a call', () => {
+    it('tells the assistant the answer will be read aloud', async () => {
+        const {assistant, inputs} = assistantAnswering()
+
+        await run(new SendMessageUseCase(assistant, new InMemoryConversations()), {uid: 'uid-1', text: 'Hola', voice: true})
+        await run(new SendMessageUseCase(assistant, new InMemoryConversations()), {uid: 'uid-1', text: 'Hola'})
+
+        expect(inputs.map((input) => input.voice)).toEqual([true, undefined])
+    })
+})

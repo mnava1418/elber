@@ -26,6 +26,7 @@ It runs locally on my machine for my own use. It is not deployed anywhere.
   - a to-do list;
   - notes for ideas and projects, linked to each other.
 - **Diary**: a separate section where Elber asks about your day, one question at a time, and, once you approve its summary, saves it as that day's entry in `Elber/Diario/` of the vault (mood, topics and people included). The regular chat has no access to it.
+- **Voice calls**: tap the phone in the chat (or the diary) and talk. The browser turns your voice into text, and Elber answers out loud with an [Amazon Polly](https://aws.amazon.com/polly/) voice, a sentence at a time as the answer streams in. The conversation stays in the chat.
 - **Bug reports**: tell Elber about a bug in Elber. It asks what it needs to know, one question at a time, shows you a draft, and opens a GitHub issue once you approve it.
 
 ## Stack
@@ -45,7 +46,7 @@ web (React) ──Socket.IO /chat──▶ chat module ──▶ Claude agent
      └──REST /api/v1──▶ users, chat history        └─ MCP server "elber" ──▶ skills: weather, memory, bugs
 ```
 
-- **Modular monolith.** The backend is split into modules (`chat`, `users`, `notifications`, `weather`, `memory`, `bugs`). Each one follows clean architecture (`domain` → `application` → `infrastructure` / `presentation`). Modules never import each other: they talk through an event bus. [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) enforces these rules in CI.
+- **Modular monolith.** The backend is split into modules (`chat`, `users`, `notifications`, `weather`, `memory`, `bugs`, `journal`, `voice`). Each one follows clean architecture (`domain` → `application` → `infrastructure` / `presentation`). Modules never import each other: they talk through an event bus. [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) enforces these rules in CI.
 - **Skills are modules.** Each skill exports its tools through a small, framework-agnostic contract. The chat serves them to the agent through an in-process MCP server. A tool can ask the device for its location, or show a *widget* (the weather card, the issue card) that the web renders next to the answer.
 - **A locked-down agent.** The agent only has web search, web fetch and Elber's own tools. It has no shell and no file access, and it ignores any local Claude configuration.
 - **Real-time chat.** Answers, tool steps, sources and widgets stream over Socket.IO, authenticated with a Firebase ID token. Conversations are stored in Firestore.
@@ -59,6 +60,7 @@ You need Node 24 (see `.nvmrc`) and:
 - an **Anthropic** API key;
 - an **OpenWeather** API key (One Call 3.0);
 - an **Obsidian** vault folder for the memory;
+- an **AWS** IAM user allowed only `polly:SynthesizeSpeech`, for the voice in calls;
 - a fine-grained **GitHub** token with *Issues: read and write* on the repository, for bug reports.
 
 ```bash

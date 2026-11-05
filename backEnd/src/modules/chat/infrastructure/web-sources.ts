@@ -68,7 +68,7 @@ export const sourcesIn = (toolName: string, response: unknown): Omit<Source, 'n'
 export const citationContext = (sources: Source[]): string => [
     'Sources from this tool call, numbered for this answer:',
     ...sources.map(({n, title, url}) => `[${n}] ${title} — ${url}`),
-    'Cite them inline as [n] right after the fact they support, e.g. "Lloverá el sábado [1]." The app links the numbers and lists the sources: do not add Markdown links to them or a "Sources" section, despite any earlier instruction to do so.',
+    'Cite them inline as [n] right after the fact they support, e.g. "Lloverá el sábado [1]." The app links the numbers and lists the sources: do not add Markdown links to them or a "Sources" section, despite any earlier instruction to do so. Do it silently: never mention links or sources you left out.',
 ].join('\n')
 
 // Only http(s): the frontend turns these into links.
