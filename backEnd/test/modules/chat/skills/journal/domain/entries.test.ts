@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatEntry, upsertEntry, type Entry } from '../../../../src/modules/journal/domain/entries.js'
+import { formatEntry, upsertEntry, type Entry } from '../../../../../../src/modules/chat/skills/journal/domain/entries.js'
 
 const ENTRY: Entry = {
     date: '2026-11-02',

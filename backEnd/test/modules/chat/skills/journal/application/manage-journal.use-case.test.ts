@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import ManageJournalUseCase from '../../../../src/modules/journal/application/manage-journal.use-case.js'
-import type { JournalStore } from '../../../../src/modules/journal/domain/journal-store.port.js'
+import ManageJournalUseCase from '../../../../../../src/modules/chat/skills/journal/application/manage-journal.use-case.js'
+import type { JournalStore } from '../../../../../../src/modules/chat/skills/journal/domain/journal-store.port.js'
 
 const OWNER = 'owner-uid'
 const ENTRY = {summary: 'Hoy terminé la skill de bugs.', mood: ['contento'], topics: ['Elber'], people: []}

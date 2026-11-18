@@ -1,5 +1,5 @@
-import { serial } from '../../../shared/async/serial.js'
-import { weekdayOf } from '../../../shared/dates/journal-day.js'
+import { serial } from '../../../../../shared/async/serial.js'
+import { weekdayOf } from '../../../../../shared/dates/journal-day.js'
 import { DAY, formatEntry, monthOf, upsertEntry, type Entry } from '../domain/entries.js'
 import type { JournalStore } from '../domain/journal-store.port.js'
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import type ManageJournalUseCase from '../../../../src/modules/journal/application/manage-journal.use-case.js'
-import { buildSaveEntryTool } from '../../../../src/modules/journal/presentation/journal.skill.js'
-import type { SkillContext } from '../../../../src/modules/chat/domain/skill.js'
+import type ManageJournalUseCase from '../../../../../../src/modules/chat/skills/journal/application/manage-journal.use-case.js'
+import { buildSaveEntryTool } from '../../../../../../src/modules/chat/skills/journal/presentation/journal.skill.js'
+import type { SkillContext } from '../../../../../../src/modules/chat/domain/skill.js'
 
 const context: SkillContext = {
     uid: 'owner-uid',

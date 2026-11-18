@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import ObsidianJournal from '../../../../src/modules/journal/infrastructure/obsidian-journal.js'
+import ObsidianJournal from '../../../../../../src/modules/chat/skills/journal/infrastructure/obsidian-journal.js'
 
 // A real, empty vault in tmp: the adapter is only file reads and writes.
 describe('ObsidianJournal', () => {

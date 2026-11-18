@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../chat/domain/skill.js'
+import { defineTool } from '../../../domain/skill.js'
 import type ManageJournalUseCase from '../application/manage-journal.use-case.js'
 import { MONTH } from '../domain/entries.js'
 
