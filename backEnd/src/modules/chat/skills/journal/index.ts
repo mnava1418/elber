@@ -4,8 +4,6 @@ import ManageJournalUseCase from './application/manage-journal.use-case.js'
 import ObsidianJournal from './infrastructure/obsidian-journal.js'
 import { buildListMonthsTool, buildReadMonthTool, buildSaveEntryTool } from './presentation/journal.skill.js'
 
-export { DIARY_SYSTEM_PROMPT } from './presentation/diary-system-prompt.js'
-
 // Public entry point of the journal skill (only the chat's index.ts imports
 // it): the owner's diary, a summary per day in Elber/Diario/ of the vault.
 // Only the diary's section gets these tools.

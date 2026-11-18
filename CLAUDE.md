@@ -48,7 +48,7 @@ The `chat` module is instantiated once per **section** in `app.ts` (`ChatSection
 - The agent is locked down on purpose: only `WebSearch`/`WebFetch` plus Elber's skill tools, `permissionMode: 'dontAsk'`, `settingSources: []` (no CLAUDE.md or ~/.claude), `skills: []`, `strictMcpConfig`, an empty `cwd` in tmp, and a minimal `env`. In the SDK, `tools` decides which built-in tools exist, while `allowedTools` only auto-approves them. Never add Bash/Read/Write.
 - Sessions: the SDK stores one `.jsonl` per conversation in `CLAUDE_CONFIG_DIR=~/.elber/agent`. It is set both in the child's env and in `process.env`, because `getSessionInfo`/`deleteSession` run in-process. Conversations live in Firestore (`users/{uid}/conversations/{id}` + `messages`), each linked to its SDK session through `resume`.
 - Transport: one Socket.IO namespace per section (`/chat`, `/diary`), with the Firebase ID token verified in the handshake (`canUse` rejects with `FORBIDDEN`). History uses REST under `/api/v1/<section>/conversations` (Bearer token), plus `GET /api/v1/diary/today`. Event types are deliberately duplicated in the backend and the web.
-- `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) stays static (no dates or per-user data) so it can be prompt-cached.
+- `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) and `DIARY_SYSTEM_PROMPT` (`infrastructure/diary-system-prompt.ts`, the diary section's prompt) stay static (no dates or per-user data) so it can be prompt-cached.
 - Sources: a `PostToolUse` hook numbers the WebSearch/WebFetch results so the model cites them as `[n]` (`web-sources.ts`).
 
 ### Voice calls
