@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { SDKMessage } from '@anthropic-ai/claude-agent-sdk'
-import type { Skill } from '../../../../src/shared/skills/skill.js'
+import type { Skill } from '../../../../src/modules/chat/domain/skill.js'
 import { contextsFor, toEvents } from '../../../../src/modules/chat/infrastructure/claude-agent-assistant.js'
 import { ELBER_SYSTEM_PROMPT, systemPromptWith, todayContext } from '../../../../src/modules/chat/infrastructure/elber-system-prompt.js'
 

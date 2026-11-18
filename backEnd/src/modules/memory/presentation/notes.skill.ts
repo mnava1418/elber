@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../../shared/skills/skill.js'
+import { defineTool } from '../../chat/domain/skill.js'
 import type ManageNotesUseCase from '../application/manage-notes.use-case.js'
 import { NOTE_TYPES } from '../domain/notes.js'
 

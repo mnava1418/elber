@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import type { SkillContext } from '../../../../src/shared/skills/skill.js'
+import type { SkillContext } from '../../../../src/modules/chat/domain/skill.js'
 import type ManageNotesUseCase from '../../../../src/modules/memory/application/manage-notes.use-case.js'
 import { buildLinkNotesTool, buildReadNoteTool, buildSaveNoteTool, buildSearchNotesTool, buildUpdateNoteTool } from '../../../../src/modules/memory/presentation/notes.skill.js'
 

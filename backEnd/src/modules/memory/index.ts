@@ -1,5 +1,5 @@
 import env from '../../config/env.js'
-import type { Skill } from '../../shared/skills/skill.js'
+import type { Skill } from '../chat/domain/skill.js'
 import EditProfileUseCase from './application/edit-profile.use-case.js'
 import GetProfileUseCase from './application/get-profile.use-case.js'
 import ManageNotesUseCase from './application/manage-notes.use-case.js'

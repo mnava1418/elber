@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import type { SkillContext } from '../../../../src/shared/skills/skill.js'
+import type { SkillContext } from '../../../../src/modules/chat/domain/skill.js'
 import type EditProfileUseCase from '../../../../src/modules/memory/application/edit-profile.use-case.js'
 import type GetProfileUseCase from '../../../../src/modules/memory/application/get-profile.use-case.js'
 import { buildForgetTool, buildProfileContext, buildRememberTool } from '../../../../src/modules/memory/presentation/memory.skill.js'

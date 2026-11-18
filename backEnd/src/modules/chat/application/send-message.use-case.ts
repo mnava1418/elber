@@ -1,4 +1,4 @@
-import type { Widget } from '../../../shared/skills/skill.js'
+import type { Widget } from '../domain/skill.js'
 import type { Assistant, ReplyInput, Source } from '../domain/assistant.port.js'
 import { ConversationNotFoundError, titleFrom, type Conversation, type DailyConversation, type ElberMessageStatus, type ToolUse } from '../domain/conversation.js'
 import type { ConversationRepository } from '../domain/conversation.repository.js'

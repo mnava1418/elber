@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
-import type { SkillContext } from '../../../../src/shared/skills/skill.js'
+import type { SkillContext } from '../../../../src/modules/chat/domain/skill.js'
 import type ManageTodosUseCase from '../../../../src/modules/memory/application/manage-todos.use-case.js'
 import { buildAddTodoTool, buildCompleteTodoTool, buildListTodosTool } from '../../../../src/modules/memory/presentation/todos.skill.js'
 

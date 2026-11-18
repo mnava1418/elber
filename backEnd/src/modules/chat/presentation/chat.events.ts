@@ -1,6 +1,6 @@
 import type { Namespace, Socket } from 'socket.io'
 import type { AuthUser } from '../../../shared/auth/token-verifier.js'
-import type { Widget } from '../../../shared/skills/skill.js'
+import type { Widget } from '../domain/skill.js'
 import type { Source } from '../domain/assistant.port.js'
 
 // Contract of the /chat namespace: event name -> payload. The frontend keeps

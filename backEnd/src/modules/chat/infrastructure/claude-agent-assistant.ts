@@ -1,5 +1,5 @@
 import { createSdkMcpServer, deleteSession, getSessionInfo, query, tool, type HookCallbackMatcher, type McpSdkServerConfigWithInstance, type Options, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
-import type { Skill, SkillContext, SkillTool, Widget } from '../../../shared/skills/skill.js'
+import type { Skill, SkillContext, SkillTool, Widget } from '../domain/skill.js'
 import type { Assistant, AssistantEvent, ReplyInput } from '../domain/assistant.port.js'
 import { systemPromptWith, todayContext, VOICE_CONTEXT } from './elber-system-prompt.js'
 import { citationContext, SourceList, sourcesIn } from './web-sources.js'

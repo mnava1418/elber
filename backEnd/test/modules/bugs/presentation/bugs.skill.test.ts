@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { SkillContext } from '../../../../src/shared/skills/skill.js'
+import type { SkillContext } from '../../../../src/modules/chat/domain/skill.js'
 import type ReportBugUseCase from '../../../../src/modules/bugs/application/report-bug.use-case.js'
 import type { ReportBugResult } from '../../../../src/modules/bugs/application/report-bug.use-case.js'
 import { buildReportBugTool } from '../../../../src/modules/bugs/presentation/bugs.skill.js'

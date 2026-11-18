@@ -1,5 +1,5 @@
 import env from '../../config/env.js'
-import type { Skill } from '../../shared/skills/skill.js'
+import type { Skill } from '../chat/domain/skill.js'
 import ReportBugUseCase from './application/report-bug.use-case.js'
 import GitHubIssueTracker from './infrastructure/github-issue-tracker.js'
 import { buildReportBugTool } from './presentation/bugs.skill.js'

@@ -1,5 +1,5 @@
 import env from '../../config/env.js'
-import type { Skill } from '../../shared/skills/skill.js'
+import type { Skill } from '../chat/domain/skill.js'
 import ManageJournalUseCase from './application/manage-journal.use-case.js'
 import ObsidianJournal from './infrastructure/obsidian-journal.js'
 import { buildListMonthsTool, buildReadMonthTool, buildSaveEntryTool } from './presentation/journal.skill.js'
