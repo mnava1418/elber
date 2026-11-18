@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import ManageNotesUseCase from '../../../../src/modules/memory/application/manage-notes.use-case.js'
-import type { NoteFile } from '../../../../src/modules/memory/domain/note-file.port.js'
-import type { NoteStore } from '../../../../src/modules/memory/domain/note-store.port.js'
-import type { Note } from '../../../../src/modules/memory/domain/notes.js'
+import ManageNotesUseCase from '../../../../../../src/modules/chat/skills/memory/application/manage-notes.use-case.js'
+import type { NoteFile } from '../../../../../../src/modules/chat/skills/memory/domain/note-file.port.js'
+import type { NoteStore } from '../../../../../../src/modules/chat/skills/memory/domain/note-store.port.js'
+import type { Note } from '../../../../../../src/modules/chat/skills/memory/domain/notes.js'
 
 const OWNER = 'owner-uid'
 const TODAY = '2026-10-24'

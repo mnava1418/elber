@@ -2,8 +2,8 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { Note } from '../../../../src/modules/memory/domain/notes.js'
-import ObsidianNotes from '../../../../src/modules/memory/infrastructure/obsidian-notes.js'
+import type { Note } from '../../../../../../src/modules/chat/skills/memory/domain/notes.js'
+import ObsidianNotes from '../../../../../../src/modules/chat/skills/memory/infrastructure/obsidian-notes.js'
 
 const IDEA: Note = {
     title: 'Skill de finanzas',

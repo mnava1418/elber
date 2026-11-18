@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addLink, appendToBody, cleanTags, cleanTitle, linksIn, linksOf, searchNotes, type Note } from '../../../../src/modules/memory/domain/notes.js'
+import { addLink, appendToBody, cleanTags, cleanTitle, linksIn, linksOf, searchNotes, type Note } from '../../../../../../src/modules/chat/skills/memory/domain/notes.js'
 
 const note = (title: string, fields: Partial<Note> = {}): Note => ({
     title,

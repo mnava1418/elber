@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../chat/domain/skill.js'
+import { defineTool } from '../../../domain/skill.js'
 import type EditProfileUseCase from '../application/edit-profile.use-case.js'
 import type GetProfileUseCase from '../application/get-profile.use-case.js'
 

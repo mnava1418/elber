@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addTodo, completeTodo, pendingTodos } from '../../../../src/modules/memory/domain/todos.js'
+import { addTodo, completeTodo, pendingTodos } from '../../../../../../src/modules/chat/skills/memory/domain/todos.js'
 
 const NOTE = `# Pendientes
 

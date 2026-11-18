@@ -33,6 +33,9 @@ export { ELBER_SYSTEM_PROMPT } from './infrastructure/elber-system-prompt.js'
 // The skills live inside the chat (they are its plugins, not modules), but
 // app.ts decides which section gets which, so they are exported from here.
 export { default as createWeatherSkill } from './skills/weather/index.js'
+export { default as createMemorySkills } from './skills/memory/index.js'
+export { default as createBugsSkill } from './skills/bugs/index.js'
+export { default as createJournalSkill, DIARY_SYSTEM_PROMPT } from './skills/journal/index.js'
 
 // Public entry point of the chat module: only app.ts imports it, once per
 // section of the app (the chat, the diary...). Each section talks to the

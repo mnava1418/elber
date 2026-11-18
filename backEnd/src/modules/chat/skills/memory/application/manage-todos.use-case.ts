@@ -1,4 +1,4 @@
-import { localIsoDate } from '../../../shared/dates/local-date.js'
+import { localIsoDate } from '../../../../../shared/dates/local-date.js'
 import type { NoteFile } from '../domain/note-file.port.js'
 import type { NoteStore } from '../domain/note-store.port.js'
 import { cleanTitle } from '../domain/notes.js'

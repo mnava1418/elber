@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import EditProfileUseCase from '../../../../src/modules/memory/application/edit-profile.use-case.js'
-import type { NoteFile } from '../../../../src/modules/memory/domain/note-file.port.js'
+import EditProfileUseCase from '../../../../../../src/modules/chat/skills/memory/application/edit-profile.use-case.js'
+import type { NoteFile } from '../../../../../../src/modules/chat/skills/memory/domain/note-file.port.js'
 
 const OWNER = 'owner-uid'
 

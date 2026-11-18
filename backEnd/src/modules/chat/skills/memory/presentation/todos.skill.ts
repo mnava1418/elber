@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../chat/domain/skill.js'
+import { defineTool } from '../../../domain/skill.js'
 import type ManageTodosUseCase from '../application/manage-todos.use-case.js'
 
 const task = z.string().trim().min(1).max(200)

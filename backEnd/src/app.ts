@@ -4,13 +4,17 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import type { Server } from 'socket.io'
 import env from './config/env.js'
-import createChatModule, { ELBER_SYSTEM_PROMPT, createWeatherSkill } from './modules/chat/index.js'
+import createChatModule, {
+    ELBER_SYSTEM_PROMPT,
+    DIARY_SYSTEM_PROMPT,
+    createBugsSkill,
+    createJournalSkill,
+    createMemorySkills,
+    createWeatherSkill,
+} from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
-import createMemoryModule from './modules/memory/index.js'
-import createBugsModule from './modules/bugs/index.js'
 import createVoiceModule from './modules/voice/index.js'
-import createJournalModule, { DIARY_SYSTEM_PROMPT } from './modules/journal/index.js'
 import { journalDay } from './shared/dates/journal-day.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
@@ -27,11 +31,12 @@ const createApp = ({io}: AppDeps) => {
     // Modules never import each other: they communicate through this bus.
     const bus = new InMemoryEventBus()
     const users = createUsersModule({bus})
-    // Skills don't talk to the chat through the bus: they hand it their tools
-    // and what they know about the user.
+    // Skills are plugins of the chat, not modules: they hand it their tools and
+    // what they know about the user. Here we only choose which section gets
+    // which.
     const weather = createWeatherSkill()
-    const memory = createMemoryModule()
-    const bugs = createBugsModule()
+    const memory = createMemorySkills()
+    const bugs = createBugsSkill()
     const chat = createChatModule({io, section: {
         namespace: '/chat',
         collection: 'conversations',
@@ -45,7 +50,7 @@ const createApp = ({io}: AppDeps) => {
         namespace: '/diary',
         collection: 'diary',
         systemPrompt: DIARY_SYSTEM_PROMPT,
-        skills: [createJournalModule(), memory.profile],
+        skills: [createJournalSkill(), memory.profile],
         webTools: false,
         canUse: (uid) => uid === env.MEMORY_OWNER_UID,
         daily: (now) => {

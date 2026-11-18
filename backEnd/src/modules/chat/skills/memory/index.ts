@@ -1,5 +1,5 @@
-import env from '../../config/env.js'
-import type { Skill } from '../chat/domain/skill.js'
+import env from '../../../../config/env.js'
+import type { Skill } from '../../domain/skill.js'
 import EditProfileUseCase from './application/edit-profile.use-case.js'
 import GetProfileUseCase from './application/get-profile.use-case.js'
 import ManageNotesUseCase from './application/manage-notes.use-case.js'
@@ -10,10 +10,11 @@ import { buildForgetTool, buildProfileContext, buildRememberTool } from './prese
 import { buildLinkNotesTool, buildReadNoteTool, buildSaveNoteTool, buildSearchNotesTool, buildUpdateNoteTool } from './presentation/notes.skill.js'
 import { buildAddTodoTool, buildCompleteTodoTool, buildListTodosTool } from './presentation/todos.skill.js'
 
-// Public entry point of the memory skill: what Elber knows about the owner of
+// Public entry point of the memory skill (only the chat's index.ts imports
+// it): what Elber knows about the owner of
 // the Obsidian vault. Tools to learn and forget, the profile it reads before
 // every answer, the owner's to-do list, and their notes (ideas, projects...).
-export interface MemoryModule {
+export interface MemorySkills {
     // All of it, for the chat.
     skill: Skill
     // Only the profile and the tools to change it, for the diary: it gets to
@@ -21,7 +22,7 @@ export interface MemoryModule {
     profile: Skill
 }
 
-const createMemoryModule = (): MemoryModule => {
+const createMemorySkills = (): MemorySkills => {
     // To keep the notes somewhere else, swap this adapter for another NoteFile.
     const profile = new ObsidianNoteFile(env.OBSIDIAN_VAULT_PATH, 'Perfil.md')
     const editProfile = new EditProfileUseCase(profile, env.MEMORY_OWNER_UID)
@@ -55,4 +56,4 @@ const createMemoryModule = (): MemoryModule => {
     }
 }
 
-export default createMemoryModule
+export default createMemorySkills

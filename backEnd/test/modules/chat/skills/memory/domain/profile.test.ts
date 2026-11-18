@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addFact, removeFact } from '../../../../src/modules/memory/domain/profile.js'
+import { addFact, removeFact } from '../../../../../../src/modules/chat/skills/memory/domain/profile.js'
 
 const NOTE = `# Perfil
 
