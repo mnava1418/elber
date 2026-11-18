@@ -1,5 +1,5 @@
 // Data of the 'weather' widget. Copy of WeatherReport in
-// backEnd/src/modules/weather/domain/weather.ts: change both together.
+// backEnd/src/modules/chat/skills/weather/domain/weather.ts: change both together.
 // Times are the place's local time, "YYYY-MM-DDTHH:mm" (dates "YYYY-MM-DD").
 // Temperatures in °C, wind in km/h, rain and snow in mm, chances 0-100.
 // Icons are OpenWeather codes, e.g. "10d".

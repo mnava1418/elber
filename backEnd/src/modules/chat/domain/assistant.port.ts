@@ -1,4 +1,4 @@
-import type { SkillContext, Widget } from '../../../shared/skills/skill.js'
+import type { SkillContext, Widget } from './skill.js'
 
 // What the assistant emits while it answers, in order.
 export type AssistantEvent =

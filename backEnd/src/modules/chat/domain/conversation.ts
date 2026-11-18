@@ -1,4 +1,4 @@
-import type { Widget } from '../../../shared/skills/skill.js'
+import type { Widget } from './skill.js'
 import type { Source } from './assistant.port.js'
 
 // A chat between a user and Elber. Its messages are what the app shows; the

@@ -31,21 +31,24 @@ Environment: copy `.env.example` in each project. The backend validates every va
 
 A modular monolith. `src/main.ts` creates the Socket.IO server, then `src/app.ts` builds every module and hands `io` to the ones that have real-time features.
 
+A module is something that could become its own service: its own data and its own entry point (routes, sockets or events). Today: `chat`, `users`, `notifications` and `voice`. Skills are not modules: they are plugins of the chat (see Skills below).
+
 Rules enforced by `npm run lint:arch` (`backEnd/.dependency-cruiser.cjs`):
 - Outside a module, only its `index.ts` (public API) may be imported.
 - Modules never import each other. They talk through the event bus (`src/shared/events`), e.g. `users` emits `users.password_reset_requested` and `notifications` sends the email.
 - `src/shared/` never imports from modules.
 - Every module uses clean architecture: `domain/` → `application/` → `infrastructure/` + `presentation/`. `domain/` imports nothing outward, and `application/` reaches the outside only through ports defined in `domain/`.
+- Skills (`modules/chat/skills/<skill>/`) have the same layers, never import each other, and from the chat reach only the `Skill` contract (`chat/domain/skill.ts`). The chat core never imports a concrete skill: only `chat/index.ts` does, through the skill's `index.ts`.
 
 ### Chat and the agent
 
-The `chat` module is instantiated once per **section** in `app.ts` (`ChatSection`: namespace, Firestore collection, prompt, skills, `webTools`, `canUse`, `daily`). Today: the chat (`/chat`, `conversations`, everything) and the diary (`/diary`, `diary`, owner only, one conversation per day whose id is its date, 4:00 cutoff via `shared/dates/journal-day.ts`). Sections share no data: the diary's privacy comes from this construction (its own collection, routes and tools), not from prompts. Everything lives under `Elber/` in the vault. The chat's memory only reaches its own files there (`Perfil.md`, `Pendientes.md`, `Notas/`); only the diary's `journal` module reaches `Elber/Diario/`.
+The `chat` module is instantiated once per **section** in `app.ts` (`ChatSection`: namespace, Firestore collection, prompt, skills, `webTools`, `canUse`, `daily`). Today: the chat (`/chat`, `conversations`, everything) and the diary (`/diary`, `diary`, owner only, one conversation per day whose id is its date, 4:00 cutoff via `shared/dates/journal-day.ts`). Sections share no data: the diary's privacy comes from this construction (its own collection, routes and tools), not from prompts. Everything lives under `Elber/` in the vault. The chat's memory only reaches its own files there (`Perfil.md`, `Pendientes.md`, `Notas/`); only the diary's `journal` skill reaches `Elber/Diario/`.
 
 - `modules/chat` uses the Claude Agent SDK (`infrastructure/claude-agent-assistant.ts`), behind the `Assistant` port so the agent framework can be swapped.
 - The agent is locked down on purpose: only `WebSearch`/`WebFetch` plus Elber's skill tools, `permissionMode: 'dontAsk'`, `settingSources: []` (no CLAUDE.md or ~/.claude), `skills: []`, `strictMcpConfig`, an empty `cwd` in tmp, and a minimal `env`. In the SDK, `tools` decides which built-in tools exist, while `allowedTools` only auto-approves them. Never add Bash/Read/Write.
 - Sessions: the SDK stores one `.jsonl` per conversation in `CLAUDE_CONFIG_DIR=~/.elber/agent`. It is set both in the child's env and in `process.env`, because `getSessionInfo`/`deleteSession` run in-process. Conversations live in Firestore (`users/{uid}/conversations/{id}` + `messages`), each linked to its SDK session through `resume`.
 - Transport: one Socket.IO namespace per section (`/chat`, `/diary`), with the Firebase ID token verified in the handshake (`canUse` rejects with `FORBIDDEN`). History uses REST under `/api/v1/<section>/conversations` (Bearer token), plus `GET /api/v1/diary/today`. Event types are deliberately duplicated in the backend and the web.
-- `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) stays static (no dates or per-user data) so it can be prompt-cached.
+- `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) and `DIARY_SYSTEM_PROMPT` (`infrastructure/diary-system-prompt.ts`, the diary section's prompt) stay static (no dates or per-user data) so it can be prompt-cached.
 - Sources: a `PostToolUse` hook numbers the WebSearch/WebFetch results so the model cites them as `[n]` (`web-sources.ts`).
 
 ### Voice calls
@@ -54,9 +57,9 @@ A call is the chat spoken, not a skill. The web (`src/chat/call/`) listens with 
 
 ### Skills (pattern for new ones)
 
-A skill is a module that exports a `Skill` (`src/shared/skills/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). `app.ts` passes the skills to `createChatModule`, which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
+A skill is a folder in `src/modules/chat/skills/` (weather, memory, bugs, journal) whose `index.ts` exports a `create*Skill()` that returns a `Skill` (`src/modules/chat/domain/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). Its tests go in `test/modules/chat/skills/<skill>/`. `chat/index.ts` re-exports each `create*Skill`, and `app.ts` picks which section gets which and passes them to `createChatModule`, which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
 
-Widgets: `show({type, data})` is stored with the message and sent as `chat:widget`. Each `type` needs its own component in `web/src/chat/widgets/` (dispatcher: `Widgets.tsx`). Use `modules/weather` as the reference implementation, and tell the model about new tools in the system prompt.
+Widgets: `show({type, data})` is stored with the message and sent as `chat:widget`. Each `type` needs its own component in `web/src/chat/widgets/` (dispatcher: `Widgets.tsx`). Use `modules/chat/skills/weather` as the reference implementation, and tell the model about new tools in the system prompt.
 
 In the web, each new tool also needs: its `ToolKind` (`src/chat/types.ts`), its entry in `TOOL_KIND` (`src/chat/tools.ts`), and its `LABEL`, `ICON` and `stepsSummary` line in `src/chat/ElberMessage.tsx`. Otherwise its step shows as a web search.
 

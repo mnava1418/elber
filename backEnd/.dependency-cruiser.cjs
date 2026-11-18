@@ -18,6 +18,37 @@ module.exports = {
       to: { path: '^src/modules/', pathNot: '^src/modules/$1/' },
     },
     {
+      name: 'no-cross-skill-imports',
+      comment:
+        'Skills are plugins of the chat (src/modules/chat/skills/<skill>/) and never import each other.',
+      severity: 'error',
+      from: { path: '^src/modules/chat/skills/([^/]+)/' },
+      to: { path: '^src/modules/chat/skills/', pathNot: '^src/modules/chat/skills/$1/' },
+    },
+    {
+      name: 'skills-only-reach-the-contract',
+      comment:
+        'From the chat core, a skill only reaches the Skill contract (chat/domain/skill.ts), so it stays easy to pull out (e.g. into its own MCP server).',
+      severity: 'error',
+      from: { path: '^src/modules/chat/skills/' },
+      to: { path: '^src/modules/chat/', pathNot: '^src/modules/chat/(skills/|domain/skill\\.ts$)' },
+    },
+    {
+      name: 'chat-core-not-to-skills',
+      comment:
+        'The chat core knows only the Skill contract, never a concrete skill: only the chat index.ts assembles them.',
+      severity: 'error',
+      from: { path: '^src/modules/chat/', pathNot: '^src/modules/chat/(skills/|index\\.ts$)' },
+      to: { path: '^src/modules/chat/skills/' },
+    },
+    {
+      name: 'skill-private-from-chat',
+      comment: 'The chat index.ts imports a skill only through its index.ts (public API).',
+      severity: 'error',
+      from: { path: '^src/modules/chat/index\\.ts$' },
+      to: { path: '^src/modules/chat/skills/[^/]+/', pathNot: '^src/modules/chat/skills/[^/]+/index\\.ts$' },
+    },
+    {
       name: 'clean-arch-domain-is-innermost',
       comment:
         'In modules with clean architecture, domain/ depends on nothing from the outer layers.',
@@ -32,6 +63,20 @@ module.exports = {
       severity: 'error',
       from: { path: '^src/modules/([^/]+)/application/' },
       to: { path: '^src/modules/$1/(infrastructure|presentation)/' },
+    },
+    // Each skill inside the chat has its own clean architecture layers, with
+    // the same two rules.
+    {
+      name: 'clean-arch-skill-domain-is-innermost',
+      severity: 'error',
+      from: { path: '^src/modules/chat/skills/([^/]+)/domain/' },
+      to: { path: '^src/modules/chat/skills/$1/(application|infrastructure|presentation)/' },
+    },
+    {
+      name: 'clean-arch-skill-application-not-to-outer-layers',
+      severity: 'error',
+      from: { path: '^src/modules/chat/skills/([^/]+)/application/' },
+      to: { path: '^src/modules/chat/skills/$1/(infrastructure|presentation)/' },
     },
     {
       name: 'shared-not-to-modules',
