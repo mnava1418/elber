@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toIssue, type BugReport } from '../../../../src/modules/bugs/domain/issue.js'
+import { toIssue, type BugReport } from '../../../../../../src/modules/chat/skills/bugs/domain/issue.js'
 
 const REPORT: BugReport = {
     title: ' Weather card shows UTC times ',

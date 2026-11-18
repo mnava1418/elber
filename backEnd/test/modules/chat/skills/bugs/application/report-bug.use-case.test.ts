@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import ReportBugUseCase from '../../../../src/modules/bugs/application/report-bug.use-case.js'
-import type { BugReport, CreatedIssue } from '../../../../src/modules/bugs/domain/issue.js'
-import type { IssueTracker } from '../../../../src/modules/bugs/domain/issue-tracker.port.js'
+import ReportBugUseCase from '../../../../../../src/modules/chat/skills/bugs/application/report-bug.use-case.js'
+import type { BugReport, CreatedIssue } from '../../../../../../src/modules/chat/skills/bugs/domain/issue.js'
+import type { IssueTracker } from '../../../../../../src/modules/chat/skills/bugs/domain/issue-tracker.port.js'
 
 const OWNER = 'owner-uid'
 

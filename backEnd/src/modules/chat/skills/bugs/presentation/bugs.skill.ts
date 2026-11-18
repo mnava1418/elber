@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../chat/domain/skill.js'
+import { defineTool } from '../../../domain/skill.js'
 import type ReportBugUseCase from '../application/report-bug.use-case.js'
 
 const text = z.string().trim().min(1).max(2000)

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import GitHubIssueTracker from '../../../../src/modules/bugs/infrastructure/github-issue-tracker.js'
+import GitHubIssueTracker from '../../../../../../src/modules/chat/skills/bugs/infrastructure/github-issue-tracker.js'
 
 const TOKEN = 'test-token'
 const ISSUE = {title: 'Send button stays disabled', body: '## Summary\nIt stays disabled.', labels: ['bug', 'web']}

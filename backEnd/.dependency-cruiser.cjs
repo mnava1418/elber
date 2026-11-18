@@ -15,16 +15,7 @@ module.exports = {
         'Modules never import each other, not even their index.ts: they communicate through events (src/shared/events).',
       severity: 'error',
       from: { path: '^src/modules/([^/]+)/' },
-      to: {
-        path: '^src/modules/',
-        pathNot: [
-          '^src/modules/$1/',
-          // TEMPORARY while the skills move into src/modules/chat/skills/: the
-          // skill modules still outside it reach the chat's Skill contract.
-          // Remove once weather, memory, bugs and journal live under chat/skills/.
-          '^src/modules/chat/domain/skill\\.ts$',
-        ],
-      },
+      to: { path: '^src/modules/', pathNot: '^src/modules/$1/' },
     },
     {
       name: 'no-cross-skill-imports',
