@@ -4,18 +4,10 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import type { Server } from 'socket.io'
 import env from './config/env.js'
-import createChatModule, {
-    ELBER_SYSTEM_PROMPT,
-    DIARY_SYSTEM_PROMPT,
-    createBugsSkill,
-    createJournalSkill,
-    createMemorySkills,
-    createWeatherSkill,
-} from './modules/chat/index.js'
+import createChatModule from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import createVoiceModule from './modules/voice/index.js'
-import { journalDay } from './shared/dates/journal-day.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
 import errorHandler from './shared/http/middlewares/error.middleware.js'
@@ -31,34 +23,8 @@ const createApp = ({io}: AppDeps) => {
     // Modules never import each other: they communicate through this bus.
     const bus = new InMemoryEventBus()
     const users = createUsersModule({bus})
-    // Skills are plugins of the chat, not modules: they hand it their tools and
-    // what they know about the user. Here we only choose which section gets
-    // which.
-    const weather = createWeatherSkill()
-    const memory = createMemorySkills()
-    const bugs = createBugsSkill()
-    const chat = createChatModule({io, section: {
-        namespace: '/chat',
-        collection: 'conversations',
-        systemPrompt: ELBER_SYSTEM_PROMPT,
-        skills: [weather, memory.skill, bugs],
-        webTools: true,
-    }})
-    // The diary only has its own tools and the profile: the chat can't reach
-    // its conversations, and it can't reach the chat's notes or the web.
-    const diary = createChatModule({io, section: {
-        namespace: '/diary',
-        collection: 'diary',
-        systemPrompt: DIARY_SYSTEM_PROMPT,
-        skills: [createJournalSkill(), memory.profile],
-        webTools: false,
-        canUse: (uid) => uid === env.MEMORY_OWNER_UID,
-        daily: (now) => {
-            const {date, title} = journalDay(now)
-            return {id: date, title: title.charAt(0).toUpperCase() + title.slice(1)}
-        },
-    }})
     createNotificationsModule({bus})
+    const {chat, diary} = createChatModule({io})
     const voice = createVoiceModule()
 
     app.use(helmet())

@@ -1,111 +1,53 @@
-import { mkdirSync } from 'node:fs'
-import { homedir, tmpdir } from 'node:os'
-import path from 'node:path'
-import type { Router } from 'express'
 import type { Server } from 'socket.io'
-import type { Skill } from './domain/skill.js'
-import type { DailyConversation } from './domain/conversation.js'
 import env from '../../config/env.js'
-import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
-import { firebaseAuth, firestore } from '../../shared/firebase/firebase-admin.js'
-import { buildRequireAuth } from '../../shared/http/middlewares/auth.middleware.js'
-import DeleteAllConversationsUseCase from './application/delete-all-conversations.use-case.js'
-import DeleteConversationUseCase from './application/delete-conversation.use-case.js'
-import GetConversationUseCase from './application/get-conversation.use-case.js'
-import ListConversationsUseCase from './application/list-conversations.use-case.js'
-import RenameConversationUseCase from './application/rename-conversation.use-case.js'
-import SendMessageUseCase from './application/send-message.use-case.js'
-import ClaudeAgentAssistant from './infrastructure/claude-agent-assistant.js'
-import FirestoreConversationRepository from './infrastructure/firestore-conversation.repository.js'
-import type { ChatNamespace } from './presentation/chat.events.js'
-import buildChatRoutes from './presentation/chat.routes.js'
-import buildChatSocketHandler from './presentation/chat-socket.handler.js'
-import { createMessageRateLimit } from './presentation/message-rate-limit.js'
-import ConversationsController from './presentation/conversations.controller.js'
-import buildSocketAuth from './presentation/socket-auth.middleware.js'
+import { journalDay } from '../../shared/dates/journal-day.js'
+import { DIARY_SYSTEM_PROMPT } from './infrastructure/diary-system-prompt.js'
+import { ELBER_SYSTEM_PROMPT } from './infrastructure/elber-system-prompt.js'
+import createSection, { type Section } from './section.js'
+import createBugsSkill from './skills/bugs/index.js'
+import createJournalSkill from './skills/journal/index.js'
+import createMemorySkills from './skills/memory/index.js'
+import createWeatherSkill from './skills/weather/index.js'
 
-const MODEL = 'claude-sonnet-5-5'
-// Answers (messages and retries) per user every 15 minutes.
-const MESSAGE_LIMIT = 20
-const MESSAGE_WINDOW_MS = 15 * 60 * 1000
-
-export { ELBER_SYSTEM_PROMPT } from './infrastructure/elber-system-prompt.js'
-// The diary's prompt belongs to its section, not to the journal skill: it
-// also tells the agent how to use the memory skill's tools.
-export { DIARY_SYSTEM_PROMPT } from './infrastructure/diary-system-prompt.js'
-// The skills live inside the chat (they are its plugins, not modules), but
-// app.ts decides which section gets which, so they are exported from here.
-export { default as createWeatherSkill } from './skills/weather/index.js'
-export { default as createMemorySkills } from './skills/memory/index.js'
-export { default as createBugsSkill } from './skills/bugs/index.js'
-export { default as createJournalSkill } from './skills/journal/index.js'
-
-// Public entry point of the chat module: only app.ts imports it, once per
-// section of the app (the chat, the diary...). Each section talks to the
-// frontend over Socket.IO, in its own namespace; its history (list, load,
-// delete) is served over HTTP by the router.
+// Public entry point of the chat module: only app.ts imports it. The chat
+// decides its own sections and which skills each one gets: they are plugins
+// of the chat, not modules, so the rest of the app never sees them.
 export interface ChatModule {
-    router: Router
-}
-
-// A chat with its own agent and its own conversations. Sections share no
-// data: each one only sees its own collection and has only its own tools.
-export interface ChatSection {
-    // Socket.IO namespace, e.g. "/chat".
-    namespace: string
-    // Firestore collection of its conversations, under each user.
-    collection: string
-    // Who the agent is in this section.
-    systemPrompt: string
-    // What it can do and know beyond chatting (weather, memory...).
-    skills: Skill[]
-    // Whether it can search the web and read pages.
-    webTools: boolean
-    // Who may use it; everyone signed in when left out.
-    canUse?: (uid: string) => boolean
-    // One conversation per day (the diary), named after it.
-    daily?: DailyConversation
+    chat: Section
+    diary: Section
 }
 
 interface ChatModuleDeps {
     io: Server
-    section: ChatSection
 }
 
-const createChatModule = ({io, section}: ChatModuleDeps): ChatModule => {
-    const {namespace, collection, systemPrompt, skills, webTools, canUse, daily} = section
-    const workDir = path.join(tmpdir(), 'elber-agent')
-    mkdirSync(workDir, {recursive: true})
-    // Not in tmp: the OS cleans it up, and Elber would forget conversations.
-    const configDir = path.join(homedir(), '.elber', 'agent')
-    mkdirSync(configDir, {recursive: true})
+const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
+    const memory = createMemorySkills()
 
-    // To switch agent framework, swap this adapter for another Assistant.
-    const assistant = new ClaudeAgentAssistant({apiKey: env.ANTHROPIC_API_KEY, model: MODEL, systemPrompt, webTools, workDir, configDir, skills})
-    const conversations = new FirestoreConversationRepository(firestore, collection)
-    const sendMessage = new SendMessageUseCase(assistant, conversations, daily)
-    const verifyToken = createFirebaseTokenVerifier(firebaseAuth)
+    const chat = createSection({io, section: {
+        namespace: '/chat',
+        collection: 'conversations',
+        systemPrompt: ELBER_SYSTEM_PROMPT,
+        skills: [createWeatherSkill(), memory.skill, createBugsSkill()],
+        webTools: true,
+    }})
 
-    // The Server is shared by every namespace, so its event types are generic:
-    // this cast gives the section's namespace its own typed events.
-    const chat = io.of(namespace) as unknown as ChatNamespace
+    // The diary only has its own tools and the profile: the chat can't reach
+    // its conversations, and it can't reach the chat's notes or the web.
+    const diary = createSection({io, section: {
+        namespace: '/diary',
+        collection: 'diary',
+        systemPrompt: DIARY_SYSTEM_PROMPT,
+        skills: [createJournalSkill(), memory.profile],
+        webTools: false,
+        canUse: (uid) => uid === env.MEMORY_OWNER_UID,
+        daily: (now) => {
+            const {date, title} = journalDay(now)
+            return {id: date, title: title.charAt(0).toUpperCase() + title.slice(1)}
+        },
+    }})
 
-    chat.use(buildSocketAuth(verifyToken, canUse))
-    // One for the whole namespace: a user's connections share the quota.
-    const rateLimit = createMessageRateLimit({limit: MESSAGE_LIMIT, windowMs: MESSAGE_WINDOW_MS})
-    chat.on('connection', buildChatSocketHandler(sendMessage, rateLimit))
-
-    const controller = new ConversationsController(
-        new ListConversationsUseCase(conversations),
-        new GetConversationUseCase(conversations),
-        new DeleteConversationUseCase(conversations, assistant),
-        new DeleteAllConversationsUseCase(conversations, assistant),
-        new RenameConversationUseCase(conversations),
-    )
-
-    return {
-        router: buildChatRoutes(buildRequireAuth(verifyToken), controller, canUse, daily),
-    }
+    return {chat, diary}
 }
 
 export default createChatModule
