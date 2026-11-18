@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { defineTool } from '../../../shared/skills/skill.js'
+import { defineTool } from '../../../domain/skill.js'
 import type GetWeatherUseCase from '../application/get-weather.use-case.js'
 
 // Inbound adapter: what the assistant sees of the weather module.

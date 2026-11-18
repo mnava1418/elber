@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import OpenWeatherProvider, { toForecast, type OneCall } from '../../../../src/modules/weather/infrastructure/openweather-provider.js'
+import OpenWeatherProvider, { toForecast, type OneCall } from '../../../../../../src/modules/chat/skills/weather/infrastructure/openweather-provider.js'
 
 const KEY = 'test-key'
 // 2026-10-23T18:30:00Z

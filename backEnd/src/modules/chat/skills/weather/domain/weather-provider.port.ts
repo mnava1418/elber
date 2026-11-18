@@ -1,4 +1,4 @@
-import type { Coords } from '../../../shared/skills/skill.js'
+import type { Coords } from '../../../domain/skill.js'
 import type { Forecast, Place } from './weather.js'
 
 // Port: where the weather comes from. Each provider (OpenWeather...) is an

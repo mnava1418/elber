@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { SkillContext } from '../../../../src/shared/skills/skill.js'
-import type GetWeatherUseCase from '../../../../src/modules/weather/application/get-weather.use-case.js'
-import type { GetWeatherResult } from '../../../../src/modules/weather/application/get-weather.use-case.js'
-import { buildGetWeatherTool } from '../../../../src/modules/weather/presentation/weather.skill.js'
+import type { SkillContext } from '../../../../../../src/modules/chat/domain/skill.js'
+import type GetWeatherUseCase from '../../../../../../src/modules/chat/skills/weather/application/get-weather.use-case.js'
+import type { GetWeatherResult } from '../../../../../../src/modules/chat/skills/weather/application/get-weather.use-case.js'
+import { buildGetWeatherTool } from '../../../../../../src/modules/chat/skills/weather/presentation/weather.skill.js'
 
 const context = (): SkillContext => ({
     uid: 'user-1',

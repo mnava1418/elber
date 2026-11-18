@@ -1,4 +1,4 @@
-import type { SkillContext } from '../../../shared/skills/skill.js'
+import type { SkillContext } from '../../../domain/skill.js'
 import type { WeatherReport } from '../domain/weather.js'
 import type { WeatherProvider } from '../domain/weather-provider.port.js'
 

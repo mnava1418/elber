@@ -4,11 +4,10 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import type { Server } from 'socket.io'
 import env from './config/env.js'
-import createChatModule, { ELBER_SYSTEM_PROMPT } from './modules/chat/index.js'
+import createChatModule, { ELBER_SYSTEM_PROMPT, createWeatherSkill } from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import createMemoryModule from './modules/memory/index.js'
-import createWeatherModule from './modules/weather/index.js'
 import createBugsModule from './modules/bugs/index.js'
 import createVoiceModule from './modules/voice/index.js'
 import createJournalModule, { DIARY_SYSTEM_PROMPT } from './modules/journal/index.js'
@@ -30,7 +29,7 @@ const createApp = ({io}: AppDeps) => {
     const users = createUsersModule({bus})
     // Skills don't talk to the chat through the bus: they hand it their tools
     // and what they know about the user.
-    const weather = createWeatherModule()
+    const weather = createWeatherSkill()
     const memory = createMemoryModule()
     const bugs = createBugsModule()
     const chat = createChatModule({io, section: {

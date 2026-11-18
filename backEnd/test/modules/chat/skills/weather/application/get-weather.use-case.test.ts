@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Coords, SkillContext } from '../../../../src/shared/skills/skill.js'
-import GetWeatherUseCase from '../../../../src/modules/weather/application/get-weather.use-case.js'
-import type { Forecast, Place } from '../../../../src/modules/weather/domain/weather.js'
-import type { WeatherProvider } from '../../../../src/modules/weather/domain/weather-provider.port.js'
+import type { Coords, SkillContext } from '../../../../../../src/modules/chat/domain/skill.js'
+import GetWeatherUseCase from '../../../../../../src/modules/chat/skills/weather/application/get-weather.use-case.js'
+import type { Forecast, Place } from '../../../../../../src/modules/chat/skills/weather/domain/weather.js'
+import type { WeatherProvider } from '../../../../../../src/modules/chat/skills/weather/domain/weather-provider.port.js'
 
 const MADRID: Place = {name: 'Madrid', state: 'Comunidad de Madrid', country: 'ES', lat: 40.42, lon: -3.7}
 const HERE: Coords = {lat: 19.43, lon: -99.13}

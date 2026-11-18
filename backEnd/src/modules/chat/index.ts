@@ -3,7 +3,7 @@ import { homedir, tmpdir } from 'node:os'
 import path from 'node:path'
 import type { Router } from 'express'
 import type { Server } from 'socket.io'
-import type { Skill } from '../../shared/skills/skill.js'
+import type { Skill } from './domain/skill.js'
 import type { DailyConversation } from './domain/conversation.js'
 import env from '../../config/env.js'
 import { createFirebaseTokenVerifier } from '../../shared/auth/token-verifier.js'
@@ -30,6 +30,9 @@ const MESSAGE_LIMIT = 20
 const MESSAGE_WINDOW_MS = 15 * 60 * 1000
 
 export { ELBER_SYSTEM_PROMPT } from './infrastructure/elber-system-prompt.js'
+// The skills live inside the chat (they are its plugins, not modules), but
+// app.ts decides which section gets which, so they are exported from here.
+export { default as createWeatherSkill } from './skills/weather/index.js'
 
 // Public entry point of the chat module: only app.ts imports it, once per
 // section of the app (the chat, the diary...). Each section talks to the
