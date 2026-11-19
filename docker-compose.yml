@@ -1,5 +1,5 @@
-# Elber in containers, on the same ports as `npm run dev`, so the env files,
-# CORS and Firebase's authorized domains work unchanged.
+# Elber's backend in containers, behind Caddy for HTTPS. The web is not here:
+# it is deployed on Vercel.
 #   docker compose up -d --build
 services:
   backend:
@@ -17,14 +17,24 @@ services:
       - ${ELBER_VAULT_PATH:?Set ELBER_VAULT_PATH in .env (see .env.example)}:/vault
       # The agent's sessions, so conversations keep their context across rebuilds.
       - agent-sessions:/home/node/.elber/agent
-    ports:
-      - "3000:3000"
+    # No published ports: only Caddy reaches it, over the compose network.
     restart: unless-stopped
 
-  web:
-    build: ./web
+  caddy:
+    image: caddy:2.8.4
+    environment:
+      ELBER_API_DOMAIN: ${ELBER_API_DOMAIN:?Set ELBER_API_DOMAIN in .env (see .env.example)}
     ports:
-      - "5173:80"
+      # 80 too: Let's Encrypt validates the domain over it, and Caddy
+      # redirects plain HTTP to HTTPS.
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # The certificates, so a restart doesn't request new ones (Let's Encrypt
+      # has rate limits).
+      - caddy-data:/data
+      - caddy-config:/config
     depends_on:
       - backend
     restart: unless-stopped
@@ -35,3 +45,5 @@ secrets:
 
 volumes:
   agent-sessions:
+  caddy-data:
+  caddy-config:

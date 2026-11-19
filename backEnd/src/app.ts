@@ -27,6 +27,12 @@ const createApp = ({io}: AppDeps) => {
     const {chat, diary} = createChatModule({io})
     const voice = createVoiceModule()
 
+    // Behind a proxy (Caddy in compose) every request comes from its private
+    // IP: trust its X-Forwarded-For so req.ip is the client's, and the API's
+    // per-IP rate limit isn't one quota shared by everyone. Only private and
+    // loopback peers are trusted, so a client can't fake its IP.
+    app.set('trust proxy', 'loopback, uniquelocal')
+
     app.use(helmet())
     // The frontend lives on another domain. Before the rate limiter so
     // preflight (OPTIONS) requests don't use up the client's quota.
