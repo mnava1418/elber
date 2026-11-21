@@ -7,6 +7,7 @@ import createSection, { type Section } from './section.js'
 import createBugsSkill from './skills/bugs/index.js'
 import createJournalSkill from './skills/journal/index.js'
 import createMemorySkills from './skills/memory/index.js'
+import createTrainingSkill, { type TrainingCoach } from './skills/training/index.js'
 import createWeatherSkill from './skills/weather/index.js'
 
 // Public entry point of the chat module: only app.ts imports it. The chat
@@ -19,16 +20,19 @@ export interface ChatModule {
 
 interface ChatModuleDeps {
     io: Server
+    // The training data, owned by the training module. app.ts plugs it in:
+    // modules never import each other.
+    training: TrainingCoach
 }
 
-const createChatModule = ({io}: ChatModuleDeps): ChatModule => {
+const createChatModule = ({io, training}: ChatModuleDeps): ChatModule => {
     const memory = createMemorySkills()
 
     const chat = createSection({io, section: {
         namespace: '/chat',
         collection: 'conversations',
         systemPrompt: ELBER_SYSTEM_PROMPT,
-        skills: [createWeatherSkill(), memory.skill, createBugsSkill()],
+        skills: [createWeatherSkill(), memory.skill, createBugsSkill(), createTrainingSkill(training)],
         webTools: true,
     }})
 

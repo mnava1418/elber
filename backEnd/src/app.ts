@@ -8,6 +8,7 @@ import createChatModule from './modules/chat/index.js'
 import createUsersModule from './modules/users/index.js'
 import createNotificationsModule from './modules/notifications/index.js'
 import createVoiceModule from './modules/voice/index.js'
+import createTrainingModule from './modules/training/index.js'
 import { InMemoryEventBus } from './shared/events/event-bus.js'
 import notFound from './shared/http/middlewares/not-found.middleware.js'
 import errorHandler from './shared/http/middlewares/error.middleware.js'
@@ -20,11 +21,14 @@ interface AppDeps {
 const createApp = ({io}: AppDeps) => {
     const app = express()
 
-    // Modules never import each other: they communicate through this bus.
+    // Modules never import each other: they communicate through this bus,
+    // or through a port one of them declares and another implements, plugged
+    // in here (the chat's coach skill uses the training data).
     const bus = new InMemoryEventBus()
     const users = createUsersModule({bus})
     createNotificationsModule({bus})
-    const {chat, diary} = createChatModule({io})
+    const training = createTrainingModule()
+    const {chat, diary} = createChatModule({io, training: training.coach})
     const voice = createVoiceModule()
 
     // Behind a proxy (Caddy in compose) every request comes from its private
@@ -59,6 +63,7 @@ const createApp = ({io}: AppDeps) => {
     api.use('/users', users.router)
     api.use('/chat', chat.router)
     api.use('/diary', diary.router)
+    api.use('/training', training.router)
     app.use('/api/v1', api)
 
     // Order matters: these must be registered after every route.
