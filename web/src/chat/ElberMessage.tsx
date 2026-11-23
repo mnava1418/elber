@@ -7,7 +7,7 @@ import { Button } from '../components'
 import { Markdown } from './Markdown'
 import { Widgets } from './widgets/Widgets'
 import type { ElberTurn, Source, ToolStep } from './types'
-import { AlertIcon, BookmarkIcon, BugIcon, JournalIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, GlobeIcon, PageIcon, NoteIcon, RefreshIcon, TodoIcon } from './icons'
+import { AlertIcon, BookmarkIcon, BugIcon, JournalIcon, CheckIcon, ChevronIcon, CloudIcon, CopyIcon, DumbbellIcon, GlobeIcon, PageIcon, NoteIcon, RefreshIcon, TodoIcon } from './icons'
 
 const MASCOT = { thinking: elberThinking, streaming: elber, done: elberHappy, stopped: elber, error: elberSurprise }
 const LABEL = {
@@ -28,6 +28,13 @@ const LABEL = {
   save_entry: 'Guardando en tu diario',
   read_month: 'Leyendo tu diario',
   list_months: 'Revisando tu diario',
+  get_coaching_guide: 'Repasando cómo entrenarte',
+  get_training_profile: 'Revisando tu perfil de entrenamiento',
+  update_training_profile: 'Actualizando tu perfil de entrenamiento',
+  get_active_plan: 'Revisando tu plan',
+  create_plan: 'Guardando tu plan',
+  update_plan: 'Actualizando tu plan',
+  get_training_progress: 'Revisando tu progreso',
 }
 const ICON = {
   search: GlobeIcon,
@@ -47,6 +54,13 @@ const ICON = {
   save_entry: JournalIcon,
   read_month: JournalIcon,
   list_months: JournalIcon,
+  get_coaching_guide: DumbbellIcon,
+  get_training_profile: DumbbellIcon,
+  update_training_profile: DumbbellIcon,
+  get_active_plan: DumbbellIcon,
+  create_plan: DumbbellIcon,
+  update_plan: DumbbellIcon,
+  get_training_progress: DumbbellIcon,
 }
 
 function ToolSteps({ steps }: { steps: ToolStep[] }) {
@@ -89,6 +103,11 @@ function stepsSummary(steps: ToolStep[]) {
   const savedEntry = steps.some((s) => s.kind === 'save_entry')
   const readMonths = steps.filter((s) => s.kind === 'read_month').length
   const listedMonths = steps.some((s) => s.kind === 'list_months')
+  // The coach's reads are one idea for the user: Elber looked at their training.
+  const readTraining = steps.some((s) => ['get_coaching_guide', 'get_training_profile', 'get_active_plan', 'get_training_progress'].includes(s.kind))
+  const updatedProfile = steps.some((s) => s.kind === 'update_training_profile')
+  const createdPlan = steps.some((s) => s.kind === 'create_plan')
+  const updatedPlan = steps.some((s) => s.kind === 'update_plan')
   const parts: string[] = []
   if (weather) parts.push(weather === 1 ? 'consultó el clima' : `consultó el clima ${weather} veces`)
   if (searches) parts.push(searches === 1 ? 'buscó en la web' : `hizo ${searches} búsquedas`)
@@ -107,6 +126,10 @@ function stepsSummary(steps: ToolStep[]) {
   if (listedMonths) parts.push('revisó tu diario')
   if (readMonths) parts.push(readMonths === 1 ? 'leyó 1 mes de tu diario' : `leyó ${readMonths} meses de tu diario`)
   if (savedEntry) parts.push('guardó tu diario')
+  if (readTraining) parts.push('revisó tu entrenamiento')
+  if (updatedProfile) parts.push('actualizó tu perfil de entrenamiento')
+  if (createdPlan) parts.push('guardó tu plan')
+  if (updatedPlan) parts.push('actualizó tu plan')
   const desc = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : parts.join('')
   return `${steps.length === 1 ? '1 paso' : `${steps.length} pasos`} · ${desc.charAt(0).toUpperCase()}${desc.slice(1)}`
 }

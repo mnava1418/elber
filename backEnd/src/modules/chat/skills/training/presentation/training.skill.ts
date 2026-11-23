@@ -91,8 +91,17 @@ export const buildTrainingTools = (coach: CoachUseCase) => [
         name: 'get_active_plan',
         description: "The user's active training plan (null if there is none), with its routines and their ids, "
             + 'and knownExercises: the names of every exercise they have had in a plan.',
-        input: {},
-        run: async (_input, {uid}) => coach.activePlan(uid),
+        input: {
+            show: z.boolean().optional().describe('true when the user asked to see their plan: they see it as a card, '
+                + 'so answer briefly instead of listing it. Leave it out when you only read it for yourself.'),
+        },
+        // Only on request: Elber also reads the plan before changing it, and a
+        // card there would show the old version right before the new one.
+        run: async ({show}, context) => {
+            const result = await coach.activePlan(context.uid)
+            if (show && result.plan) context.show({type: 'training_plan', data: result.plan})
+            return result
+        },
     }),
     defineTool({
         name: 'create_plan',

@@ -74,6 +74,20 @@ describe('training tools', () => {
         expect(coach.updateProfile).toHaveBeenCalledWith('uid-1', {daysPerWeek: 4, injuries: null})
     })
 
+    it('get_active_plan shows the plan as a card only when the user asked to see it', async () => {
+        const {coach, tool} = setup()
+        const asked = context()
+        const read = context()
+
+        await tool('get_active_plan').run({show: true}, asked)
+        await tool('get_active_plan').run({}, read)
+        coach.getActivePlan.mockResolvedValue(null)
+        await tool('get_active_plan').run({show: true}, read)
+
+        expect(asked.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: PLAN})
+        expect(read.show).not.toHaveBeenCalled()
+    })
+
     it('get_coaching_guide serves the guide', async () => {
         expect(await setup().tool('get_coaching_guide').run({}, context())).toEqual({guide: '# Guide'})
     })

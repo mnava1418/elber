@@ -1,6 +1,8 @@
 import type { Widget } from '../../lib/socket'
 import { IssueCard } from './IssueCard'
 import type { CreatedIssue } from './issue'
+import type { TrainingPlan } from './training-plan'
+import { TrainingPlanCard } from './TrainingPlanCard'
 import { WeatherCard } from './WeatherCard'
 import type { WeatherReport } from './weather'
 
@@ -13,6 +15,8 @@ export function Widgets({ widgets }: { widgets: Widget[] }) {
         return <WeatherCard key={i} report={widget.data as WeatherReport} />
       case 'issue':
         return <IssueCard key={i} issue={widget.data as CreatedIssue} />
+      case 'training_plan':
+        return <TrainingPlanCard key={i} plan={widget.data as TrainingPlan} />
       default:
         return null
     }

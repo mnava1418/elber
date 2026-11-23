@@ -19,6 +19,13 @@ export const TOOL_KIND: Record<string, ToolKind> = {
   save_entry: 'save_entry',
   read_month: 'read_month',
   list_months: 'list_months',
+  get_coaching_guide: 'get_coaching_guide',
+  get_training_profile: 'get_training_profile',
+  update_training_profile: 'update_training_profile',
+  get_active_plan: 'get_active_plan',
+  create_plan: 'create_plan',
+  update_plan: 'update_plan',
+  get_training_progress: 'get_training_progress',
 }
 
 export const toolKind = (name: string): ToolKind => TOOL_KIND[name] ?? 'search'
