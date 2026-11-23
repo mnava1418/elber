@@ -59,6 +59,12 @@ describe('weeklyTarget', () => {
         expect(weeklyTarget('2026-11-02', plans, 2)).toBe(4)
     })
 
+    it('uses the active plan when another one started and closed the same day', () => {
+        const sameDay = [{startedOn: '2026-11-23', closedOn: null, daysPerWeek: 6}, {startedOn: '2026-11-23', closedOn: '2026-11-23', daysPerWeek: 4}]
+        expect(weeklyTarget('2026-11-23', sameDay, 2)).toBe(6)
+        expect(weeklyTarget('2026-11-23', [...sameDay].reverse(), 2)).toBe(6)
+    })
+
     it("falls back to the profile's, and then to one day", () => {
         expect(weeklyTarget('2026-09-07', plans, 2)).toBe(2)
         expect(weeklyTarget('2026-09-07', plans, null)).toBe(1)

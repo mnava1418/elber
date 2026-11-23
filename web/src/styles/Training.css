@@ -1,0 +1,95 @@
+/* The training page. It sits on the dashboard's shell (.inicio in Inicio.css),
+   so it uses the same dark tokens. */
+.tr-back { display: inline-flex; border-radius: 8px; }
+.tr-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.tr-main h1 { font-size: 38px; }
+
+.tr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+.tr-wide { grid-column: 1 / -1; min-width: 0; }
+
+.tr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  padding: 22px 24px;
+}
+
+.tr-kicker { font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.tr-muted { margin: 0; font-size: 14px; color: var(--text); opacity: 0.8; }
+.tr-note { margin: 0; font-size: 14px; color: var(--elber-orange); }
+.tr-error { margin: 20px 0 0; color: var(--elber-orange); }
+.tr-btn-sm { padding: 7px 14px; font-size: 14px; }
+
+/* Today */
+.tr-today-title { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--text-h); }
+.tr-today-check { flex: none; color: var(--accent); }
+.tr-choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.tr-choices legend { margin-bottom: 8px; padding: 0; font-size: 14px; }
+.tr-choice {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tr-choice input { position: absolute; opacity: 0; pointer-events: none; }
+.tr-choice:hover { border-color: var(--accent); }
+.tr-choice--on { border-color: var(--accent); background: var(--accent-bg); color: var(--text-h); }
+.tr-choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Streak */
+.tr-streak-weeks { margin: 0; font-size: 18px; color: var(--text-h); }
+.tr-big { font-family: var(--display); font-size: 44px; font-weight: 700; line-height: 1; }
+.tr-week { display: flex; flex-direction: column; gap: 8px; }
+.tr-week-label { font-size: 14px; }
+.tr-dots { display: flex; gap: 6px; }
+.tr-dot { width: 22px; height: 8px; border-radius: 999px; background: var(--border); }
+.tr-dot--on { background: var(--accent); }
+
+/* Plans */
+.tr-empty-title, .tr-plan-name { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--text-h); overflow-wrap: anywhere; }
+.tr-plan-goal { margin: 0; font-size: 15px; line-height: 1.5; }
+.tr-plan-notes { margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-line; opacity: 0.85; }
+.tr-plan-foot { align-self: stretch; display: flex; justify-content: flex-end; padding-top: 6px; }
+.tr-confirm { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--accent-bg); }
+.tr-confirm p { margin: 0; font-size: 14.5px; color: var(--text-h); }
+.tr-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+.tr-routines { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; align-self: stretch; margin: 6px 0 0; padding: 0; list-style: none; }
+.tr-routine { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); }
+.tr-routine--next { border-color: var(--accent); }
+.tr-routine-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--display); font-size: 15.5px; font-weight: 600; color: var(--text-h); }
+.tr-badge { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--accent-bg); color: var(--accent); font-family: var(--sans); font-size: 12px; font-weight: 600; }
+.tr-exercises { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.tr-exercise { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; font-size: 14px; line-height: 1.4; }
+.tr-exercise-name { overflow-wrap: anywhere; }
+.tr-exercise-dose { font-family: var(--mono); font-size: 13px; color: var(--text-h); white-space: nowrap; text-align: right; }
+.tr-exercise-notes { grid-column: 1 / -1; font-size: 12.5px; opacity: 0.75; }
+
+/* History */
+.tr-history-list { display: flex; flex-direction: column; align-self: stretch; margin: 0; padding: 0; list-style: none; }
+.tr-history-list li + li { border-top: 1px solid var(--border); }
+.tr-past summary { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; list-style: none; }
+.tr-past summary::-webkit-details-marker { display: none; }
+.tr-past summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.tr-past-name { flex: 1; min-width: 0; font-weight: 600; color: var(--text-h); overflow-wrap: anywhere; }
+.tr-past-chevron { flex: none; transition: transform 0.15s; }
+.tr-past[open] .tr-past-chevron { transform: rotate(180deg); }
+.tr-past[open] { display: flex; flex-direction: column; gap: 10px; padding-bottom: 16px; }
+
+@media (max-width: 700px) {
+  .tr-grid { grid-template-columns: minmax(0, 1fr); }
+  .tr-main h1 { font-size: 32px; }
+  .tr-card { padding: 18px; }
+}

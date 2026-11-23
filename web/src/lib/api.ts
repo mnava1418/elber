@@ -64,6 +64,10 @@ export const apiPost = <T>(path: string, body: unknown) => request<T>('POST', pa
 
 export const apiGetAuth = <T>(path: string) => request<T>('GET', path, { auth: true })
 
+export const apiPostAuth = <T>(path: string, body: unknown) => request<T>('POST', path, { body, auth: true })
+
+export const apiPutAuth = <T>(path: string, body: unknown) => request<T>('PUT', path, { body, auth: true })
+
 export const apiPatchAuth = <T>(path: string, body: unknown) => request<T>('PATCH', path, { body, auth: true })
 
 export const apiDeleteAuth = (path: string) => request<void>('DELETE', path, { auth: true })

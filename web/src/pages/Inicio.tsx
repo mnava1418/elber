@@ -1,7 +1,7 @@
 import type { ComponentType, SVGProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, GradientText, Logo } from '../components'
-import { ChatIcon, DiaryIcon, LogoutIcon } from '../chat/icons'
+import { ChatIcon, DiaryIcon, LogoutIcon, TrainingIcon } from '../chat/icons'
 import { useAuth } from '../context/useAuth'
 import { signOutUser } from '../services/auth.service'
 import '../styles/Inicio.css'
@@ -17,6 +17,7 @@ interface Section {
 const SECTIONS: Section[] = [
   { path: '/chat', title: 'Chat', description: 'Clima, notas, pendientes y lo que se te ocurra.', Icon: ChatIcon },
   { path: '/diario', title: 'Diario', description: '¿Cómo te fue hoy? Platícalo y guárdalo en tu diario.', Icon: DiaryIcon },
+  { path: '/entrenamiento', title: 'Entrenamiento', description: 'Tu plan, tu racha y el día de hoy. Elber es tu coach.', Icon: TrainingIcon },
 ]
 
 function Inicio() {

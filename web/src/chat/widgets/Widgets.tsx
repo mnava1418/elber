@@ -1,7 +1,7 @@
 import type { Widget } from '../../lib/socket'
 import { IssueCard } from './IssueCard'
+import type { TrainingPlan } from '../../training/plan'
 import type { CreatedIssue } from './issue'
-import type { TrainingPlan } from './training-plan'
 import { TrainingPlanCard } from './TrainingPlanCard'
 import { WeatherCard } from './WeatherCard'
 import type { WeatherReport } from './weather'

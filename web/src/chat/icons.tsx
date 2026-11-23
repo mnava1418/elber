@@ -34,11 +34,12 @@ export const WifiOffIcon = (p: P) => (<svg {...base(15)} strokeWidth={2} {...p}>
 export const SendIcon = (p: P) => (<svg {...base(16)} strokeWidth={2.2} {...p}><path d="M5 12h14M13 6l6 6-6 6" /></svg>)
 export const EditIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /><path d="m14.5 5.5 3 3" /></svg>)
 export const BugIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><rect x="7" y="8" width="10" height="12" rx="5" /><path d="M9 5.5 10.5 8M15 5.5 13.5 8M3 13h4M17 13h4M4 8l3 2M20 8l-3 2M4 19l3-2M20 19l-3-2M12 11v9" /></svg>)
-export const DumbbellIcon = (p: P) => (<svg {...base(13)} strokeWidth={2} {...p}><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" /></svg>)
+export const TrainingIcon = (p: P) => (<svg {...base(26)} {...p}><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" /></svg>)
 export const HomeIcon = (p: P) => (<svg {...base(20)} {...p}><path d="M4 11 12 4l8 7" /><path d="M6 10v9a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1v-9" /></svg>)
 export const ChatIcon = (p: P) => (<svg {...base(26)} {...p}><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-5 4v-4H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" /><path d="M8 10h8M8 13.5h5" /></svg>)
 export const DiaryIcon = (p: P) => (<svg {...base(26)} {...p}><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6Z" /><path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M10 8h5M10 11.5h5" /></svg>)
 // The diary's icon at the size of a tool step.
+export const DumbbellIcon = (p: P) => <TrainingIcon width={13} height={13} strokeWidth={2} {...p} />
 export const JournalIcon = (p: P) => <DiaryIcon width={13} height={13} strokeWidth={2} {...p} />
 export const TrashIcon = (p: P) => (<svg {...base(15)} {...p}><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></svg>)
 export const PhoneIcon = (p: P) => (<svg {...base(18)} {...p}><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg>)

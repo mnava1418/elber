@@ -24,7 +24,9 @@ export const weeklyTarget = (weekStart: string, plans: Pick<Plan, 'startedOn' | 
     const weekEnd = addDays(weekStart, 6)
     const plan = plans
         .filter((p) => p.startedOn <= weekEnd && (p.closedOn === null || p.closedOn >= weekStart))
-        .sort((a, b) => b.startedOn.localeCompare(a.startedOn))[0]
+        // On a tie (one closed and another started the same day) the one still
+        // going wins: it is the plan the user follows now.
+        .sort((a, b) => b.startedOn.localeCompare(a.startedOn) || Number(a.closedOn !== null) - Number(b.closedOn !== null))[0]
     return plan?.daysPerWeek ?? profileDaysPerWeek ?? DEFAULT_WEEKLY_TARGET
 }
 

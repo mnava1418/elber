@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
+import { restLabel, shortDate, type PlanExercise, type TrainingPlan } from '../../training/plan'
 import { DumbbellIcon } from '../icons'
-import { restLabel, shortDate, type PlanExercise, type TrainingPlan } from './training-plan'
 import '../../styles/TrainingPlanCard.css'
 
 function ExerciseRow({ exercise }: { exercise: PlanExercise }) {
@@ -44,6 +45,10 @@ export function TrainingPlanCard({ plan }: { plan: TrainingPlan }) {
       </ol>
 
       {notes && <p className="tp-notes">{notes}</p>}
+
+      <footer className="tp-foot">
+        <Link className="tp-link" to="/entrenamiento">Ver en Entrenamiento</Link>
+      </footer>
     </section>
   )
 }
