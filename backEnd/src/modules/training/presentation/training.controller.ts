@@ -9,7 +9,7 @@ import type TrackSessionsUseCase from '../application/track-sessions.use-case.js
 import { MeasurementNotFoundError, PlanNotFoundError } from '../domain/errors.js'
 import {
     closePlanSchema, createPlanSchema, markSessionSchema, measurementSchema, parse, planDraftSchema,
-    profileChangesSchema, sessionsQuerySchema, todayQuerySchema,
+    pageQuerySchema, profileChangesSchema, sessionsQuerySchema, todayQuerySchema,
 } from './training.schemas.js'
 
 export interface TrainingUseCases {
@@ -104,6 +104,21 @@ class TrainingController {
     summary = async (req: Request, res: Response) => {
         const {today} = parse(todayQuerySchema, req.query, 'INVALID_QUERY')
         res.json(await this.useCases.summary.execute(authUser(res).uid, today))
+    }
+
+    // Everything the page shows, in one request: it reloads all of it after
+    // each change, and five requests a time ran into the API's rate limit.
+    page = async (req: Request, res: Response) => {
+        const {today, from} = parse(pageQuerySchema, req.query, 'INVALID_QUERY')
+        const uid = authUser(res).uid
+        const [summary, plans, sessions, profile, progress] = await Promise.all([
+            this.useCases.summary.execute(uid, today),
+            this.useCases.plans.list(uid),
+            this.useCases.sessions.list(uid, {from, to: today}),
+            this.useCases.profile.get(uid),
+            this.useCases.progress.execute(uid),
+        ])
+        res.json({summary, plans, sessions, profile, progress})
     }
 
     progress = async (_req: Request, res: Response) => {

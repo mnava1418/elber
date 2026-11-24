@@ -63,3 +63,15 @@ export function localToday() {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
+
+// The Monday of a day's week: weeks start on Monday, like the streak's.
+export function mondayOf(date: string) {
+  const weekday = (new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7
+  return addDays(date, -weekday)
+}
+
+// "2026-11-17" → "Martes 17 nov".
+export function longDay(date: string) {
+  const weekday = new Date(`${date}T00:00:00Z`).toLocaleDateString('es-MX', { weekday: 'long', timeZone: 'UTC' })
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${shortDate(date)}`
+}

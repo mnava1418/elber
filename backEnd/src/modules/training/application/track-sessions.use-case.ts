@@ -27,7 +27,9 @@ class TrackSessionsUseCase {
         if (date > today) throw new InvalidTrainingDataError("date can't be in the future")
 
         // Without a plan the day still counts: the streak goes on between plans.
-        const plan = await this.plans.findActive(uid)
+        // A past day before the active plan started wasn't part of it.
+        const active = await this.plans.findActive(uid)
+        const plan = active !== null && date >= active.startedOn ? active : null
         const routine = routineId === null ? null : plan?.routines.find((r) => r.id === routineId)
         if (routineId !== null && !routine) throw new RoutineNotFoundError(routineId)
 

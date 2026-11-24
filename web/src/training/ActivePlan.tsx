@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Card } from '../components'
+import type { PlanDraft } from './api'
+import { PlanEditor } from './PlanEditor'
 import { RoutineList } from './RoutineList'
 import { daysBetween, plannedEndOf, shortDate, type TrainingPlan } from './plan'
 
@@ -10,11 +12,13 @@ interface Props {
   nextRoutineId: string | null
   busy: boolean
   onClose: (planId: string) => void
+  onSave: (planId: string, draft: PlanDraft) => Promise<boolean>
 }
 
 // The active plan, and the only place where it is closed (Elber can't).
-export function ActivePlan({ plan, today, nextRoutineId, busy, onClose }: Props) {
+export function ActivePlan({ plan, today, nextRoutineId, busy, onClose, onSave }: Props) {
   const [confirming, setConfirming] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   if (!plan) {
     return (
@@ -25,6 +29,15 @@ export function ActivePlan({ plan, today, nextRoutineId, busy, onClose }: Props)
         <Button as={Link} to="/chat" variant="ghost" className="tr-btn-sm">
           Ir al chat
         </Button>
+      </Card>
+    )
+  }
+
+  if (editing) {
+    return (
+      <Card className="tr-card tr-plan">
+        <span className="tr-kicker">Editar plan</span>
+        <PlanEditor plan={plan} busy={busy} onSave={(draft) => onSave(plan.id, draft)} onCancel={() => setEditing(false)} />
       </Card>
     )
   }
@@ -59,9 +72,14 @@ export function ActivePlan({ plan, today, nextRoutineId, busy, onClose }: Props)
             </div>
           </div>
         ) : (
-          <Button variant="ghost" className="tr-btn-sm" onClick={() => setConfirming(true)}>
-            Cerrar plan
-          </Button>
+          <>
+            <Button variant="ghost" className="tr-btn-sm" onClick={() => setEditing(true)}>
+              Editar plan
+            </Button>
+            <Button variant="ghost" className="tr-btn-sm" onClick={() => setConfirming(true)}>
+              Cerrar plan
+            </Button>
+          </>
         )}
       </footer>
     </Card>

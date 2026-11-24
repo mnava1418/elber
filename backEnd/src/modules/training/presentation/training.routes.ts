@@ -28,6 +28,9 @@ const buildTrainingRoutes = (requireAuth: RequestHandler, training: TrainingCont
     const router = Router()
     router.use(requireAuth)
 
+    // All the page shows, at once: ?today=YYYY-MM-DD&from=YYYY-MM-DD (the
+    // calendar's first day).
+    router.get('/page', training.page)
     // What the page shows first: ?today=YYYY-MM-DD.
     router.get('/summary', training.summary)
     // The data behind the progress charts.

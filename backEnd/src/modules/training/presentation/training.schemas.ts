@@ -75,6 +75,9 @@ export const measurementSchema = z.object({
 
 export const todayQuerySchema = z.object({today: z.string()})
 
+// The page's first load: today, and from which day the calendar starts.
+export const pageQuerySchema = z.object({today: z.string(), from: z.string()})
+
 // Parses or answers 400 naming the first field that is wrong, so the page
 // (or whoever calls) knows what to fix.
 export const parse = <T extends z.ZodType>(schema: T, data: unknown, code = 'INVALID_BODY'): z.infer<T> => {

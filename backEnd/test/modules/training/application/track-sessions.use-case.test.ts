@@ -27,6 +27,14 @@ describe('TrackSessionsUseCase', () => {
         expect(await useCase.list('uid-1')).toEqual([session])
     })
 
+    it("keeps a past day before the active plan started out of it", async () => {
+        await plans.create('uid-1', planDraft({routines: [planDraft().routines[0]!]}), '2026-11-16')
+
+        expect(await useCase.mark('uid-1', {date: '2026-11-13', routineId: null, today: TODAY}))
+            .toEqual({date: '2026-11-13', planId: null, routineId: null, routineName: null})
+        await expect(useCase.mark('uid-1', {date: '2026-11-13', routineId: 'a', today: TODAY})).rejects.toBeInstanceOf(RoutineNotFoundError)
+    })
+
     it('marks a day without a plan', async () => {
         expect(await useCase.mark('uid-1', {date: TODAY, routineId: null, today: TODAY}))
             .toEqual({date: TODAY, planId: null, routineId: null, routineName: null})

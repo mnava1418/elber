@@ -171,6 +171,27 @@ describe('training routes', () => {
         })
     })
 
+    describe('page', () => {
+        it('gives everything the page shows in one answer, with the days from the calendar start', async () => {
+            await createPlan()
+            await call('PUT', '/sessions/2026-11-02', {routineId: null, today: TODAY})
+            await call('PUT', `/sessions/${TODAY}`, {routineId: 'r1', today: TODAY})
+
+            const {status, body} = await call('GET', `/page?today=${TODAY}&from=2026-11-09`)
+
+            expect(status).toBe(200)
+            expect(body.summary).toMatchObject({today: TODAY, nextRoutine: {id: 'r2'}})
+            expect(body.plans).toHaveLength(1)
+            expect(body.sessions.map((s: {date: string}) => s.date)).toEqual([TODAY])
+            expect(body.profile.goal).toBeNull()
+            expect(body.progress.exercises.length).toBeGreaterThan(0)
+        })
+
+        it('needs today and the calendar start', async () => {
+            expect((await call('GET', `/page?today=${TODAY}`)).body.error.code).toBe('INVALID_QUERY')
+        })
+    })
+
     it('answers 500 without details when storage fails', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => {})
         vi.spyOn(InMemoryProfiles.prototype, 'get').mockRejectedValue(new Error('firestore down'))
