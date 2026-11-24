@@ -8,6 +8,7 @@ import RecoverPassword from './pages/RecoverPassword'
 import Chat from './pages/Chat'
 import { CHAT, DIARY } from './chat/section'
 import Inicio from './pages/Inicio'
+import Training from './pages/Training'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -60,6 +61,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Chat key="diary" section={DIARY} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/entrenamiento"
+            element={
+              <ProtectedRoute>
+                <Training />
               </ProtectedRoute>
             }
           />

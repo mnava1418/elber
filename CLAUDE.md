@@ -31,11 +31,11 @@ Environment: copy `.env.example` in each project. The backend validates every va
 
 A modular monolith. `src/main.ts` creates the Socket.IO server, then `src/app.ts` builds every module and hands `io` to the ones that have real-time features.
 
-A module is something that could become its own service: its own data and its own entry point (routes, sockets or events). Today: `chat`, `users`, `notifications` and `voice`. Skills are not modules: they are plugins of the chat (see Skills below).
+A module is something that could become its own service: its own data and its own entry point (routes, sockets or events). Today: `chat`, `users`, `notifications`, `voice` and `training`. Skills are not modules: they are plugins of the chat (see Skills below).
 
 Rules enforced by `npm run lint:arch` (`backEnd/.dependency-cruiser.cjs`):
 - Outside a module, only its `index.ts` (public API) may be imported.
-- Modules never import each other. They talk through the event bus (`src/shared/events`), e.g. `users` emits `users.password_reset_requested` and `notifications` sends the email.
+- Modules never import each other. They talk through the event bus (`src/shared/events`), e.g. `users` emits `users.password_reset_requested` and `notifications` sends the email. When one needs an answer (the bus is fire-and-forget), it declares a port with the shape it needs and `app.ts` plugs in an object another module exposes from its `index.ts`, e.g. the chat's training skill declares `TrainingCoach` and `app.ts` passes it `training.coach`. TypeScript checks at `app.ts` that both shapes still fit.
 - `src/shared/` never imports from modules.
 - Every module uses clean architecture: `domain/` → `application/` → `infrastructure/` + `presentation/`. `domain/` imports nothing outward, and `application/` reaches the outside only through ports defined in `domain/`.
 - Skills (`modules/chat/skills/<skill>/`) have the same layers, never import each other, and from the chat reach only the `Skill` contract (`chat/domain/skill.ts`). The chat core never imports a concrete skill: only `chat/index.ts` does, through the skill's `index.ts`, and it never exports them.
@@ -58,11 +58,17 @@ A call is the chat spoken, not a skill. The web (`src/chat/call/`) listens with 
 
 ### Skills (pattern for new ones)
 
-A skill is a folder in `src/modules/chat/skills/` (weather, memory, bugs, journal) whose `index.ts` exports a `create*Skill()` that returns a `Skill` (`src/modules/chat/domain/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). Its tests go in `test/modules/chat/skills/<skill>/`. `chat/index.ts` picks which section gets which and passes them to `createSection` (`chat/section.ts`), which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
+A skill is a folder in `src/modules/chat/skills/` (weather, memory, bugs, journal, training) whose `index.ts` exports a `create*Skill()` that returns a `Skill` (`src/modules/chat/domain/skill.ts`, framework-agnostic contract): its `tools`, built with `defineTool`, and optionally `context(uid)`, text about the user that is appended to the system prompt on every answer, after the fixed prompt (e.g. the memory profile). Its tests go in `test/modules/chat/skills/<skill>/`. `chat/index.ts` picks which section gets which and passes them to `createSection` (`chat/section.ts`), which serves their tools through an in-process MCP server named `elber`, one per reply. The model sees them as `mcp__elber__<name>`; the UI sees the bare name. A tool's `SkillContext` gives it `uid`, `signal`, `locate()` (asks the device for its location over the socket) and `show(widget)`.
 
 Widgets: `show({type, data})` is stored with the message and sent as `chat:widget`. Each `type` needs its own component in `web/src/chat/widgets/` (dispatcher: `Widgets.tsx`). Use `modules/chat/skills/weather` as the reference implementation, and tell the model about new tools in the system prompt.
 
 In the web, each new tool also needs: its `ToolKind` (`src/chat/types.ts`), its entry in `TOOL_KIND` (`src/chat/tools.ts`), and its `LABEL`, `ICON` and `stepsSummary` line in `src/chat/ElberMessage.tsx`. Otherwise its step shows as a web search.
+
+### Training (the coach)
+
+The `training` module owns the training data (`users/{uid}/training/profile`, `trainingPlans` with their routines embedded, `trainingSessions/{YYYY-MM-DD}`, `bodyMeasurements`), for every user, and serves it to the training page under `/api/v1/training`. Its domain holds the rules: one active plan at a time (checked in a transaction), routines in rotation whose array order is the suggested order, a streak counted in weeks that met the weekly target (`daysPerWeek` of the plan active that week, else the profile's), and progress charts that follow an exercise from plan to plan by its normalized name. Days are always the user's, sent by their device (`today`); the server never decides them, except when Elber creates a plan (it uses the server's day, like `todayContext`).
+
+The chat's `training` skill is Elber as coach: it reads and writes the profile and the active plan through `training.coach`, reads the progress, and shows saved plans as a `training_plan` widget. Elber can't close plans, mark days or add measurements: only the page does, and the coach has no method for it. It has no `context(uid)`; the long coaching guide (`skills/training/infrastructure/coaching-guide.md`) is served on demand by `get_coaching_guide`.
 
 Owner-only skills (memory, bugs) check `MEMORY_OWNER_UID` in the use case and return an error result (e.g. `BUG_REPORTS_UNAVAILABLE`) for anyone else, so the model explains it instead of failing.
 
@@ -74,6 +80,7 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 
 - `src/chat/` is the whole chat feature, shared by every section (`src/chat/section.ts`: `CHAT` and `DIARY`, each with its path, API, transport and texts). `useChat` owns the conversation state and the reconnection (Socket.IO's own reconnection is off). `transport.ts` adapts a section's socket, with a mock transport for `VITE_CHAT_MOCK`. The routes are `/chat/:conversationId?` and `/diario/:conversationId?` (without an id it opens today's), and the URL is the source of truth for the open conversation.
 - After sign-in the user lands on `/inicio`, a card per section (`src/pages/Inicio.tsx`).
+- `src/training/` is the training page (`/entrenamiento`, `src/pages/Training.tsx`, on the dashboard's `.inicio` shell): the day card plus a 4-week calendar to mark past days, the streak, the active plan (edit and close), progress charts, measurements with the monthly reminder, the profile and the history. `useTraining` loads everything in one request (`GET /training/page`, so reloads stay within the API's per-IP rate limit) and reloads it after each change, since the backend computes the streak and the rest; "today" comes from the device. Charts are hand-rolled SVG (`LineChart.tsx`), one series each. `training/plan.ts` holds the plan types shared with the chat's `training_plan` widget.
 - `src/components/` is the design system (Button, Card, TextField...). Use these components and the CSS custom properties from `src/styles/tokens.css`, never hardcoded colors (see `web/.design-sync/conventions.md`).
 - Chat widgets (`src/chat/widgets/`) are styled with the chat's own tokens (`--chat-*`, `--display`, defined on `.chat` in `src/styles/Chat.css`), not with `Card`.
 - UI text is in Spanish.
