@@ -14,9 +14,11 @@
 
 Elber is a learning project for building AI agents. You talk to it in a web chat. Behind the chat is a Claude agent that answers in real time and can use a growing set of *skills*: tools for real things like the weather, your notes or this repository's issues.
 
-It runs locally on my machine for my own use. It is not deployed anywhere.
+It is built for my own use. The backend runs on an AWS EC2 instance behind [Caddy](https://caddyserver.com) for HTTPS, and the web is deployed on [Vercel](https://vercel.com).
 
 ## What it can do
+
+After signing in you land on a dashboard with a card for each section: the chat, the diary and training.
 
 - **Chat with streaming answers**, and conversation history (rename, delete). The interface is in Spanish, and Elber answers in whatever language you write in.
 - **Search the web and read pages**, citing its sources inline.
@@ -28,6 +30,7 @@ It runs locally on my machine for my own use. It is not deployed anywhere.
 - **Diary**: a separate section where Elber asks about your day, one question at a time, and, once you approve its summary, saves it as that day's entry in `Elber/Diario/` of the vault (mood, topics and people included). The regular chat has no access to it.
 - **Voice calls**: tap the phone in the chat (or the diary) and talk. The browser turns your voice into text, and Elber answers out loud with an [Amazon Polly](https://aws.amazon.com/polly/) voice, a sentence at a time as the answer streams in. The conversation stays in the chat.
 - **Bug reports**: tell Elber about a bug in Elber. It asks what it needs to know, one question at a time, shows you a draft, and opens a GitHub issue once you approve it.
+- **Training coach**: in the chat, Elber learns your goal, level, schedule, equipment and injuries, prepares a training plan (routines in rotation, with sets, reps, weights and rest) and adjusts it with you. It shows plans as a card. On the training page you start the prepared plan, edit or close plans, mark the days you trained, log body measurements (with a monthly reminder), and follow your weekly streak and progress charts. Elber only reads your progress: tracking happens on the page.
 
 ## Stack
 
@@ -41,13 +44,16 @@ These are two independent npm projects.
 ## Architecture
 
 ```
-web (React) ──Socket.IO /chat──▶ chat module ──▶ Claude agent
-     │                                             │
-     └──REST /api/v1──▶ users, chat history        └─ MCP server "elber" ──▶ skills: weather, memory, bugs
+web (React, Vercel) ──Socket.IO /chat, /diary──▶ chat module ──▶ Claude agent
+     │                                                             │
+     │                                                             └─ MCP server "elber" ──▶ skills: weather, memory,
+     │                                                                                       bugs, journal, training
+     └──REST /api/v1──▶ users, chat history, voice, training
 ```
 
-- **Modular monolith.** The backend is split into modules (`chat`, `users`, `notifications`, `weather`, `memory`, `bugs`, `journal`, `voice`). Each one follows clean architecture (`domain` → `application` → `infrastructure` / `presentation`). Modules never import each other: they talk through an event bus. [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) enforces these rules in CI.
-- **Skills are modules.** Each skill exports its tools through a small, framework-agnostic contract. The chat serves them to the agent through an in-process MCP server. A tool can ask the device for its location, or show a *widget* (the weather card, the issue card) that the web renders next to the answer.
+- **Modular monolith.** The backend is split into modules (`chat`, `users`, `notifications`, `voice`, `training`). Each one follows clean architecture (`domain` → `application` → `infrastructure` / `presentation`). Modules never import each other: they talk through an event bus, or, when one needs an answer, through a port that the app wires to another module's public API (the training skill reaches the `training` module this way). [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) enforces these rules in CI.
+- **Sections.** The chat and the diary are two sections of the same chat module, each with its own Socket.IO namespace, Firestore collection, prompt and skills. They share no data: the diary's privacy comes from that construction, not from prompts.
+- **Skills are plugins of the chat.** Each skill (`weather`, `memory`, `bugs`, `journal`, `training`) exports its tools through a small, framework-agnostic contract. The chat serves them to the agent through an in-process MCP server. A tool can ask the device for its location, or show a *widget* (the weather card, the issue card, the training plan) that the web renders next to the answer.
 - **A locked-down agent.** The agent only has web search, web fetch and Elber's own tools. It has no shell and no file access, and it ignores any local Claude configuration.
 - **Real-time chat.** Answers, tool steps, sources and widgets stream over Socket.IO, authenticated with a Firebase ID token. Conversations are stored in Firestore.
 
@@ -81,16 +87,18 @@ npm run dev
 
 To work on the chat UI without the backend, set `VITE_CHAT_MOCK=true` in `web/.env.local`. The chat then answers with a canned demo.
 
-### With Docker
+## Deployment
 
-Fill in `backEnd/.env` and `web/.env.local` as above, put the service account key at `backEnd/creds/service-account.json`, then:
+**Backend.** Docker Compose runs the built backend behind Caddy, which serves it over HTTPS and gets its certificate from Let's Encrypt. The backend publishes no ports: only Caddy reaches it. On the server, fill in `backEnd/.env` as above, put the service account key at `backEnd/creds/service-account.json`, then:
 
 ```bash
-cp .env.example .env   # the Obsidian vault's path on this machine
+cp .env.example .env   # the vault's path and the API's domain
 docker compose up -d --build
 ```
 
-The app is at http://localhost:5173, on the same ports as `npm run dev`. The vault is mounted into the backend. The agent's sessions live in the `agent-sessions` volume. Vite bakes the `VITE_*` variables in at build time, so after changing `web/.env.local`, rebuild with `--build`.
+The domain's DNS must point at the server, with ports 80 and 443 open. The vault is mounted into the backend, and the agent's sessions live in the `agent-sessions` volume. To update, `git pull` and run the same command again.
+
+**Web.** Deployed on Vercel with `web` as the root directory and the `VITE_*` variables set in the Vercel project. Vite bakes them in at build time, so changing one needs a new deployment.
 
 ### Checks
 
