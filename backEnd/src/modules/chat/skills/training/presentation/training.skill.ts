@@ -97,8 +97,9 @@ export const buildTrainingTools = (coach: CoachUseCase) => [
             + 'started yet), each null if there is none, with their routines and ids; and knownExercises: the names of '
             + 'every exercise they have had in a plan.',
         input: {
-            show: z.enum(['active', 'ready']).optional().describe('Set it when the user asked to see that plan: they see it '
-                + 'as a card, so answer briefly instead of listing it. Leave it out when you only read them for yourself.'),
+            show: z.enum(['active', 'ready']).optional().describe('Set it whenever the user asks to see a plan ("muéstrame mi plan", '
+                + '"el plan que me armaste" = ready), even if you already have it in the conversation: they see it as a card, '
+                + 'so answer in a sentence instead of listing it. Leave it out when you only read them for yourself.'),
         },
         // Only on request: Elber also reads the plans before changing one, and
         // a card there would show the old version right before the new one.
