@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { restLabel, shortDate, type PlanExercise, type TrainingPlan } from '../../training/plan'
+import { restLabel, shortDate, type PlanCardData, type PlanExercise } from '../../training/plan'
 import { DumbbellIcon } from '../icons'
 import '../../styles/TrainingPlanCard.css'
 
@@ -19,17 +19,20 @@ function ExerciseRow({ exercise }: { exercise: PlanExercise }) {
 }
 
 // The plan Elber just saved, so the user sees what was stored without asking.
-export function TrainingPlanCard({ plan }: { plan: TrainingPlan }) {
-  const { name, goal, notes, startedOn, durationWeeks, daysPerWeek, routines } = plan
+// A ready plan hasn't started: the user starts it in the training page.
+export function TrainingPlanCard({ plan }: { plan: PlanCardData }) {
+  const { name, goal, notes, durationWeeks, daysPerWeek, routines } = plan
+  const ready = plan.status === 'ready'
   return (
     <section className="tp" aria-label={`Plan ${name}`}>
       <header className="tp-head">
         <DumbbellIcon width={16} height={16} className="tp-icon" />
         <span className="tp-kicker">Plan de entrenamiento</span>
+        {ready && <span className="tp-badge">Listo para iniciar</span>}
       </header>
       <p className="tp-name">{name}</p>
       <p className="tp-meta">
-        {durationWeeks === 1 ? '1 semana' : `${durationWeeks} semanas`} · {daysPerWeek === 1 ? '1 día' : `${daysPerWeek} días`} por semana · desde el {shortDate(startedOn)}
+        {durationWeeks === 1 ? '1 semana' : `${durationWeeks} semanas`} · {daysPerWeek === 1 ? '1 día' : `${daysPerWeek} días`} por semana{plan.status === 'ready' ? '' : ` · desde el ${shortDate(plan.startedOn)}`}
       </p>
       {goal && <p className="tp-goal">{goal}</p>}
 
@@ -47,7 +50,7 @@ export function TrainingPlanCard({ plan }: { plan: TrainingPlan }) {
       {notes && <p className="tp-notes">{notes}</p>}
 
       <footer className="tp-foot">
-        <Link className="tp-link" to="/entrenamiento">Ver en Entrenamiento</Link>
+        <Link className="tp-link" to="/entrenamiento">{ready ? 'Iniciarlo en Entrenamiento' : 'Ver en Entrenamiento'}</Link>
       </footer>
     </section>
   )

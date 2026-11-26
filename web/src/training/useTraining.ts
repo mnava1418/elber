@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ApiError } from '../lib/api'
 import {
-  addMeasurement, closePlan, deleteMeasurement, getPage, markSession, unmarkSession, updatePlan, updateProfile,
+  addMeasurement, closePlan, deleteMeasurement, discardReadyPlan, getPage, startReadyPlan, updateReadyPlan, markSession, unmarkSession, updatePlan, updateProfile,
   type MeasurementDraft, type PlanDraft, type TrainingPage, type TrainingProfile,
 } from './api'
 import { addDays, localToday, mondayOf } from './plan'
@@ -15,6 +15,8 @@ function errorText(error: unknown) {
     switch (error.code) {
       case 'TOO_MANY_REQUESTS': return 'Demasiadas peticiones seguidas. Espera unos minutos y recarga la página.'
       case 'PLAN_CLOSED': return 'Ese plan ya estaba cerrado.'
+      case 'READY_PLAN_NOT_FOUND': return 'Ese plan ya no está listo: lo iniciaste o lo descartaste. Recarga la página.'
+      case 'PLAN_ALREADY_ACTIVE': return 'Ya tienes un plan activo. Recarga la página.'
       case 'ROUTINE_NOT_FOUND': return 'Esa rutina no estaba en tu plan ese día.'
       // The message names the field: "routines[0].exercises[1].sets must be...".
       case 'INVALID_TRAINING_DATA':
@@ -93,6 +95,9 @@ export function useTraining() {
     unmark: (date: string) => run(() => unmarkSession(date)),
     close: (planId: string) => run(() => closePlan(planId, today)),
     savePlan: (planId: string, draft: PlanDraft) => run(() => updatePlan(planId, draft)),
+    saveReadyPlan: (draft: PlanDraft) => run(() => updateReadyPlan(draft)),
+    discardReadyPlan: () => run(() => discardReadyPlan()),
+    startReadyPlan: (closeActive: boolean) => run(() => startReadyPlan(today, closeActive)),
     saveProfile: (changes: Partial<TrainingProfile>) => run(() => updateProfile(changes)),
     addMeasurement: (draft: MeasurementDraft) => run(() => addMeasurement(draft)),
     deleteMeasurement: (id: string) => run(() => deleteMeasurement(id)),

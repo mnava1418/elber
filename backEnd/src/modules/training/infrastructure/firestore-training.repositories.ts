@@ -1,14 +1,17 @@
 import type { DocumentSnapshot, Firestore } from 'firebase-admin/firestore'
 import { PlanAlreadyActiveError } from '../domain/errors.js'
 import type { BodyMeasurement, MeasurementDraft } from '../domain/measurement.js'
-import type { Plan } from '../domain/plan.js'
+import type { Plan, ReadyPlan, Routine } from '../domain/plan.js'
 import { EMPTY_PROFILE, type TrainingProfile } from '../domain/profile.js'
 import type { TrainingSession } from '../domain/session.js'
-import type { MeasurementRepository, PlanRepository, ProfileRepository, SessionRepository } from '../domain/training.repositories.js'
+import type {
+    MeasurementRepository, PlanRepository, ProfileRepository, ReadyPlanRepository, SessionRepository,
+} from '../domain/training.repositories.js'
 
 // Adapters: the training data in Firestore, under its user, so a lookup can
 // never reach someone else's:
 //   users/{uid}/training/profile                 the profile's fields
+//   users/{uid}/training/readyPlan               the plan ready to start, if any
 //   users/{uid}/trainingPlans/{planId}           the plan, routines included (a plan is small)
 //   users/{uid}/trainingSessions/{YYYY-MM-DD}    one per day: the date is the id
 //   users/{uid}/bodyMeasurements/{id}
@@ -38,6 +41,37 @@ export class FirestoreProfileRepository implements ProfileRepository {
 
     private doc(uid: string) {
         return user(this.db, uid).collection('training').doc('profile')
+    }
+}
+
+export class FirestoreReadyPlanRepository implements ReadyPlanRepository {
+    constructor(private readonly db: Firestore) {}
+
+    async get(uid: string): Promise<ReadyPlan | null> {
+        const snapshot = await this.ref(uid).get()
+        const data = snapshot.data()
+        if (data === undefined) return null
+        return {
+            name: data.name,
+            goal: data.goal ?? null,
+            notes: data.notes ?? null,
+            durationWeeks: data.durationWeeks,
+            daysPerWeek: data.daysPerWeek,
+            routines: toRoutines(data.routines),
+            preparedOn: data.preparedOn,
+        }
+    }
+
+    async save(uid: string, plan: ReadyPlan): Promise<void> {
+        await this.ref(uid).set(plan)
+    }
+
+    async delete(uid: string): Promise<void> {
+        await this.ref(uid).delete()
+    }
+
+    private ref(uid: string) {
+        return user(this.db, uid).collection('training').doc('readyPlan')
     }
 }
 
@@ -93,20 +127,22 @@ const toPlan = (doc: DocumentSnapshot): Plan => {
         durationWeeks: data.durationWeeks,
         daysPerWeek: data.daysPerWeek,
         closedOn: data.closedOn ?? null,
-        routines: (data.routines ?? []).map((routine: Plan['routines'][number]) => ({
-            id: routine.id,
-            name: routine.name,
-            exercises: (routine.exercises ?? []).map((exercise) => ({
-                name: exercise.name,
-                sets: exercise.sets,
-                reps: exercise.reps,
-                weightKg: exercise.weightKg ?? null,
-                restSeconds: exercise.restSeconds ?? null,
-                notes: exercise.notes ?? null,
-            })),
-        })),
+        routines: toRoutines(data.routines),
     }
 }
+
+const toRoutines = (routines: Routine[] | undefined): Routine[] => (routines ?? []).map((routine) => ({
+    id: routine.id,
+    name: routine.name,
+    exercises: (routine.exercises ?? []).map((exercise) => ({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        weightKg: exercise.weightKg ?? null,
+        restSeconds: exercise.restSeconds ?? null,
+        notes: exercise.notes ?? null,
+    })),
+}))
 
 export class FirestoreSessionRepository implements SessionRepository {
     constructor(private readonly db: Firestore) {}

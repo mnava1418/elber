@@ -28,7 +28,10 @@ const emptyExercise = (): ExerciseForm => ({ name: '', sets: '3', reps: '10', we
 let nextKey = 0
 const newKey = () => `new-${nextKey++}`
 
-const toForm = (plan: TrainingPlan) => ({
+// Any plan with these fields: the active one or the one ready to start.
+type EditablePlan = Pick<TrainingPlan, 'name' | 'goal' | 'notes' | 'durationWeeks' | 'daysPerWeek' | 'routines'>
+
+const toForm = (plan: EditablePlan) => ({
   name: plan.name,
   goal: plan.goal ?? '',
   notes: plan.notes ?? '',
@@ -68,13 +71,14 @@ const MAX_ROUTINES = 7
 const MAX_EXERCISES = 15
 
 interface Props {
-  plan: TrainingPlan
+  plan: EditablePlan
   busy: boolean
   onSave: (draft: PlanDraft) => Promise<boolean>
   onCancel: () => void
 }
 
-// Edits the active plan by hand: the same plan Elber edits in the chat.
+// Edits a plan by hand (the active one or the one ready to start): the same
+// plans Elber edits in the chat.
 export function PlanEditor({ plan, busy, onSave, onCancel }: Props) {
   const [form, setForm] = useState(() => toForm(plan))
   const set = (changes: Partial<Form>) => setForm((f) => ({ ...f, ...changes }))

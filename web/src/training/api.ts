@@ -1,5 +1,5 @@
 import { apiDeleteAuth, apiGetAuth, apiPatchAuth, apiPostAuth, apiPutAuth } from '../lib/api'
-import type { PlanRoutine, TrainingPlan } from './plan'
+import type { PlanRoutine, ReadyPlan, TrainingPlan } from './plan'
 
 // Contract of the backend's training API (/training). Copy of the types in
 // backEnd/src/modules/training: change both together.
@@ -81,6 +81,8 @@ export interface TrainingPage {
   summary: TrainingSummary
   // Newest first: the active one, then the history.
   plans: TrainingPlan[]
+  // The plan Elber prepared, until the user starts it.
+  readyPlan: ReadyPlan | null
   // From the calendar's first day to today, oldest first.
   sessions: TrainingSession[]
   profile: TrainingProfile
@@ -90,6 +92,15 @@ export interface TrainingPage {
 export const getPage = (today: string, from: string) => apiGetAuth<TrainingPage>(`${API}/page?today=${today}&from=${from}`)
 
 export const updatePlan = (id: string, draft: PlanDraft) => apiPutAuth<TrainingPlan>(plan(id), draft)
+
+export const updateReadyPlan = (draft: PlanDraft) => apiPutAuth<ReadyPlan>(`${API}/plans/ready`, draft)
+
+export const discardReadyPlan = () => apiDeleteAuth(`${API}/plans/ready`)
+
+// Makes it the active plan from today. With a plan active, closeActive says
+// the user agreed to close it today; without it the backend answers 409.
+export const startReadyPlan = (today: string, closeActive: boolean) =>
+  apiPostAuth<TrainingPlan>(`${API}/plans/ready/start`, { today, closeActive })
 
 export const closePlan = (id: string, closedOn: string) => apiPostAuth<TrainingPlan>(`${plan(id)}/close`, { closedOn })
 

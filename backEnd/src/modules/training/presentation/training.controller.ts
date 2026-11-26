@@ -4,17 +4,19 @@ import type GetProgressUseCase from '../application/get-progress.use-case.js'
 import type GetSummaryUseCase from '../application/get-summary.use-case.js'
 import type ManageMeasurementsUseCase from '../application/manage-measurements.use-case.js'
 import type ManagePlansUseCase from '../application/manage-plans.use-case.js'
+import type ManageReadyPlanUseCase from '../application/manage-ready-plan.use-case.js'
 import type ManageProfileUseCase from '../application/manage-profile.use-case.js'
 import type TrackSessionsUseCase from '../application/track-sessions.use-case.js'
 import { MeasurementNotFoundError, PlanNotFoundError } from '../domain/errors.js'
 import {
     closePlanSchema, createPlanSchema, markSessionSchema, measurementSchema, parse, planDraftSchema,
-    pageQuerySchema, profileChangesSchema, sessionsQuerySchema, todayQuerySchema,
+    pageQuerySchema, profileChangesSchema, sessionsQuerySchema, startReadyPlanSchema, todayQuerySchema,
 } from './training.schemas.js'
 
 export interface TrainingUseCases {
     profile: ManageProfileUseCase
     plans: ManagePlansUseCase
+    readyPlan: ManageReadyPlanUseCase
     sessions: TrackSessionsUseCase
     measurements: ManageMeasurementsUseCase
     summary: GetSummaryUseCase
@@ -70,6 +72,22 @@ class TrainingController {
         res.json(await this.useCases.plans.close(authUser(res).uid, id, closedOn))
     }
 
+    // The plan ready to start: edited, discarded or started here.
+    updateReadyPlan = async (req: Request, res: Response) => {
+        const draft = parse(planDraftSchema, req.body)
+        res.json(await this.useCases.readyPlan.update(authUser(res).uid, draft))
+    }
+
+    discardReadyPlan = async (_req: Request, res: Response) => {
+        await this.useCases.readyPlan.discard(authUser(res).uid)
+        res.status(204).end()
+    }
+
+    startReadyPlan = async (req: Request, res: Response) => {
+        const {today, closeActive} = parse(startReadyPlanSchema, req.body)
+        res.status(201).json(await this.useCases.readyPlan.start(authUser(res).uid, today, closeActive))
+    }
+
     listSessions = async (req: Request, res: Response) => {
         const range = parse(sessionsQuerySchema, req.query, 'INVALID_QUERY')
         res.json({sessions: await this.useCases.sessions.list(authUser(res).uid, range)})
@@ -111,14 +129,15 @@ class TrainingController {
     page = async (req: Request, res: Response) => {
         const {today, from} = parse(pageQuerySchema, req.query, 'INVALID_QUERY')
         const uid = authUser(res).uid
-        const [summary, plans, sessions, profile, progress] = await Promise.all([
+        const [summary, plans, readyPlan, sessions, profile, progress] = await Promise.all([
             this.useCases.summary.execute(uid, today),
             this.useCases.plans.list(uid),
+            this.useCases.readyPlan.get(uid),
             this.useCases.sessions.list(uid, {from, to: today}),
             this.useCases.profile.get(uid),
             this.useCases.progress.execute(uid),
         ])
-        res.json({summary, plans, sessions, profile, progress})
+        res.json({summary, plans, readyPlan, sessions, profile, progress})
     }
 
     progress = async (_req: Request, res: Response) => {

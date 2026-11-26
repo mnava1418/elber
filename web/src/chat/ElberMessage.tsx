@@ -31,7 +31,7 @@ const LABEL = {
   get_coaching_guide: 'Repasando cómo entrenarte',
   get_training_profile: 'Revisando tu perfil de entrenamiento',
   update_training_profile: 'Actualizando tu perfil de entrenamiento',
-  get_active_plan: 'Revisando tu plan',
+  get_plans: 'Revisando tus planes',
   create_plan: 'Guardando tu plan',
   update_plan: 'Actualizando tu plan',
   get_training_progress: 'Revisando tu progreso',
@@ -57,7 +57,7 @@ const ICON = {
   get_coaching_guide: DumbbellIcon,
   get_training_profile: DumbbellIcon,
   update_training_profile: DumbbellIcon,
-  get_active_plan: DumbbellIcon,
+  get_plans: DumbbellIcon,
   create_plan: DumbbellIcon,
   update_plan: DumbbellIcon,
   get_training_progress: DumbbellIcon,
@@ -104,7 +104,7 @@ function stepsSummary(steps: ToolStep[]) {
   const readMonths = steps.filter((s) => s.kind === 'read_month').length
   const listedMonths = steps.some((s) => s.kind === 'list_months')
   // The coach's reads are one idea for the user: Elber looked at their training.
-  const readTraining = steps.some((s) => ['get_coaching_guide', 'get_training_profile', 'get_active_plan', 'get_training_progress'].includes(s.kind))
+  const readTraining = steps.some((s) => ['get_coaching_guide', 'get_training_profile', 'get_plans', 'get_training_progress'].includes(s.kind))
   const updatedProfile = steps.some((s) => s.kind === 'update_training_profile')
   const createdPlan = steps.some((s) => s.kind === 'create_plan')
   const updatedPlan = steps.some((s) => s.kind === 'update_plan')

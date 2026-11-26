@@ -1,13 +1,13 @@
 import { z } from 'zod'
 import { defineTool, type SkillContext } from '../../../domain/skill.js'
 import type CoachUseCase from '../application/coach.use-case.js'
-import type { PlanResult } from '../application/coach.use-case.js'
-import { LEVELS, PLACES, type CoachPlanDraft } from '../domain/training-coach.port.js'
+import type { ActivePlanResult, ReadyPlanResult } from '../application/coach.use-case.js'
+import { LEVELS, PLACES, type CoachPlan, type CoachPlanDraft, type CoachReadyPlan } from '../domain/training-coach.port.js'
 
 // The shapes only: the ranges and lengths are the training module's rules,
 // and when one is broken the model gets INVALID_DATA naming the field.
 const exercise = z.object({
-    name: z.string().describe('Reuse the exact name if it is in knownExercises (get_active_plan), e.g. "Sentadilla trasera".'),
+    name: z.string().describe('Reuse the exact name if it is in knownExercises (get_plans), e.g. "Sentadilla trasera".'),
     sets: z.number().int(),
     reps: z.string().describe('Per set: "8", "8-10", "30 s", "al fallo".'),
     weightKg: z.number().nullish().describe('Target weight in kg; leave it out for bodyweight exercises.'),
@@ -47,9 +47,13 @@ const toDraft = (input: PlanInput): CoachPlanDraft => ({
     })),
 })
 
+// A plan shows as a card. The one ready to start goes with status 'ready',
+// so the card says the user starts it in the page.
+const cardOf = (plan: CoachPlan | CoachReadyPlan) => ({type: 'training_plan', data: 'preparedOn' in plan ? {status: 'ready', ...plan} : plan})
+
 // A saved plan shows as a card; errors only go to the model.
-const showPlan = (result: PlanResult, context: SkillContext) => {
-    if (!('error' in result)) context.show({type: 'training_plan', data: result})
+const showPlan = <T extends ReadyPlanResult | ActivePlanResult>(result: T, context: SkillContext): T => {
+    if (!('error' in result)) context.show(cardOf(result))
     return result
 }
 
@@ -88,37 +92,46 @@ export const buildTrainingTools = (coach: CoachUseCase) => [
         run: async (input, {uid}) => coach.updateProfile(uid, Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined))),
     }),
     defineTool({
-        name: 'get_active_plan',
-        description: "The user's active training plan (null if there is none), with its routines and their ids, "
-            + 'and knownExercises: the names of every exercise they have had in a plan.',
+        name: 'get_plans',
+        description: "The user's plans: activePlan (the one under way) and readyPlan (one you prepared that they haven't "
+            + 'started yet), each null if there is none, with their routines and ids; and knownExercises: the names of '
+            + 'every exercise they have had in a plan.',
         input: {
-            show: z.boolean().optional().describe('true when the user asked to see their plan: they see it as a card, '
-                + 'so answer briefly instead of listing it. Leave it out when you only read it for yourself.'),
+            show: z.enum(['active', 'ready']).optional().describe('Set it whenever the user asks to see a plan ("muéstrame mi plan", '
+                + '"el plan que me armaste" = ready), even if you already have it in the conversation: they see it as a card, '
+                + 'so answer in a sentence instead of listing it. Leave it out when you only read them for yourself.'),
         },
-        // Only on request: Elber also reads the plan before changing it, and a
-        // card there would show the old version right before the new one.
+        // Only on request: Elber also reads the plans before changing one, and
+        // a card there would show the old version right before the new one.
         run: async ({show}, context) => {
-            const result = await coach.activePlan(context.uid)
-            if (show && result.plan) context.show({type: 'training_plan', data: result.plan})
+            const result = await coach.plans(context.uid)
+            const plan = show === 'active' ? result.activePlan : show === 'ready' ? result.readyPlan : null
+            if (plan) context.show(cardOf(plan))
             return result
         },
     }),
     defineTool({
         name: 'create_plan',
-        description: 'Saves a new training plan, starting today. Only after the user approved the draft you showed them. '
-            + 'PLAN_ALREADY_ACTIVE: they have to close the current plan first, in the training page (Entrenamiento); '
-            + "you can't close it. INVALID_DATA: fix the field it names and try again. "
-            + 'The user sees the saved plan as a card, so just confirm it in a sentence.',
+        description: 'Saves a new training plan as ready to start: the user starts it in the training page (Entrenamiento) '
+            + "the day they begin, and you can't start it. It replaces the plan that was ready, if any (tell them first), "
+            + 'and works even with a plan active: starting this one there closes the active one. Only after the user approved '
+            + 'the draft you showed them. INVALID_DATA: fix the field it names and try again. '
+            + 'The user sees the saved plan as a card, so just confirm it in a sentence and remind them to start it there.',
         input: plan,
         run: async (input, context) => showPlan(await coach.createPlan(context.uid, toDraft(input)), context),
     }),
     defineTool({
         name: 'update_plan',
-        description: 'Replaces the active plan with this version: send the whole plan, keeping the id of each routine '
-            + 'that stays. Only after the user approved the change. NO_ACTIVE_PLAN: create one instead. '
+        description: 'Replaces a plan with this version: the ready one (not started yet) or the active one. Send the whole '
+            + 'plan, keeping the id of each routine that stays. Only after the user approved the change. '
+            + 'NO_READY_PLAN / NO_ACTIVE_PLAN: there is no such plan; create_plan makes a new one. '
             + 'The user sees the updated plan as a card, so just confirm it in a sentence.',
-        input: plan,
-        run: async (input, context) => showPlan(await coach.updatePlan(context.uid, toDraft(input)), context),
+        input: {
+            which: z.enum(['ready', 'active']).describe('ready: the plan you prepared that they haven\'t started. active: the one under way. '
+                + 'If both exist and it is unclear which they mean, ask.'),
+            ...plan,
+        },
+        run: async ({which, ...input}, context) => showPlan(await coach.updatePlan(context.uid, which, toDraft(input)), context),
     }),
     defineTool({
         name: 'get_training_progress',

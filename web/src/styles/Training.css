@@ -101,6 +101,7 @@
 .tr-empty-title, .tr-plan-name { margin: 0; font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--text-h); overflow-wrap: anywhere; }
 .tr-plan-goal { margin: 0; font-size: 15px; line-height: 1.5; }
 .tr-plan-notes { margin: 0; font-size: 14px; line-height: 1.5; white-space: pre-line; opacity: 0.85; }
+.tr-ready { border-color: var(--accent); }
 .tr-plan-foot { align-self: stretch; display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding-top: 6px; }
 .tr-confirm { display: flex; flex-direction: column; gap: 10px; width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--accent-bg); }
 .tr-confirm p { margin: 0; font-size: 14.5px; color: var(--text-h); }

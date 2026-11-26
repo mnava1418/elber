@@ -29,6 +29,22 @@ export interface TrainingPlan {
   closedOn: string | null
 }
 
+// A plan Elber prepared, waiting for the user to start it here. Copy of
+// ReadyPlan in backEnd/src/modules/training/domain/plan.ts.
+export interface ReadyPlan {
+  name: string
+  goal: string | null
+  notes: string | null
+  durationWeeks: number
+  daysPerWeek: number
+  routines: PlanRoutine[]
+  preparedOn: string
+}
+
+// What the chat's 'training_plan' widget shows: a plan, or the one ready to
+// start (marked with status 'ready').
+export type PlanCardData = TrainingPlan | (ReadyPlan & { status: 'ready' })
+
 // "2026-11-20" → "20 nov" ("20 nov 2026" withYear). Read as UTC: the date is
 // a day, not an instant.
 export const shortDate = (date: string, withYear = false) =>

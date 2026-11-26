@@ -8,6 +8,8 @@ import { daysBetween, plannedEndOf, shortDate, type TrainingPlan } from './plan'
 
 interface Props {
   plan: TrainingPlan | null
+  // With a plan ready to start, the empty state points at it, not at the chat.
+  hasReadyPlan: boolean
   today: string
   nextRoutineId: string | null
   busy: boolean
@@ -16,10 +18,11 @@ interface Props {
 }
 
 // The active plan, and the only place where it is closed (Elber can't).
-export function ActivePlan({ plan, today, nextRoutineId, busy, onClose, onSave }: Props) {
+export function ActivePlan({ plan, hasReadyPlan, today, nextRoutineId, busy, onClose, onSave }: Props) {
   const [confirming, setConfirming] = useState(false)
   const [editing, setEditing] = useState(false)
 
+  if (!plan && hasReadyPlan) return null
   if (!plan) {
     return (
       <Card className="tr-card tr-empty">
@@ -61,7 +64,7 @@ export function ActivePlan({ plan, today, nextRoutineId, busy, onClose, onSave }
       <footer className="tr-plan-foot">
         {confirming ? (
           <div className="tr-confirm" role="alertdialog" aria-label="Cerrar plan">
-            <p>Se cerrará hoy y pasará a tu historial. Después puedes pedirle a Elber uno nuevo.</p>
+            <p>Se cerrará hoy y pasará a tu historial. Después puedes iniciar otro plan que te arme Elber.</p>
             <div className="tr-confirm-actions">
               <Button variant="ghost" className="tr-btn-sm" disabled={busy} onClick={() => setConfirming(false)}>
                 Cancelar

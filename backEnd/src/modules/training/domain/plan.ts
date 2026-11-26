@@ -44,6 +44,22 @@ export interface Plan {
     closedOn: string | null
 }
 
+// A plan Elber prepared, waiting for the user to start it in the page (they
+// may build it on a Friday and start on Monday). Not a Plan yet: it has no
+// dates, and the streak, the charts and the history don't see it. One at a
+// time: preparing another replaces it.
+export interface ReadyPlan {
+    name: string
+    goal: string | null
+    notes: string | null
+    durationWeeks: number
+    daysPerWeek: number
+    // Their ids carry over when it starts.
+    routines: Routine[]
+    // The day it was prepared.
+    preparedOn: string
+}
+
 // A plan as Elber or the page writes it. A routine with the id of one the
 // plan already has keeps it; any other gets a new one.
 export interface RoutineDraft {

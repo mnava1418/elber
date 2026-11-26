@@ -1,9 +1,11 @@
 import { PlanAlreadyActiveError } from '../../../src/modules/training/domain/errors.js'
 import type { BodyMeasurement, MeasurementDraft } from '../../../src/modules/training/domain/measurement.js'
-import type { Exercise, Plan, PlanDraft } from '../../../src/modules/training/domain/plan.js'
+import type { Exercise, Plan, PlanDraft, ReadyPlan } from '../../../src/modules/training/domain/plan.js'
 import type { TrainingProfile } from '../../../src/modules/training/domain/profile.js'
 import type { TrainingSession } from '../../../src/modules/training/domain/session.js'
-import type { MeasurementRepository, PlanRepository, ProfileRepository, SessionRepository } from '../../../src/modules/training/domain/training.repositories.js'
+import type {
+    MeasurementRepository, PlanRepository, ProfileRepository, ReadyPlanRepository, SessionRepository,
+} from '../../../src/modules/training/domain/training.repositories.js'
 
 // The training repositories in memory, keyed by user like the real ones.
 
@@ -47,6 +49,22 @@ export class InMemoryPlans implements PlanRepository {
 
     async save(uid: string, plan: Plan) {
         this.plans.set(plan.id, {...plan, uid})
+    }
+}
+
+export class InMemoryReadyPlans implements ReadyPlanRepository {
+    readonly ready = new Map<string, ReadyPlan>()
+
+    async get(uid: string) {
+        return this.ready.get(uid) ?? null
+    }
+
+    async save(uid: string, plan: ReadyPlan) {
+        this.ready.set(uid, plan)
+    }
+
+    async delete(uid: string) {
+        this.ready.delete(uid)
     }
 }
 
