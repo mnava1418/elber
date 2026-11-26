@@ -18,7 +18,7 @@ It is built for my own use. The backend runs on an AWS EC2 instance behind [Cadd
 
 ## What it can do
 
-After signing in you land on a dashboard with a card for each section: the chat, the diary and training.
+After signing in you land on a dashboard with a card for each section, showing how your day goes there: your latest chats, whether you've talked to the diary today, and today's workout with your streak.
 
 - **Chat with streaming answers**, and conversation history (rename, delete). The interface is in Spanish, and Elber answers in whatever language you write in.
 - **Search the web and read pages**, citing its sources inline.

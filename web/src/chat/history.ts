@@ -38,8 +38,12 @@ export interface ConversationDetail {
   messages: StoredMessage[]
 }
 
-export function listConversations(api: string, cursor?: string): Promise<ConversationPage> {
-  const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
+// Most recently updated first. Without `limit` the backend's default page size.
+export function listConversations(api: string, cursor?: string, limit?: number): Promise<ConversationPage> {
+  const params = new URLSearchParams()
+  if (cursor) params.set('cursor', cursor)
+  if (limit) params.set('limit', String(limit))
+  const query = params.size ? `?${params}` : ''
   return apiGetAuth(`${api}/conversations${query}`)
 }
 

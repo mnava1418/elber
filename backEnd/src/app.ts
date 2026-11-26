@@ -55,7 +55,9 @@ const createApp = ({io}: AppDeps) => {
     // Only the API is limited: /health must stay reachable for health checks.
     api.use(rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
-        limit: 100, // per IP
+        // Per IP. The dashboard alone costs a few requests per visit (one per
+        // card), so 100 ran out during normal use.
+        limit: 300,
         standardHeaders: 'draft-8',
         legacyHeaders: false,
         message: {error: {code: 'TOO_MANY_REQUESTS', message: 'Too many requests, try again later'}},

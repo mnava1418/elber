@@ -91,6 +91,9 @@ export interface TrainingPage {
 
 export const getPage = (today: string, from: string) => apiGetAuth<TrainingPage>(`${API}/page?today=${today}&from=${from}`)
 
+// Only the summary: what the dashboard's training card shows.
+export const getSummary = (today: string) => apiGetAuth<TrainingSummary>(`${API}/summary?today=${today}`)
+
 export const updatePlan = (id: string, draft: PlanDraft) => apiPutAuth<TrainingPlan>(plan(id), draft)
 
 export const updateReadyPlan = (draft: PlanDraft) => apiPutAuth<ReadyPlan>(`${API}/plans/ready`, draft)
