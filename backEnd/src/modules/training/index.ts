@@ -6,10 +6,12 @@ import GetProgressUseCase from './application/get-progress.use-case.js'
 import GetSummaryUseCase from './application/get-summary.use-case.js'
 import ManageMeasurementsUseCase from './application/manage-measurements.use-case.js'
 import ManagePlansUseCase from './application/manage-plans.use-case.js'
+import ManageReadyPlanUseCase from './application/manage-ready-plan.use-case.js'
 import ManageProfileUseCase from './application/manage-profile.use-case.js'
 import TrackSessionsUseCase from './application/track-sessions.use-case.js'
 import {
-    FirestoreMeasurementRepository, FirestorePlanRepository, FirestoreProfileRepository, FirestoreSessionRepository,
+    FirestoreMeasurementRepository, FirestorePlanRepository, FirestoreProfileRepository, FirestoreReadyPlanRepository,
+    FirestoreSessionRepository,
 } from './infrastructure/firestore-training.repositories.js'
 import { buildCoach, type TrainingCoach } from './presentation/coach.js'
 import TrainingController, { type TrainingUseCases } from './presentation/training.controller.js'
@@ -33,6 +35,7 @@ const createTrainingModule = (): TrainingModule => {
     const useCases: TrainingUseCases = {
         profile: new ManageProfileUseCase(profiles),
         plans: new ManagePlansUseCase(plans),
+        readyPlan: new ManageReadyPlanUseCase(new FirestoreReadyPlanRepository(firestore), plans),
         sessions: new TrackSessionsUseCase(sessions, plans),
         measurements: new ManageMeasurementsUseCase(measurements),
         summary: new GetSummaryUseCase(profiles, plans, sessions, measurements),

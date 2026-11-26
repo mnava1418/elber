@@ -2,7 +2,7 @@ import { Router, type ErrorRequestHandler, type RequestHandler } from 'express'
 import { AppError, BadRequestError, ConflictError, NotFoundError } from '../../../shared/http/errors.js'
 import {
     InvalidTrainingDataError, MeasurementNotFoundError, PlanAlreadyActiveError, PlanClosedError,
-    PlanNotFoundError, RoutineNotFoundError, SessionNotFoundError,
+    PlanNotFoundError, ReadyPlanNotFoundError, RoutineNotFoundError, SessionNotFoundError,
 } from '../domain/errors.js'
 import type TrainingController from './training.controller.js'
 
@@ -13,6 +13,7 @@ const toHttpError = (error: unknown): unknown => {
     if (error instanceof InvalidTrainingDataError) return new BadRequestError(error.message, 'INVALID_TRAINING_DATA')
     if (error instanceof RoutineNotFoundError) return new BadRequestError(error.message, 'ROUTINE_NOT_FOUND')
     if (error instanceof PlanNotFoundError) return new NotFoundError('This plan does not exist', 'PLAN_NOT_FOUND')
+    if (error instanceof ReadyPlanNotFoundError) return new NotFoundError(error.message, 'READY_PLAN_NOT_FOUND')
     if (error instanceof SessionNotFoundError) return new NotFoundError(error.message, 'SESSION_NOT_FOUND')
     if (error instanceof MeasurementNotFoundError) return new NotFoundError('This measurement does not exist', 'MEASUREMENT_NOT_FOUND')
     if (error instanceof PlanAlreadyActiveError) return new ConflictError(error.message, 'PLAN_ALREADY_ACTIVE')
@@ -38,6 +39,12 @@ const buildTrainingRoutes = (requireAuth: RequestHandler, training: TrainingCont
 
     router.get('/profile', training.getProfile)
     router.patch('/profile', training.updateProfile)
+
+    // The plan Elber prepared, until the user starts it. Before /plans/:id,
+    // which would take "ready" for an id. POST .../start {today, closeActive}.
+    router.put('/plans/ready', training.updateReadyPlan)
+    router.delete('/plans/ready', training.discardReadyPlan)
+    router.post('/plans/ready/start', training.startReadyPlan)
 
     router.get('/plans', training.listPlans)
     router.post('/plans', training.createPlan)

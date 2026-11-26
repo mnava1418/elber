@@ -49,6 +49,17 @@ export interface CoachPlan {
     closedOn: string | null
 }
 
+// A plan Elber prepared, waiting for the user to start it in the page.
+export interface CoachReadyPlan {
+    name: string
+    goal: string | null
+    notes: string | null
+    durationWeeks: number
+    daysPerWeek: number
+    routines: CoachRoutine[]
+    preparedOn: string
+}
+
 // A routine with the id of one the plan has keeps it; without one it's new.
 export interface CoachPlanDraft {
     name: string
@@ -65,6 +76,7 @@ export type CoachError =
     | {error: 'PLAN_ALREADY_ACTIVE'}
     | {error: 'PLAN_CLOSED'}
     | {error: 'PLAN_NOT_FOUND'}
+    | {error: 'NO_READY_PLAN'}
 
 // How the user is doing (streak, next routine, recent days, progress,
 // measurements). The skill only hands it to the model, so it doesn't
@@ -73,13 +85,16 @@ export interface CoachProgress {
     exercises: {name: string}[]
 }
 
-// Dates are YYYY-MM-DD. There is no way to close plans or to mark days:
-// only the user does that, in the training page.
+// Dates are YYYY-MM-DD. There is no way to start or close plans or to mark
+// days: only the user does that, in the training page.
 export interface TrainingCoach {
     getProfile(uid: string): Promise<CoachProfile>
     updateProfile(uid: string, changes: CoachProfileChanges): Promise<CoachProfile | CoachError>
     getActivePlan(uid: string): Promise<CoachPlan | null>
-    createPlan(uid: string, draft: CoachPlanDraft, startedOn: string): Promise<CoachPlan | CoachError>
+    getReadyPlan(uid: string): Promise<CoachReadyPlan | null>
+    // Replaces the plan that was ready, if any.
+    preparePlan(uid: string, draft: CoachPlanDraft, preparedOn: string): Promise<CoachReadyPlan | CoachError>
+    updateReadyPlan(uid: string, draft: CoachPlanDraft): Promise<CoachReadyPlan | CoachError>
     updatePlan(uid: string, planId: string, draft: CoachPlanDraft): Promise<CoachPlan | CoachError>
     getProgress(uid: string, today: string): Promise<CoachProgress>
 }

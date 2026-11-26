@@ -33,6 +33,14 @@ export class PlanClosedError extends Error {
     }
 }
 
+// There is no plan ready to start (it was started or discarded).
+export class ReadyPlanNotFoundError extends Error {
+    constructor() {
+        super('There is no plan ready to start')
+        this.name = 'ReadyPlanNotFoundError'
+    }
+}
+
 // A routine that isn't in the active plan.
 export class RoutineNotFoundError extends Error {
     constructor(routineId: string) {

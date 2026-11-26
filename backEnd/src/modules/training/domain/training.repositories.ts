@@ -1,5 +1,5 @@
 import type { BodyMeasurement, MeasurementDraft } from './measurement.js'
-import type { Plan } from './plan.js'
+import type { Plan, ReadyPlan } from './plan.js'
 import type { TrainingProfile } from './profile.js'
 import type { TrainingSession } from './session.js'
 
@@ -22,6 +22,14 @@ export interface PlanRepository {
     list(uid: string): Promise<Plan[]>
     // Replaces a plan that exists.
     save(uid: string, plan: Plan): Promise<void>
+}
+
+// The plan ready to start: at most one per user.
+export interface ReadyPlanRepository {
+    get(uid: string): Promise<ReadyPlan | null>
+    // Replaces the one there was, if any.
+    save(uid: string, plan: ReadyPlan): Promise<void>
+    delete(uid: string): Promise<void>
 }
 
 export interface SessionRepository {

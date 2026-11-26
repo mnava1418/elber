@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { SkillContext, SkillTool } from '../../../../../../src/modules/chat/domain/skill.js'
 import CoachUseCase from '../../../../../../src/modules/chat/skills/training/application/coach.use-case.js'
 import { buildTrainingTools } from '../../../../../../src/modules/chat/skills/training/presentation/training.skill.js'
-import { fakeCoach, PLAN } from '../fake-coach.js'
+import { fakeCoach, PLAN, READY } from '../fake-coach.js'
 
 const context = (): SkillContext => ({
     uid: 'uid-1',
@@ -29,35 +29,39 @@ describe('training tools', () => {
     it('offers the coach tools, and none to close plans or mark days', () => {
         expect(setup().tools.map((t) => t.name)).toEqual([
             'get_coaching_guide', 'get_training_profile', 'update_training_profile',
-            'get_active_plan', 'create_plan', 'update_plan', 'get_training_progress',
+            'get_plans', 'create_plan', 'update_plan', 'get_training_progress',
         ])
     })
 
-    it('create_plan fills in what the model left out and shows the plan as a card', async () => {
+    it('create_plan leaves the plan ready, fills in what the model left out and shows it as a ready card', async () => {
         const {coach, tool} = setup()
         const ctx = context()
 
         const result = await tool('create_plan').run(INPUT, ctx)
 
-        expect(coach.createPlan).toHaveBeenCalledWith('uid-1', {
+        expect(coach.preparePlan).toHaveBeenCalledWith('uid-1', {
             ...INPUT, goal: null, notes: null,
             routines: [{name: 'Día A: Pierna', exercises: [{name: 'Dominadas', sets: 3, reps: 'al fallo', weightKg: null, restSeconds: null, notes: null}]}],
         }, '2026-11-20')
-        expect(result).toBe(PLAN)
-        expect(ctx.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: PLAN})
+        expect(result).toBe(READY)
+        expect(ctx.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: {status: 'ready', ...READY}})
     })
 
-    it('update_plan keeps the ids of the routines that stay', async () => {
+    it('update_plan changes the plan it is told, keeping the ids of the routines that stay', async () => {
         const {coach, tool} = setup()
+        const ctx = context()
 
-        await tool('update_plan').run({...INPUT, routines: [{...INPUT.routines[0]!, id: 'a'}]}, context())
+        await tool('update_plan').run({which: 'active', ...INPUT, routines: [{...INPUT.routines[0]!, id: 'a'}]}, ctx)
+        await tool('update_plan').run({which: 'ready', ...INPUT}, context())
 
         expect(coach.updatePlan.mock.calls[0]?.[2].routines[0]).toMatchObject({id: 'a'})
+        expect(coach.updateReadyPlan).toHaveBeenCalledOnce()
+        expect(ctx.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: PLAN})
     })
 
     it('shows no card when the plan was not saved', async () => {
         const {coach, tool} = setup()
-        coach.createPlan.mockResolvedValue({error: 'INVALID_DATA', message: 'daysPerWeek must be an integer between 1 and 7'})
+        coach.preparePlan.mockResolvedValue({error: 'INVALID_DATA', message: 'daysPerWeek must be an integer between 1 and 7'})
         const ctx = context()
 
         const result = await tool('create_plan').run(INPUT, ctx)
@@ -74,17 +78,20 @@ describe('training tools', () => {
         expect(coach.updateProfile).toHaveBeenCalledWith('uid-1', {daysPerWeek: 4, injuries: null})
     })
 
-    it('get_active_plan shows the plan as a card only when the user asked to see it', async () => {
+    it('get_plans shows the plan the user asked to see as a card, and none when only reading', async () => {
         const {coach, tool} = setup()
-        const asked = context()
+        const active = context()
+        const ready = context()
         const read = context()
 
-        await tool('get_active_plan').run({show: true}, asked)
-        await tool('get_active_plan').run({}, read)
-        coach.getActivePlan.mockResolvedValue(null)
-        await tool('get_active_plan').run({show: true}, read)
+        await tool('get_plans').run({show: 'active'}, active)
+        await tool('get_plans').run({show: 'ready'}, ready)
+        await tool('get_plans').run({}, read)
+        coach.getReadyPlan.mockResolvedValue(null)
+        await tool('get_plans').run({show: 'ready'}, read)
 
-        expect(asked.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: PLAN})
+        expect(active.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: PLAN})
+        expect(ready.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: {status: 'ready', ...READY}})
         expect(read.show).not.toHaveBeenCalled()
     })
 

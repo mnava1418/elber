@@ -6,6 +6,7 @@ import GetProgressUseCase from '../../../../src/modules/training/application/get
 import GetSummaryUseCase from '../../../../src/modules/training/application/get-summary.use-case.js'
 import ManageMeasurementsUseCase from '../../../../src/modules/training/application/manage-measurements.use-case.js'
 import ManagePlansUseCase from '../../../../src/modules/training/application/manage-plans.use-case.js'
+import ManageReadyPlanUseCase from '../../../../src/modules/training/application/manage-ready-plan.use-case.js'
 import ManageProfileUseCase from '../../../../src/modules/training/application/manage-profile.use-case.js'
 import TrackSessionsUseCase from '../../../../src/modules/training/application/track-sessions.use-case.js'
 import TrainingController from '../../../../src/modules/training/presentation/training.controller.js'
@@ -13,7 +14,7 @@ import buildTrainingRoutes from '../../../../src/modules/training/presentation/t
 import type { TokenVerifier } from '../../../../src/shared/auth/token-verifier.js'
 import { buildRequireAuth } from '../../../../src/shared/http/middlewares/auth.middleware.js'
 import errorHandler from '../../../../src/shared/http/middlewares/error.middleware.js'
-import { InMemoryMeasurements, InMemoryPlans, InMemoryProfiles, InMemorySessions, planDraft } from '../in-memory-training.js'
+import { InMemoryMeasurements, InMemoryPlans, InMemoryProfiles, InMemoryReadyPlans, InMemorySessions, planDraft } from '../in-memory-training.js'
 
 // Routes, auth, validation and status codes through a real Express app on a
 // random local port, with the real use cases over repositories in memory.
@@ -26,14 +27,17 @@ const MEASUREMENT = {date: TODAY, weightKg: 80, waistCm: 85}
 describe('training routes', () => {
     let server: Server
     let base: string
+    let readyPlans: InMemoryReadyPlans
 
     beforeEach(async () => {
         vi.restoreAllMocks()
-        const repos = {profiles: new InMemoryProfiles(), plans: new InMemoryPlans(), sessions: new InMemorySessions(), measurements: new InMemoryMeasurements()}
+        const repos = {profiles: new InMemoryProfiles(), plans: new InMemoryPlans(), sessions: new InMemorySessions(), measurements: new InMemoryMeasurements(), ready: new InMemoryReadyPlans()}
         let n = 0
+        readyPlans = repos.ready
         const controller = new TrainingController({
             profile: new ManageProfileUseCase(repos.profiles),
             plans: new ManagePlansUseCase(repos.plans, () => `r${++n}`),
+            readyPlan: new ManageReadyPlanUseCase(repos.ready, repos.plans, () => `r${++n}`),
             sessions: new TrackSessionsUseCase(repos.sessions, repos.plans),
             measurements: new ManageMeasurementsUseCase(repos.measurements),
             summary: new GetSummaryUseCase(repos.profiles, repos.plans, repos.sessions, repos.measurements),
@@ -168,6 +172,42 @@ describe('training routes', () => {
 
             const progress = await call('GET', '/progress')
             expect(progress.body.exercises.map((series: {key: string}) => series.key)).toContain('press de banca')
+        })
+    })
+
+    describe('ready plan', () => {
+        const prepare = () => readyPlans.save('uid-1', {...planDraft(), routines: [{id: 'x1', name: 'Día A', exercises: planDraft().routines[0]!.exercises}], preparedOn: '2026-11-18'})
+
+        it('is edited, started and then gone from the page', async () => {
+            await prepare()
+
+            const edited = await call('PUT', '/plans/ready', {...planDraft(), name: 'Fuerza 2'})
+            expect(edited.body).toMatchObject({name: 'Fuerza 2', preparedOn: '2026-11-18'})
+
+            const started = await call('POST', '/plans/ready/start', {today: TODAY})
+            expect(started.status).toBe(201)
+            expect(started.body).toMatchObject({name: 'Fuerza 2', status: 'active', startedOn: TODAY})
+
+            const page = await call('GET', `/page?today=${TODAY}&from=${TODAY}`)
+            expect(page.body.readyPlan).toBeNull()
+            expect(page.body.summary.activePlan.name).toBe('Fuerza 2')
+        })
+
+        it('answers 409 to start it over an active plan unless told to close it', async () => {
+            await createPlan()
+            await prepare()
+
+            expect((await call('POST', '/plans/ready/start', {today: TODAY})).body.error.code).toBe('PLAN_ALREADY_ACTIVE')
+            expect((await call('POST', '/plans/ready/start', {today: TODAY, closeActive: true})).status).toBe(201)
+            expect((await call('GET', '/plans')).body.plans.map((p: {status: string}) => p.status)).toEqual(['active', 'closed'])
+        })
+
+        it('is discarded, and then answers 404', async () => {
+            await prepare()
+
+            expect((await call('DELETE', '/plans/ready')).status).toBe(204)
+            expect((await call('DELETE', '/plans/ready')).body.error.code).toBe('READY_PLAN_NOT_FOUND')
+            expect((await call('POST', '/plans/ready/start', {today: TODAY})).status).toBe(404)
         })
     })
 

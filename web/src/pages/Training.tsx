@@ -7,6 +7,7 @@ import { MeasurementsCard } from '../training/MeasurementsCard'
 import { PlanHistory } from '../training/PlanHistory'
 import { ProfileCard } from '../training/ProfileCard'
 import { ProgressCard } from '../training/ProgressCard'
+import { ReadyPlanCard } from '../training/ReadyPlanCard'
 import { StreakCard } from '../training/StreakCard'
 import { useTraining } from '../training/useTraining'
 import '../styles/Inicio.css'
@@ -64,10 +65,25 @@ function Training() {
               selected={selected}
               onSelect={setSelected}
             />
+            {data.readyPlan && (
+              <div className="tr-wide">
+                {/* Keyed by its content: after an edit it goes back to the view. */}
+                <ReadyPlanCard
+                  key={JSON.stringify(data.readyPlan)}
+                  plan={data.readyPlan}
+                  active={active}
+                  busy={t.busy}
+                  onStart={t.startReadyPlan}
+                  onSave={t.saveReadyPlan}
+                  onDiscard={t.discardReadyPlan}
+                />
+              </div>
+            )}
             <div className="tr-wide">
               <ActivePlan
                 key={active?.id}
                 plan={active}
+                hasReadyPlan={data.readyPlan !== null}
                 today={today}
                 nextRoutineId={data.summary.nextRoutine?.id ?? null}
                 busy={t.busy}

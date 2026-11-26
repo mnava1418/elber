@@ -8,7 +8,7 @@ export type ConnectionState = 'connecting' | 'open' | 'reconnecting' | 'rejected
 export type ToolKind = 'search' | 'read' | 'weather' | 'remember' | 'forget' | 'add_todo' | 'complete_todo' | 'list_todos'
   | 'save_note' | 'search_notes' | 'read_note' | 'update_note' | 'link_notes' | 'report_bug'
   | 'save_entry' | 'read_month' | 'list_months'
-  | 'get_coaching_guide' | 'get_training_profile' | 'update_training_profile' | 'get_active_plan' | 'create_plan'
+  | 'get_coaching_guide' | 'get_training_profile' | 'update_training_profile' | 'get_plans' | 'create_plan'
   | 'update_plan' | 'get_training_progress'
 
 export interface ToolStep {

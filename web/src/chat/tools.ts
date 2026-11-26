@@ -22,7 +22,9 @@ export const TOOL_KIND: Record<string, ToolKind> = {
   get_coaching_guide: 'get_coaching_guide',
   get_training_profile: 'get_training_profile',
   update_training_profile: 'update_training_profile',
-  get_active_plan: 'get_active_plan',
+  get_plans: 'get_plans',
+  // Its old name, in conversations saved before it changed.
+  get_active_plan: 'get_plans',
   create_plan: 'create_plan',
   update_plan: 'update_plan',
   get_training_progress: 'get_training_progress',

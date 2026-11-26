@@ -39,6 +39,10 @@ export const createPlanSchema = planDraftSchema.extend({
 
 export const closePlanSchema = z.object({closedOn: z.string()})
 
+// Starting the ready plan: the user's today, and whether they agreed to
+// close the active plan to start this one.
+export const startReadyPlanSchema = z.object({today: z.string(), closeActive: z.boolean().default(false)})
+
 // Every field is optional: what is left out stays as it is, null clears it.
 export const profileChangesSchema = z.object({
     goal: z.string().nullable(),

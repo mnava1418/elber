@@ -1,6 +1,6 @@
 import { addDays } from '../domain/days.js'
 import {
-    InvalidTrainingDataError, PlanAlreadyActiveError, PlanClosedError, PlanNotFoundError,
+    InvalidTrainingDataError, PlanAlreadyActiveError, PlanClosedError, PlanNotFoundError, ReadyPlanNotFoundError,
 } from '../domain/errors.js'
 import type { PlanDraft } from '../domain/plan.js'
 import type { ProfileChanges } from '../domain/profile.js'
@@ -15,6 +15,7 @@ export type CoachError =
     | {error: 'PLAN_ALREADY_ACTIVE'}
     | {error: 'PLAN_CLOSED'}
     | {error: 'PLAN_NOT_FOUND'}
+    | {error: 'NO_READY_PLAN'}
 
 const attempt = async <T>(action: () => Promise<T>): Promise<T | CoachError> => {
     try {
@@ -24,6 +25,7 @@ const attempt = async <T>(action: () => Promise<T>): Promise<T | CoachError> => 
         if (error instanceof PlanAlreadyActiveError) return {error: 'PLAN_ALREADY_ACTIVE'}
         if (error instanceof PlanClosedError) return {error: 'PLAN_CLOSED'}
         if (error instanceof PlanNotFoundError) return {error: 'PLAN_NOT_FOUND'}
+        if (error instanceof ReadyPlanNotFoundError) return {error: 'NO_READY_PLAN'}
         throw error
     }
 }
@@ -31,8 +33,8 @@ const attempt = async <T>(action: () => Promise<T>): Promise<T | CoachError> => 
 // Inbound adapter for the chat's coach skill: what Elber may do with the
 // training data. app.ts hands it to the chat, which never imports this
 // module: the skill declares the shape it needs and this object fits it.
-// Elber can't close plans, mark days or touch measurements: that is the
-// page's job, so there is no method for it.
+// Elber prepares plans but can't start or close them, mark days or touch
+// measurements: that is the page's job, so there is no method for it.
 export const buildCoach = (useCases: TrainingUseCases) => ({
     getProfile: (uid: string) => useCases.profile.get(uid),
 
@@ -40,7 +42,13 @@ export const buildCoach = (useCases: TrainingUseCases) => ({
 
     getActivePlan: (uid: string) => useCases.plans.getActive(uid),
 
-    createPlan: (uid: string, draft: PlanDraft, startedOn: string) => attempt(() => useCases.plans.create(uid, draft, startedOn)),
+    getReadyPlan: (uid: string) => useCases.readyPlan.get(uid),
+
+    // Leaves it ready for the user to start in the page, replacing the one
+    // that was ready.
+    preparePlan: (uid: string, draft: PlanDraft, preparedOn: string) => attempt(() => useCases.readyPlan.prepare(uid, draft, preparedOn)),
+
+    updateReadyPlan: (uid: string, draft: PlanDraft) => attempt(() => useCases.readyPlan.update(uid, draft)),
 
     updatePlan: (uid: string, planId: string, draft: PlanDraft) => attempt(() => useCases.plans.update(uid, planId, draft)),
 
