@@ -10,7 +10,7 @@ export interface Exercise {
     // Free text, because it isn't always a number: "8-10", "12", "30 s", "al fallo".
     reps: string
     // Target weight; null for bodyweight exercises.
-    weightKg: number | null
+    weightLb: number | null
     restSeconds: number | null
     notes: string | null
 }
@@ -100,7 +100,7 @@ export const validatePlanDraft = (draft: PlanDraft): PlanDraft => {
             checkText(`${ex}.name`, exercise.name, MAX_NAME_LENGTH)
             checkNumber(`${ex}.sets`, exercise.sets, 1, 20, true)
             checkText(`${ex}.reps`, exercise.reps, 30)
-            checkOptionalNumber(`${ex}.weightKg`, exercise.weightKg, 0, 1000)
+            checkOptionalNumber(`${ex}.weightLb`, exercise.weightLb, 0, 1000)
             checkOptionalNumber(`${ex}.restSeconds`, exercise.restSeconds, 0, 1800, true)
             checkOptionalText(`${ex}.notes`, exercise.notes)
         })

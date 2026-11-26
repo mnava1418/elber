@@ -112,8 +112,8 @@ export class InMemoryMeasurements implements MeasurementRepository {
     }
 }
 
-export const exercise = (name: string, weightKg: number | null = null): Exercise =>
-    ({name, sets: 3, reps: '8-10', weightKg, restSeconds: 90, notes: null})
+export const exercise = (name: string, weightLb: number | null = null): Exercise =>
+    ({name, sets: 3, reps: '8-10', weightLb, restSeconds: 90, notes: null})
 
 // A valid plan with routines A, B and C.
 export const planDraft = (changes: Partial<PlanDraft> = {}): PlanDraft => ({

@@ -8,7 +8,7 @@ export const PROFILE = {
 
 export const DRAFT: CoachPlanDraft = {
     name: 'Fuerza base', goal: null, notes: null, durationWeeks: 4, daysPerWeek: 3,
-    routines: [{name: 'Día A: Pierna', exercises: [{name: 'Sentadilla trasera', sets: 4, reps: '6', weightKg: 60, restSeconds: 150, notes: null}]}],
+    routines: [{name: 'Día A: Pierna', exercises: [{name: 'Sentadilla trasera', sets: 4, reps: '6', weightLb: 60, restSeconds: 150, notes: null}]}],
 }
 
 export const PLAN: CoachPlan = {

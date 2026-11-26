@@ -25,7 +25,7 @@ export interface CoachExercise {
     name: string
     sets: number
     reps: string
-    weightKg: number | null
+    weightLb: number | null
     restSeconds: number | null
     notes: string | null
 }

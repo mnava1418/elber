@@ -1,7 +1,7 @@
 import type { DocumentSnapshot, Firestore } from 'firebase-admin/firestore'
 import { PlanAlreadyActiveError } from '../domain/errors.js'
 import type { BodyMeasurement, MeasurementDraft } from '../domain/measurement.js'
-import type { Plan, ReadyPlan, Routine } from '../domain/plan.js'
+import type { Exercise, Plan, ReadyPlan, Routine } from '../domain/plan.js'
 import { EMPTY_PROFILE, type TrainingProfile } from '../domain/profile.js'
 import type { TrainingSession } from '../domain/session.js'
 import type {
@@ -131,14 +131,18 @@ const toPlan = (doc: DocumentSnapshot): Plan => {
     }
 }
 
-const toRoutines = (routines: Routine[] | undefined): Routine[] => (routines ?? []).map((routine) => ({
+// Plans saved before 2026-11-26 store the weight as weightKg, but the user
+// always wrote pounds there: it is read as weightLb, without converting.
+type StoredExercise = Exercise & {weightKg?: number | null}
+
+const toRoutines = (routines: (Omit<Routine, 'exercises'> & {exercises?: StoredExercise[]})[] | undefined): Routine[] => (routines ?? []).map((routine) => ({
     id: routine.id,
     name: routine.name,
     exercises: (routine.exercises ?? []).map((exercise) => ({
         name: exercise.name,
         sets: exercise.sets,
         reps: exercise.reps,
-        weightKg: exercise.weightKg ?? null,
+        weightLb: exercise.weightLb ?? exercise.weightKg ?? null,
         restSeconds: exercise.restSeconds ?? null,
         notes: exercise.notes ?? null,
     })),

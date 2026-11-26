@@ -4,13 +4,13 @@ import { DumbbellIcon } from '../icons'
 import '../../styles/TrainingPlanCard.css'
 
 function ExerciseRow({ exercise }: { exercise: PlanExercise }) {
-  const { name, sets, reps, weightKg, restSeconds, notes } = exercise
+  const { name, sets, reps, weightLb, restSeconds, notes } = exercise
   return (
     <li className="tp-exercise">
       <span className="tp-exercise-name">{name}</span>
       <span className="tp-exercise-dose">
         {sets}×{reps}
-        {weightKg !== null && <> · {weightKg} kg</>}
+        {weightLb !== null && <> · {weightLb} lb</>}
         {restSeconds !== null && <> · <span title="Descanso">{restLabel(restSeconds)}</span></>}
       </span>
       {notes && <span className="tp-exercise-notes">{notes}</span>}

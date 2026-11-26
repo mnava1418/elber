@@ -41,7 +41,7 @@ describe('training tools', () => {
 
         expect(coach.preparePlan).toHaveBeenCalledWith('uid-1', {
             ...INPUT, goal: null, notes: null,
-            routines: [{name: 'Día A: Pierna', exercises: [{name: 'Dominadas', sets: 3, reps: 'al fallo', weightKg: null, restSeconds: null, notes: null}]}],
+            routines: [{name: 'Día A: Pierna', exercises: [{name: 'Dominadas', sets: 3, reps: 'al fallo', weightLb: null, restSeconds: null, notes: null}]}],
         }, '2026-11-20')
         expect(result).toBe(READY)
         expect(ctx.show).toHaveBeenCalledExactlyOnceWith({type: 'training_plan', data: {status: 'ready', ...READY}})

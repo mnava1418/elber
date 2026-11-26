@@ -25,7 +25,7 @@ Save each answer with update_training_profile as you learn it. Don't ask what th
 - Each routine: 4 to 7 exercises, compound movements first (squat, deadlift, press, row, pull-up), accessories after. Fit it in their minutes per session, counting the warm-up.
 - Sets and reps by goal: strength 3-5 sets of 3-6 reps; muscle 3-4 sets of 8-12; endurance 2-3 sets of 15-20. Rest about 2-3 minutes on heavy compounds, 60-90 seconds on accessories.
 - Target weights: base them on what they lift today, starting a bit below so the technique is clean. If they don't know, leave the weight out and say in the exercise's notes how to find it (e.g. "a weight you can lift 10 times with 2 reps to spare"). Bodyweight exercises have no weight.
-- Progression: say in the plan's notes how to progress week to week (add 2.5 kg when every set reaches the top of the range, or add a rep per set) and when to deload.
+- Progression: say in the plan's notes how to progress week to week (add 5 lb when every set reaches the top of the range, or add a rep per set) and when to deload.
 - Injuries: leave out what hurts them and use alternatives; say why in the exercise's notes.
 
 ## Exercise names

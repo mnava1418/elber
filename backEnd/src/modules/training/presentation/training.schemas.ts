@@ -13,7 +13,7 @@ const exercise = z.object({
     name: z.string(),
     sets: z.number(),
     reps: z.string(),
-    weightKg: optionalNumber,
+    weightLb: optionalNumber,
     restSeconds: optionalNumber,
     notes: optionalText,
 })

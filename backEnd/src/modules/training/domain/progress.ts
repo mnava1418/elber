@@ -13,7 +13,7 @@ export interface ExercisePoint {
     startedOn: string
     sets: number
     reps: string
-    weightKg: number | null
+    weightLb: number | null
 }
 
 export interface ExerciseSeries {
@@ -35,10 +35,10 @@ export const exerciseSeries = (plans: Plan[]): ExerciseSeries[] => {
         for (const exercise of plan.routines.flatMap((routine) => routine.exercises)) {
             const key = exerciseKey(exercise.name)
             const current = best.get(key)
-            if (current === undefined || (exercise.weightKg ?? -1) > (current.weightKg ?? -1)) {
+            if (current === undefined || (exercise.weightLb ?? -1) > (current.weightLb ?? -1)) {
                 best.set(key, {
                     name: exercise.name, planId: plan.id, planName: plan.name, startedOn: plan.startedOn,
-                    sets: exercise.sets, reps: exercise.reps, weightKg: exercise.weightKg,
+                    sets: exercise.sets, reps: exercise.reps, weightLb: exercise.weightLb,
                 })
             }
         }

@@ -23,10 +23,10 @@ describe('exerciseSeries', () => {
         ]
 
         expect(exerciseSeries(plans)).toEqual([
-            {key: 'dominadas', name: 'Dominadas', points: [expect.objectContaining({planId: 'a', weightKg: null})]},
+            {key: 'dominadas', name: 'Dominadas', points: [expect.objectContaining({planId: 'a', weightLb: null})]},
             {key: 'sentadilla trasera', name: 'Sentadilla Trasera', points: [
-                expect.objectContaining({planId: 'a', startedOn: '2026-10-01', weightKg: 60}),
-                expect.objectContaining({planId: 'b', startedOn: '2026-11-01', weightKg: 70}),
+                expect.objectContaining({planId: 'a', startedOn: '2026-10-01', weightLb: 60}),
+                expect.objectContaining({planId: 'b', startedOn: '2026-11-01', weightLb: 70}),
             ]},
         ])
     })
@@ -34,6 +34,6 @@ describe('exerciseSeries', () => {
     it('takes the heaviest when a plan has the exercise in more than one routine', () => {
         const plans = [plan('a', '2026-10-01', [[exercise('Peso muerto', 80)], [exercise('Peso muerto', 100)]])]
 
-        expect(exerciseSeries(plans)[0]?.points).toEqual([expect.objectContaining({weightKg: 100})])
+        expect(exerciseSeries(plans)[0]?.points).toEqual([expect.objectContaining({weightLb: 100})])
     })
 })

@@ -64,7 +64,7 @@ export type PlanDraft = Pick<TrainingPlan, 'name' | 'goal' | 'notes' | 'duration
 export interface ExerciseSeries {
   key: string
   name: string
-  points: { planId: string; planName: string; startedOn: string; sets: number; reps: string; weightKg: number | null }[]
+  points: { planId: string; planName: string; startedOn: string; sets: number; reps: string; weightLb: number | null }[]
 }
 
 export interface TrainingProgress {

@@ -10,7 +10,7 @@ const exercise = z.object({
     name: z.string().describe('Reuse the exact name if it is in knownExercises (get_plans), e.g. "Sentadilla trasera".'),
     sets: z.number().int(),
     reps: z.string().describe('Per set: "8", "8-10", "30 s", "al fallo".'),
-    weightKg: z.number().nullish().describe('Target weight in kg; leave it out for bodyweight exercises.'),
+    weightLb: z.number().nullish().describe("Target weight in pounds (lb), as the user's gym uses; leave it out for bodyweight exercises."),
     restSeconds: z.number().int().nullish(),
     notes: z.string().nullish().describe('Technique cues or how to progress, short.'),
 })
@@ -42,7 +42,7 @@ const toDraft = (input: PlanInput): CoachPlanDraft => ({
         name,
         exercises: exercises.map((e) => ({
             name: e.name, sets: e.sets, reps: e.reps,
-            weightKg: e.weightKg ?? null, restSeconds: e.restSeconds ?? null, notes: e.notes ?? null,
+            weightLb: e.weightLb ?? null, restSeconds: e.restSeconds ?? null, notes: e.notes ?? null,
         })),
     })),
 })

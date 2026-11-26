@@ -9,7 +9,7 @@ import { daysBetween, shortDate } from './plan'
 // over time. One series per chart, picked from a list.
 export function ProgressCard({ progress }: { progress: TrainingProgress }) {
   // Bodyweight exercises have no weight to chart.
-  const exercises = progress.exercises.filter((e) => e.points.some((p) => p.weightKg !== null))
+  const exercises = progress.exercises.filter((e) => e.points.some((p) => p.weightLb !== null))
   const measures = MEASURES.filter(({ key }) => progress.measurements.some((m) => m[key] !== null))
   const [exerciseKey, setExerciseKey] = useState(exercises[0]?.key ?? '')
   const [measureKey, setMeasureKey] = useState(measures[0]?.key ?? 'weightKg')
@@ -17,8 +17,8 @@ export function ProgressCard({ progress }: { progress: TrainingProgress }) {
   const exercise = exercises.find((e) => e.key === exerciseKey) ?? exercises[0]
   // Plans are evenly spaced: what matters is one plan after another.
   const exercisePoints: ChartPoint[] = (exercise?.points ?? [])
-    .filter((p) => p.weightKg !== null)
-    .map((p, i) => ({ x: i, value: p.weightKg!, label: p.planName, detail: `${p.sets}×${p.reps} · desde el ${shortDate(p.startedOn, true)}` }))
+    .filter((p) => p.weightLb !== null)
+    .map((p, i) => ({ x: i, value: p.weightLb!, label: p.planName, detail: `${p.sets}×${p.reps} · desde el ${shortDate(p.startedOn, true)}` }))
 
   const measure = measures.find((m) => m.key === measureKey) ?? measures[0]
   const first = progress.measurements[0]?.date
@@ -44,7 +44,7 @@ export function ProgressCard({ progress }: { progress: TrainingProgress }) {
           </header>
           {exercisePoints.length > 0 ? (
             <>
-              <LineChart points={exercisePoints} unit="kg" name={exercise!.name} />
+              <LineChart points={exercisePoints} unit="lb" name={exercise!.name} />
               {exercisePoints.length === 1 && <p className="tr-muted">Con tu siguiente plan verás aquí cómo sube.</p>}
             </>
           ) : (

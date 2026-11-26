@@ -71,7 +71,7 @@ describe('GetSummaryUseCase and GetProgressUseCase', () => {
         const result = await progress.execute('uid-1')
 
         const squat = result.exercises.find((series) => series.key === 'sentadilla trasera')
-        expect(squat?.points.map((p) => p.weightKg)).toEqual([60, 70])
+        expect(squat?.points.map((p) => p.weightLb)).toEqual([60, 70])
         expect(result.measurements).toHaveLength(1)
     })
 })

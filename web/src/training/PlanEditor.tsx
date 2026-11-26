@@ -9,7 +9,7 @@ interface ExerciseForm {
   name: string
   sets: string
   reps: string
-  weightKg: string
+  weightLb: string
   restSeconds: string
   notes: string
 }
@@ -23,7 +23,7 @@ interface RoutineForm {
   exercises: ExerciseForm[]
 }
 
-const emptyExercise = (): ExerciseForm => ({ name: '', sets: '3', reps: '10', weightKg: '', restSeconds: '', notes: '' })
+const emptyExercise = (): ExerciseForm => ({ name: '', sets: '3', reps: '10', weightLb: '', restSeconds: '', notes: '' })
 
 let nextKey = 0
 const newKey = () => `new-${nextKey++}`
@@ -42,7 +42,7 @@ const toForm = (plan: EditablePlan) => ({
     key: r.id,
     name: r.name,
     exercises: r.exercises.map((e) => ({
-      name: e.name, sets: String(e.sets), reps: e.reps, weightKg: numberText(e.weightKg), restSeconds: numberText(e.restSeconds), notes: e.notes ?? '',
+      name: e.name, sets: String(e.sets), reps: e.reps, weightLb: numberText(e.weightLb), restSeconds: numberText(e.restSeconds), notes: e.notes ?? '',
     })),
   })),
 })
@@ -61,7 +61,7 @@ const toDraft = (form: Form): PlanDraft => ({
     name: name.trim(),
     exercises: exercises.map((e) => ({
       name: e.name.trim(), sets: toNumber(e.sets) ?? 0, reps: e.reps.trim(),
-      weightKg: toNumber(e.weightKg), restSeconds: toNumber(e.restSeconds), notes: toText(e.notes),
+      weightLb: toNumber(e.weightLb), restSeconds: toNumber(e.restSeconds), notes: toText(e.notes),
     })),
   })),
 })
@@ -166,8 +166,8 @@ export function PlanEditor({ plan, busy, onSave, onCancel }: Props) {
                     <input required maxLength={30} value={exercise.reps} onChange={(e) => setExercise(ri, ei, { reps: e.target.value })} />
                   </label>
                   <label className="tr-field">
-                    <span>Peso (kg)</span>
-                    <input inputMode="decimal" value={exercise.weightKg} onChange={(e) => setExercise(ri, ei, { weightKg: e.target.value })} />
+                    <span>Peso (lb)</span>
+                    <input inputMode="decimal" value={exercise.weightLb} onChange={(e) => setExercise(ri, ei, { weightLb: e.target.value })} />
                   </label>
                   <label className="tr-field">
                     <span>Descanso (s)</span>
