@@ -66,6 +66,29 @@ export const chatColors = {
   errorText: '#ffd9d3',
   warn: '#ffb877',
   warnText: '#ffd2a8',
+  // Pieces of the chat screen (web/src/styles/Chat.css).
+  headerBg: 'rgba(5, 24, 32, 0.35)',
+  headerLine: 'rgba(213, 255, 248, 0.08)',
+  statusBg: 'rgba(213, 255, 248, 0.05)',
+  bannerBg: 'rgba(255, 139, 36, 0.1)',
+  bannerLine: 'rgba(255, 139, 36, 0.25)',
+  suggestionBg: 'rgba(14, 52, 66, 0.5)',
+  suggestionLine: 'rgba(55, 214, 208, 0.22)',
+  userBubble: 'linear-gradient(135deg, rgba(8, 127, 140, 0.75), rgba(8, 127, 140, 0.45))',
+  userBubbleLine: 'rgba(55, 214, 208, 0.3)',
+  avatarBg: 'radial-gradient(circle, #0d3e4c, #061f28)',
+  avatarLine: 'rgba(55, 214, 208, 0.35)',
+  avatarLineLive: 'rgba(55, 214, 208, 0.5)',
+  avatarLineError: 'rgba(255, 143, 128, 0.45)',
+  stoppedLine: 'rgba(213, 255, 248, 0.16)',
+  errorBg: 'rgba(255, 122, 107, 0.08)',
+  errorLine: 'rgba(255, 122, 107, 0.3)',
+  errorIcon: '#ff8f80',
+  composerLine: 'rgba(213, 255, 248, 0.14)',
+  toastBg: 'rgba(5, 24, 32, 0.92)',
+  toastLine: 'rgba(255, 139, 36, 0.35)',
+  dialogBackdrop: 'rgba(3, 14, 19, 0.75)',
+  dialogBg: '#0e3442',
 }
 
 // CSS gradients, which React Native draws natively through `backgroundImage`.
@@ -91,4 +114,8 @@ export const shadows = {
   errorRing: '0 0 0 4px rgba(255, 122, 110, 0.16)',
   authCard: '0 24px 60px rgba(0, 0, 0, 0.45)',
   success: '0 0 32px rgba(55, 214, 208, 0.35)',
+  composer: '0 12px 40px rgba(0, 0, 0, 0.35)',
+  avatarLive: '0 0 18px rgba(55, 214, 208, 0.45)',
+  avatar: '0 0 14px rgba(55, 214, 208, 0.25)',
+  dialog: '0 30px 80px rgba(0, 0, 0, 0.5)',
 }

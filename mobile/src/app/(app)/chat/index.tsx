@@ -1,6 +1,7 @@
-import ComingSoon from '../../../components/ComingSoon'
+import ChatScreen from '../../../chat/ChatScreen'
+import { CHAT } from '../../../chat/section'
 
-// A new conversation. The chat arrives in phase 5.
+// A new conversation: the first message creates it.
 export default function NewChat() {
-  return <ComingSoon title="Chat" />
+  return <ChatScreen section={CHAT} />
 }

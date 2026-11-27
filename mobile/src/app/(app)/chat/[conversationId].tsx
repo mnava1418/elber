@@ -1,8 +1,10 @@
 import { useLocalSearchParams } from 'expo-router'
-import ComingSoon from '../../../components/ComingSoon'
+import ChatScreen from '../../../chat/ChatScreen'
+import { CHAT } from '../../../chat/section'
 
-// An existing conversation, opened from Inicio. The chat arrives in phase 5.
+// A saved conversation (e.g. one of Inicio's recent chats); new messages continue it.
 export default function Conversation() {
   const { conversationId } = useLocalSearchParams<{ conversationId: string }>()
-  return <ComingSoon title="Chat" detail={`Conversación ${conversationId}`} />
+  // A new id is another conversation: a fresh screen, not one that switches.
+  return <ChatScreen key={conversationId} section={CHAT} conversationId={conversationId} />
 }
