@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import type { ReactElement, ReactNode } from 'react'
+import { ScrollView, StyleSheet, View, type RefreshControlProps, type StyleProp, type ViewStyle } from 'react-native'
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context'
 import { colors, gradients } from '../theme'
 
@@ -9,15 +9,21 @@ type ScreenProps = {
   scroll?: boolean
   edges?: Edge[]
   contentStyle?: StyleProp<ViewStyle>
+  // Pull to refresh, for scrolling screens.
+  refreshControl?: ReactElement<RefreshControlProps>
 }
 
 // The dark gradient background every web page has, inside the safe area.
-export default function Screen({ children, scroll = true, edges = ['top', 'bottom'], contentStyle }: ScreenProps) {
+export default function Screen({ children, scroll = true, edges = ['top', 'bottom'], contentStyle, refreshControl }: ScreenProps) {
   return (
     <View style={styles.root}>
       <SafeAreaView style={styles.safe} edges={edges}>
         {scroll ? (
-          <ScrollView contentContainerStyle={[styles.content, contentStyle]} keyboardShouldPersistTaps="handled">
+          <ScrollView
+            contentContainerStyle={[styles.content, contentStyle]}
+            keyboardShouldPersistTaps="handled"
+            refreshControl={refreshControl}
+          >
             {children}
           </ScrollView>
         ) : (

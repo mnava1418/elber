@@ -27,7 +27,20 @@ interface RequestOptions {
   signal?: AbortSignal
 }
 
-// Network failures (server down, offline) reject with fetch's TypeError.
+// The request never got an answer: no connection, or the server is down or
+// unreachable. The web relies on fetch's TypeError for this, but on a phone
+// the error depends on the platform (Android's fetch rejects with a plain
+// Error, "fetch failed: java.net.ConnectException..."), so every fetch
+// failure becomes this one. An abort is left as it is.
+export class NetworkError extends Error {
+  constructor(cause: unknown) {
+    super(cause instanceof Error ? cause.message : String(cause), { cause })
+    this.name = 'NetworkError'
+  }
+}
+
+const isAbort = (error: unknown) => (error as { name?: unknown } | null)?.name === 'AbortError'
+
 async function send(method: string, path: string, { body, auth: withAuth = false, signal }: RequestOptions): Promise<Response> {
   if (!API_URL) throw new Error('EXPO_PUBLIC_API_URL no está configurada (ver mobile/.env.example)')
 
@@ -40,12 +53,17 @@ async function send(method: string, path: string, { body, auth: withAuth = false
     headers.Authorization = `Bearer ${await user.getIdToken()}`
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
-  })
+  let response: Response
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal,
+    })
+  } catch (error) {
+    throw isAbort(error) ? error : new NetworkError(error)
+  }
   if (!response.ok) {
     const data = await response.json().catch(() => null)
     throw new ApiError(

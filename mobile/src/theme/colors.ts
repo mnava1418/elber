@@ -33,6 +33,13 @@ export const colors = {
   error: 'rgba(255, 122, 110, 0.75)',
   errorText: '#ffa79c',
   errorBg: 'rgba(255, 122, 110, 0.16)',
+  // Loading placeholders (.dash-skeleton).
+  skeleton: 'rgba(55, 214, 208, 0.08)',
+  // Quieter border of the rows and stats inside a card (.dash-row, .dash-stat).
+  wellBorder: 'rgba(55, 214, 208, 0.14)',
+  // The diary's color, and its empty days (.dash-week-bar).
+  diary: brand.orange,
+  diaryEmpty: 'rgba(255, 139, 36, 0.18)',
 }
 
 // The login and password reset pages (web/src/styles/Login.css).
