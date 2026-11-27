@@ -89,6 +89,23 @@ export const chatColors = {
   toastLine: 'rgba(255, 139, 36, 0.35)',
   dialogBackdrop: 'rgba(3, 14, 19, 0.75)',
   dialogBg: '#0e3442',
+  // Markdown (.md in Chat.css).
+  inkStopped: '#8fbdb8',
+  inlineCode: '#ffcf9e',
+  inlineCodeBg: 'rgba(213, 255, 248, 0.08)',
+  codeBg: '#041319',
+  codeBarBg: 'rgba(213, 255, 248, 0.04)',
+  codeBarLine: 'rgba(213, 255, 248, 0.08)',
+  citeBg: 'rgba(55, 214, 208, 0.16)',
+  quoteLine: 'rgba(55, 214, 208, 0.35)',
+  tableHeadBg: 'rgba(55, 214, 208, 0.07)',
+  // Tool steps and sources.
+  stepsLine: 'rgba(55, 214, 208, 0.2)',
+  stepIconBg: 'rgba(55, 214, 208, 0.1)',
+  stepIconBgLive: 'rgba(55, 214, 208, 0.18)',
+  spinnerTrack: 'rgba(55, 214, 208, 0.25)',
+  pressedBg: 'rgba(213, 255, 248, 0.05)',
+  sourceNumberBg: 'rgba(55, 214, 208, 0.14)',
 }
 
 // CSS gradients, which React Native draws natively through `backgroundImage`.
@@ -116,6 +133,7 @@ export const shadows = {
   success: '0 0 32px rgba(55, 214, 208, 0.35)',
   composer: '0 12px 40px rgba(0, 0, 0, 0.35)',
   avatarLive: '0 0 18px rgba(55, 214, 208, 0.45)',
+  stepLive: '0 0 12px rgba(55, 214, 208, 0.35)',
   avatar: '0 0 14px rgba(55, 214, 208, 0.25)',
   dialog: '0 30px 80px rgba(0, 0, 0, 0.5)',
 }

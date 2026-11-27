@@ -98,6 +98,7 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 - It copies the web's types and logic (API client, transport, hooks) instead of sharing a package, like the backend and the web already do with the chat events. When the web changes one of them, port it.
 - `src/config/env.ts` validates the `EXPO_PUBLIC_*` variables (`mobile/.env`, see `.env.example`); the root layout shows what is missing instead of the app. Expo only inlines them when written literally as `process.env.EXPO_PUBLIC_X`, and they end up inside the app: never secrets.
 - On a physical phone `localhost` is the phone: point `EXPO_PUBLIC_API_URL` at the Mac's LAN IP or at production.
+- Answers' Markdown is drawn with native views from `marked`'s lexer (`src/chat/Markdown.tsx`, parsing in `markdown-parse.ts`), not react-markdown, which needs the DOM. `marked` is ESM-only, so Jest maps it to its UMD build (`jest.moduleNameMapper` in `package.json`).
 - UI text in Spanish, colors only from `src/theme/`.
 
 ## Working style
