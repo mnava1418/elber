@@ -70,3 +70,33 @@ jobs:
       # tsc -b && vite build: typechecks the app and makes sure it bundles.
       - name: Typecheck + build
         run: npm run build
+
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: mobile/.nvmrc
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      # Native builds (iOS/Android) run on EAS, not here: this checks the JS bundle compiles.
+      - name: Bundle
+        run: npx expo export --platform ios --platform android --output-dir /tmp/expo-export

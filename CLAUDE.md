@@ -2,10 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Elber is a personal, Jarvis-like assistant (a learning project): a chat with Claude that gains "skills" over time (weather, and later finances, tasks...). The backend runs on an EC2 instance (Docker, behind Caddy for HTTPS); the web is deployed on Vercel. Two independent npm projects, each with its own `package.json`, Node 24 (`.nvmrc`):
+Elber is a personal, Jarvis-like assistant (a learning project): a chat with Claude that gains "skills" over time (weather, and later finances, tasks...). The backend runs on an EC2 instance (Docker, behind Caddy for HTTPS); the web is deployed on Vercel. Three independent npm projects, each with its own `package.json`, Node 24 (`.nvmrc`):
 
 - `backEnd/`: Express 5 + Socket.IO + TypeScript 7, Firebase Admin (Auth + Firestore).
 - `web/`: React 19 + Vite + React Router 7, Firebase client auth, socket.io-client.
+- `mobile/`: the iOS/Android app, Expo (React Native) + Expo Router, being built in phases to do exactly what the web does (see Mobile architecture).
 
 ## Commands
 
@@ -21,7 +22,12 @@ Run them from inside each project.
 - `npm run build:ds`: separate design-system bundle for Claude Design; see `web/.design-sync/NOTES.md` before touching it.
 - No tests yet. When adding them, also add an `npm test` step to the Web job in `.github/workflows/ci.yml`.
 
-CI (`.github/workflows/ci.yml`) runs, for the backend: lint, lint:arch, typecheck, test, build; for the web: lint and build.
+`mobile/`:
+- `npm start` (Metro for the development build), `npm run ios` / `npm run android` (native build + install, `npm run ios -- --device` for a physical iPhone)
+- `npm test` (jest-expo, tests in `mobile/test/` mirroring `src/`), `npm run lint` (oxlint), `npm run typecheck`
+- Add packages with `npx expo install <pkg>` (picks SDK-compatible versions), never plain `npm install`. Native modules need a new development build.
+
+CI (`.github/workflows/ci.yml`) runs, for the backend: lint, lint:arch, typecheck, test, build; for the web: lint and build; for mobile: lint, typecheck, test and a JS bundle (`expo export`; native builds run on EAS).
 
 Docker (`docker compose up -d --build` from the root) runs the built backend behind Caddy (`Caddyfile`), which serves it over HTTPS on `ELBER_API_DOMAIN` from the root `.env` and gets its certificate from Let's Encrypt; the backend publishes no ports and `app.ts` trusts the proxy's `X-Forwarded-For` (private IPs only) so the per-IP rate limit sees real clients. The web is not in compose: it is deployed on Vercel. In production the API is `elber-api.namart.tech` (EC2, Elastic IP) and the web `elber.namart.tech` (Vercel), with DNS at Bluehost; the domains live only in env vars (`ELBER_API_DOMAIN`, `CORS_ORIGINS`, `PASSWORD_RESET_CONTINUE_URL`, `VITE_API_URL`) plus Firebase Auth's authorized domains, never in code. Compose overrides the host paths of `backEnd/.env` (service account as a secret, vault mounted at `/vault` from `ELBER_VAULT_PATH` in the root `.env`) and keeps the agent's sessions in the `agent-sessions` volume. Dependencies are installed inside the image because the Agent SDK ships a per-platform binary.
 
@@ -47,7 +53,7 @@ The `chat` module builds its own **sections** in `chat/index.ts`, its whole publ
 - `modules/chat` uses the Claude Agent SDK (`infrastructure/claude-agent-assistant.ts`), behind the `Assistant` port so the agent framework can be swapped.
 - The agent is locked down on purpose: only `WebSearch`/`WebFetch` plus Elber's skill tools, `permissionMode: 'dontAsk'`, `settingSources: []` (no CLAUDE.md or ~/.claude), `skills: []`, `strictMcpConfig`, an empty `cwd` in tmp, and a minimal `env`. In the SDK, `tools` decides which built-in tools exist, while `allowedTools` only auto-approves them. Never add Bash/Read/Write.
 - Sessions: the SDK stores one `.jsonl` per conversation in `CLAUDE_CONFIG_DIR=~/.elber/agent`. It is set both in the child's env and in `process.env`, because `getSessionInfo`/`deleteSession` run in-process. Conversations live in Firestore (`users/{uid}/conversations/{id}` + `messages`), each linked to its SDK session through `resume`.
-- Transport: one Socket.IO namespace per section (`/chat`, `/diary`), with the Firebase ID token verified in the handshake (`canUse` rejects with `FORBIDDEN`). History uses REST under `/api/v1/<section>/conversations` (Bearer token), plus `GET /api/v1/diary/today`. Event types are deliberately duplicated in the backend and the web.
+- Transport: one Socket.IO namespace per section (`/chat`, `/diary`), with the Firebase ID token verified in the handshake (`canUse` rejects with `FORBIDDEN`). History uses REST under `/api/v1/<section>/conversations` (Bearer token), plus `GET /api/v1/diary/today`. Event types are deliberately duplicated in the backend, the web and the mobile app: change all three together.
 - `ELBER_SYSTEM_PROMPT` (`infrastructure/elber-system-prompt.ts`) and `DIARY_SYSTEM_PROMPT` (`infrastructure/diary-system-prompt.ts`, the diary section's prompt) stay static (no dates or per-user data) so it can be prompt-cached.
 - Prompts and guides for the model are `.md` files next to the code that uses them (e.g. `chat/infrastructure/prompts/`), never strings in code. They are loaded at import time with `readPrompt(new URL('./x.md', import.meta.url))` (`shared/prompts/read-prompt.ts`), and `npm run build` copies every `.md` under `src/` to `dist/` (`scripts/copy-prompts.mjs`). Our code reads them, never the agent.
 - Sources: a `PostToolUse` hook numbers the WebSearch/WebFetch results so the model cites them as `[n]` (`web-sources.ts`).
@@ -85,6 +91,14 @@ Vitest, in `backEnd/test/`, mirroring `src/`. External dependencies (Firebase, G
 - `src/components/` is the design system (Button, Card, TextField...). Use these components and the CSS custom properties from `src/styles/tokens.css`, never hardcoded colors (see `web/.design-sync/conventions.md`).
 - Chat widgets (`src/chat/widgets/`) are styled with the chat's own tokens (`--chat-*`, `--display`, defined on `.chat` in `src/styles/Chat.css`), not with `Card`.
 - UI text is in Spanish.
+
+## Mobile architecture
+
+- Expo with development builds (not Expo Go: voice needs native modules), Expo Router with routes in `src/app/`, EAS for builds and store submissions (`eas.json` profiles: development, preview, production). `app.config.ts` holds the app's identity (`tech.namart.elber`, scheme `elber`). `ios/` and `android/` are generated (gitignored): configure native behavior in `app.config.ts` and config plugins, never by hand.
+- It copies the web's types and logic (API client, transport, hooks) instead of sharing a package, like the backend and the web already do with the chat events. When the web changes one of them, port it.
+- `src/config/env.ts` validates the `EXPO_PUBLIC_*` variables (`mobile/.env`, see `.env.example`); the root layout shows what is missing instead of the app. Expo only inlines them when written literally as `process.env.EXPO_PUBLIC_X`, and they end up inside the app: never secrets.
+- On a physical phone `localhost` is the phone: point `EXPO_PUBLIC_API_URL` at the Mac's LAN IP or at production.
+- UI text in Spanish, colors only from `src/theme/`.
 
 ## Working style
 
