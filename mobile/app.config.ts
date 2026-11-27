@@ -10,7 +10,8 @@ const config: ExpoConfig = {
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
-  userInterfaceStyle: 'light',
+  // The app is always dark, like every page of the web (see src/theme/colors.ts).
+  userInterfaceStyle: 'dark',
   ios: {
     bundleIdentifier: 'tech.namart.elber',
     supportsTablet: false,
@@ -25,7 +26,14 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
   },
-  plugins: ['expo-router', 'expo-status-bar'],
+  plugins: [
+    'expo-router',
+    'expo-status-bar',
+    'expo-font',
+    // Placeholder image until the real splash and icon (phase 15). The color is
+    // colors.bg, the dark end of the screens' gradient, so there's no flash.
+    ['expo-splash-screen', { image: './assets/splash-icon.png', imageWidth: 160, backgroundColor: '#051820' }],
+  ],
   experiments: {
     typedRoutes: true,
   },
