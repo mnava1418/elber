@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import Svg, { Path } from 'react-native-svg'
+import Svg, { Circle, Path } from 'react-native-svg'
 import { colors } from '../theme'
 
 // The web's stroke icons (web/src/chat/icons.tsx), drawn with react-native-svg.
@@ -57,3 +57,42 @@ export const LogoutIcon = icon(
 
 // A chevron pointing left: the back button of the sections' screens.
 export const BackIcon = icon(22, <Path d="m15 6-6 6 6 6" />, 2)
+
+export const AlertIcon = icon(
+  18,
+  <>
+    <Circle cx={12} cy={12} r={9} />
+    <Path d="M12 8v4.5M12 16h.01" />
+  </>,
+  2,
+)
+
+export const ClockIcon = icon(
+  15,
+  <>
+    <Circle cx={12} cy={12} r={9} />
+    <Path d="M12 7v5l3 2" />
+  </>,
+  2,
+)
+
+export const RefreshIcon = icon(
+  14,
+  <>
+    <Path d="M21 12a9 9 0 1 1-2.6-6.4L21 8" />
+    <Path d="M21 3v5h-5" />
+  </>,
+  2,
+)
+
+export const WifiOffIcon = icon(
+  15,
+  <>
+    <Path d="M2 2l20 20" />
+    <Path d="M8.5 16.5a5 5 0 0 1 7 0" />
+    <Path d="M5 12.9a10 10 0 0 1 5.2-2.8" />
+    <Path d="M19 12.9a10 10 0 0 0-2.3-1.6" />
+    <Path d="M12 20h.01" />
+  </>,
+  2,
+)
