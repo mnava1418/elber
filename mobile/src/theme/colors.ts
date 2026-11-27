@@ -35,6 +35,19 @@ export const colors = {
   errorBg: 'rgba(255, 122, 110, 0.16)',
 }
 
+// The login and password reset pages (web/src/styles/Login.css).
+export const authColors = {
+  card: 'rgba(14, 52, 66, 0.55)',
+  cardBorder: 'rgba(213, 255, 248, 0.14)',
+  alertBg: 'rgba(255, 107, 107, 0.1)',
+  alertBorder: 'rgba(255, 120, 110, 0.4)',
+  alertText: '#ffc2ba',
+  alertIcon: '#ff7a6e',
+  alertIconText: '#2a0b08',
+  successBg: 'rgba(55, 214, 208, 0.14)',
+  successBorder: 'rgba(55, 214, 208, 0.55)',
+}
+
 // The chat's own tokens (--chat-* on .chat in web/src/styles/Chat.css).
 export const chatColors = {
   ink: '#cfeee9',
@@ -54,6 +67,8 @@ export const gradients = {
   brand: `linear-gradient(120deg, ${brand.cyan}, ${brand.orange})`,
   // Background of the app's screens (.inicio, .chat).
   screen: 'radial-gradient(ellipse at 50% 30%, #0d3e4c 0%, #082733 50%, #051820 100%)',
+  // The soft cyan halo behind the login card (.login-glow).
+  glow: 'radial-gradient(circle, rgba(55, 214, 208, 0.22) 0%, rgba(55, 214, 208, 0.06) 40%, rgba(55, 214, 208, 0) 66%)',
 }
 
 // Stops of the logo's two flames (web/src/components/LogoMark.tsx).
@@ -67,4 +82,6 @@ export const shadows = {
   raised: '0 10px 30px -10px rgba(0, 0, 0, 0.45), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
   focusRing: `0 0 0 4px ${colors.accentBg}`,
   errorRing: '0 0 0 4px rgba(255, 122, 110, 0.16)',
+  authCard: '0 24px 60px rgba(0, 0, 0, 0.45)',
+  success: '0 0 32px rgba(55, 214, 208, 0.35)',
 }

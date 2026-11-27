@@ -1,10 +1,12 @@
-import { useId, useState } from 'react'
+import { useId, useState, type ComponentRef, type Ref } from 'react'
 import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native'
 import { colors, fonts, shadows } from '../theme'
 import Text from './Text'
 
 type TextFieldProps = TextInputProps & {
   label: string
+  // React 19 passes refs as props: lets a form move the focus to the next field.
+  ref?: Ref<ComponentRef<typeof TextInput>>
   // Shown under the field, which turns red (the login's aria-invalid style).
   error?: string
   // A password field with the login's "Mostrar / Ocultar" toggle.
@@ -12,7 +14,7 @@ type TextFieldProps = TextInputProps & {
 }
 
 // web/src/components/TextField.tsx plus the login page's error and password states.
-export default function TextField({ label, error, password = false, style, onFocus, onBlur, ...rest }: TextFieldProps) {
+export default function TextField({ label, error, password = false, style, onFocus, onBlur, ref, ...rest }: TextFieldProps) {
   const id = useId()
   const [focused, setFocused] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -24,6 +26,7 @@ export default function TextField({ label, error, password = false, style, onFoc
       </Text>
       <View>
         <TextInput
+          ref={ref}
           accessibilityLabelledBy={id}
           aria-invalid={Boolean(error)}
           placeholderTextColor={colors.placeholder}
