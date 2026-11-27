@@ -82,6 +82,8 @@ export function Composer({ connection, responding, onSend, onStop, locked = fals
           placeholder={locked ? 'Cargando conversación…' : disabled ? 'Esperando conexión…' : 'Escríbele a Elber…'}
           placeholderTextColor={chatColors.muted}
           selectionColor={brand.cyan}
+          // The app is always dark, so its keyboard is too (iOS only; Android's follows the keyboard app).
+          keyboardAppearance="dark"
           accessibilityLabel="Mensaje para Elber"
           aria-invalid={over}
           style={styles.input}

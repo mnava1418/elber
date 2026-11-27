@@ -38,7 +38,7 @@ describe('decodeEntities', () => {
 })
 
 describe('stepsSummary', () => {
-  const step = (kind: ToolStep['kind']): ToolStep => ({ id: kind, kind, status: 'done' })
+  const step = (kind: ToolStep['kind']): ToolStep => ({ id: kind, kind, detail: '', status: 'done' })
 
   it('says what Elber did in one line', () => {
     expect(stepsSummary([step('search'), step('read')])).toBe('2 pasos · Buscó en la web y leyó 1 página')

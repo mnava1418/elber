@@ -31,6 +31,8 @@ export default function TextField({ label, error, password = false, style, onFoc
           aria-invalid={Boolean(error)}
           placeholderTextColor={colors.placeholder}
           selectionColor={colors.accent}
+          // The app is always dark, so its keyboard is too (iOS only; Android's follows the keyboard app).
+          keyboardAppearance="dark"
           secureTextEntry={password && !visible}
           autoCapitalize={password ? 'none' : rest.autoCapitalize}
           onFocus={(e) => {
