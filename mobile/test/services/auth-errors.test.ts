@@ -1,7 +1,7 @@
 // The real modules read the env and start Firebase: only ApiError matters here.
 jest.mock('../../src/lib/firebase', () => ({ auth: null }))
 
-import { ApiError } from '../../src/lib/api'
+import { ApiError, NetworkError } from '../../src/lib/api'
 import { EMAIL_RE, passwordResetErrorMessage, signInErrorMessage } from '../../src/services/auth-errors'
 
 describe('signInErrorMessage', () => {
@@ -21,7 +21,7 @@ describe('passwordResetErrorMessage', () => {
   it('maps the backend answers like the web', () => {
     expect(passwordResetErrorMessage(new ApiError(429, 'RATE_LIMITED', ''))).toMatch(/demasiados intentos/)
     expect(passwordResetErrorMessage(new ApiError(400, 'INVALID_EMAIL', ''))).toMatch(/correo válido/)
-    expect(passwordResetErrorMessage(new TypeError('Network request failed'))).toMatch(/conexión/)
+    expect(passwordResetErrorMessage(new NetworkError(new Error('fetch failed')))).toMatch(/conexión/)
   })
 })
 
@@ -32,3 +32,4 @@ describe('EMAIL_RE', () => {
     expect(EMAIL_RE.test('tu correo@x.com')).toBe(false)
   })
 })
+
